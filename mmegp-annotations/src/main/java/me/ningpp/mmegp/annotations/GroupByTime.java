@@ -32,19 +32,19 @@ public @interface GroupByTime {
 
     /**
      * which column's time value
-     * @return
+     * @return time column name
      */
     String timeColumn();
 
     /**
      * by year, year-month, year-month-date
-     * @return
+     * @return aggregate dimensions
      */
     TimeType[] types();
 
     /**
      * group by format(timeColumn yyyyMMdd), otherGroupColumns_1, ... , otherGroupColumns_n
-     * @return
+     * @return other group column names
      */
     String[] otherGroupColumns() default {};
 
