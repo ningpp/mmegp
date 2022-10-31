@@ -15,8 +15,6 @@
  */
 package me.ningpp.mmegp.annotations;
 
-import static java.lang.annotation.ElementType.TYPE;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -25,10 +23,12 @@ import java.lang.annotation.Target;
 
 @Documented
 @Inherited
+@Target({ })
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ TYPE })
-public @interface UniqueConstraints {
+public @interface TreeTableColumn {
 
-    UniqueConstraint[] value();
+    String[] columns();
+
+    String fieldName() default "";
 
 }

@@ -27,8 +27,24 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ TYPE })
-public @interface UniqueConstraints {
+public @interface TreeTable {
 
-    UniqueConstraint[] value();
+    /**
+     * if fieldName not set, then fieldName will be set to 'parent'
+     */
+    TreeTableColumn parent();
+
+    /**
+     * if fieldName not set, then fieldName will be set to 'root'
+     */
+    TreeTableColumn root() default @TreeTableColumn(columns = {}, fieldName = "");
+
+    boolean containsChildrenField() default true;
+
+    String childrenFieldName() default "children";
+
+    String nodeDepthColumn() default "";
+
+    String nodePathColumn() default "";
 
 }
