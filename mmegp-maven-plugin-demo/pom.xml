@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.ningpp</groupId>
+        <artifactId>mmegp</artifactId>
+        <version>1.2.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>mmegp-maven-plugin-demo</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>mmegp-maven-plugin-demo-allservices</module>
+        <module>mmegp-maven-plugin-demo-annotatedmapper</module>
+        <module>mmegp-maven-plugin-demo-dynamic-sql</module>
+        <module>mmegp-maven-plugin-demo-mixedmapper</module>
+        <module>mmegp-maven-plugin-demo-xmlmapper</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.ningpp</groupId>
+                <artifactId>mmegp-annotations</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

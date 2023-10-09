@@ -70,37 +70,42 @@
         <java.compiler.source>${java.version}</java.compiler.source>
         <java.compiler.target>${java.version}</java.compiler.target>
 
-        <commons-lang3.version>3.12.0</commons-lang3.version>
-        <javaparser.version>3.25.4</javaparser.version>
-        <junit-jupiter.version>5.10.0-M1</junit-jupiter.version>
+        <commons-lang3.version>3.13.0</commons-lang3.version>
+        <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
+        <javaparser.version>3.25.5</javaparser.version>
+        <junit-jupiter.version>5.10.0</junit-jupiter.version>
         <mavenVersion>3.6.0</mavenVersion>
         <maven-clean-plugin.version>3.3.1</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-dependency-plugin.version>3.6.0</maven-dependency-plugin.version>
-        <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
         <maven-plugin-plugin.version>3.9.0</maven-plugin-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
         <mybatis.version>3.5.13</mybatis.version>
+        <mybatis-dynamic-sql.version>1.5.0</mybatis-dynamic-sql.version>
         <mybatis-generator-core.version>1.4.2</mybatis-generator-core.version>
+        <mybatis-spring-boot.version>2.3.1</mybatis-spring-boot.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <plexus-build-api.version>0.0.7</plexus-build-api.version>
         <plexusComponentVersion>2.1.1</plexusComponentVersion>
         <plexusUtilsVersion>4.0.0</plexusUtilsVersion>
         <pluginToolsVersion>3.9.0</pluginToolsVersion>
-        <versions-maven-plugin.version>2.16.0</versions-maven-plugin.version>
+        <spring-boot.version>2.7.16</spring-boot.version>
+        <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
     </properties>
 
     <modules>
         <module>mmegp-annotations</module>
         <module>mmegp-maven-plugin</module>
+        <module>mmegp-maven-plugin-demo</module>
     </modules>
 
     <dependencyManagement>
@@ -109,6 +114,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta-annotation.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.javaparser</groupId>
@@ -159,9 +169,25 @@
                 <version>${mybatis.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.mybatis.dynamic-sql</groupId>
+                <artifactId>mybatis-dynamic-sql</artifactId>
+                <version>${mybatis-dynamic-sql.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.mybatis.generator</groupId>
                 <artifactId>mybatis-generator-core</artifactId>
                 <version>${mybatis-generator-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-spring-boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
@@ -183,6 +209,13 @@
                         <artifactId>plexus-utils</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
