@@ -15,6 +15,12 @@
  */
 package me.ningpp.mmegp.enums;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * SQL Aggregate Functions
  */
@@ -44,6 +50,14 @@ public enum AggregateFunction {
      * avg(column_name)
      */
     AVG;
+
+    public static List<AggregateFunction> parseArray(String str) {
+        if (str == null) {
+            return new ArrayList<>(0);
+        }
+        return Arrays.stream(str.split(",\\s*")).map(AggregateFunction::parse)
+                .filter(Objects::nonNull).collect(Collectors.toList());
+    }
 
     public static AggregateFunction parse(String str) {
         if (str != null && !str.isEmpty()) {

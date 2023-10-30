@@ -106,6 +106,7 @@
         <module>mmegp-annotations</module>
         <module>mmegp-maven-plugin</module>
         <module>mmegp-maven-plugin-demo</module>
+        <module>mmegp-mbg-ext</module>
     </modules>
 
     <dependencyManagement>

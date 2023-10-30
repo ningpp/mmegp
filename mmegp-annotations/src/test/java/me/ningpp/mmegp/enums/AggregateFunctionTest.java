@@ -15,14 +15,26 @@
  */
 package me.ningpp.mmegp.enums;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 class AggregateFunctionTest {
+
+    @Test
+    void parseArrayTest() {
+        assertTrue(AggregateFunction.parseArray(null).isEmpty());
+        assertTrue(AggregateFunction.parseArray("").isEmpty());
+        assertTrue(AggregateFunction.parseArray("ABC").isEmpty());
+        assertArrayEquals(new AggregateFunction[] {
+            AggregateFunction.COUNT, AggregateFunction.SUM, AggregateFunction.MAX, AggregateFunction.MIN},
+                AggregateFunction.parseArray("COUNT, SUM,  MAX, MIN,ABC").toArray(new AggregateFunction[0]));
+    }
 
     @Test
     void parseTest() {
