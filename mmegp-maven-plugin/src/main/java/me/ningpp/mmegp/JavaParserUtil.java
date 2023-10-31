@@ -40,7 +40,6 @@ import org.apache.ibatis.type.JdbcType;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.internal.ObjectFactory;
 
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -170,7 +169,8 @@ public final class JavaParserUtil {
         if (memberParis == null || memberParis.isEmpty()) {
             return null;
         }
-        IntrospectedColumn column = ObjectFactory.createIntrospectedColumn(context);
+        IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
+        column.setContext(context);
         
         String name = null;
         JdbcType jdbcType = null;
@@ -205,6 +205,7 @@ public final class JavaParserUtil {
                     ", type = " + field.getVariable(0).getType() + 
                     ", FullyQualifiedName = " + modelDeclaration.getFullyQualifiedName().get());
         }
+        column.setBlobColumn(blob);
         column.setIdentity(id && generatedValue);
         column.setActualColumnName(name);
         column.setAutoIncrement(generatedValue);
