@@ -15,13 +15,9 @@
  */
 package me.ningpp.mmegp;
 
-import java.io.File;
-import java.io.FileReader;
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
+import me.ningpp.mmegp.codegen.DoNotGenerateDsqlModelIntrospectedTableImpl;
+import me.ningpp.mmegp.codegen.DoNotGenerateModelIntrospectedTableImpl;
+import me.ningpp.mmegp.codegen.DoNotGenerateSimpleModelIntrospectedTableImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -40,6 +36,15 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import org.xml.sax.InputSource;
+
+import java.io.File;
+import java.io.FileReader;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 @Mojo(
         name = "generate",
@@ -98,6 +103,7 @@ public class MmeCompileMojo extends AbstractMojo {
         try ( FileReader cfgFileReader = new FileReader(new File(generatorConfigFilePath)) ) {
             List<Context> contexts = MmegpConfigurationParser.parseContexts(new InputSource(cfgFileReader));
             for (Context context : contexts) {
+                resetContextTargetRuntime(context);
 
                 var sqlMapGeneratorCfg = context.getSqlMapGeneratorConfiguration();
                 if (sqlMapGeneratorCfg != null) {
@@ -131,6 +137,20 @@ public class MmeCompileMojo extends AbstractMojo {
                 List.of("**/*.xml"), Collections.emptyList());
         project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         buildContext.refresh(outputDirectory);
+    }
+
+    private void resetContextTargetRuntime(Context context) {
+        String type = context.getTargetRuntime();
+        if (!stringHasValue(type)) {
+            type = DoNotGenerateDsqlModelIntrospectedTableImpl.class.getName();
+        } else if ("MyBatis3".equalsIgnoreCase(type)) {
+            type = DoNotGenerateModelIntrospectedTableImpl.class.getName();
+        } else if ("MyBatis3Simple".equalsIgnoreCase(type)) {
+            type = DoNotGenerateSimpleModelIntrospectedTableImpl.class.getName();
+        } else if ("MyBatis3DynamicSql".equalsIgnoreCase(type)) {
+            type = DoNotGenerateDsqlModelIntrospectedTableImpl.class.getName();
+        }
+        context.setTargetRuntime(type);
     }
 
     @SuppressWarnings("unchecked")

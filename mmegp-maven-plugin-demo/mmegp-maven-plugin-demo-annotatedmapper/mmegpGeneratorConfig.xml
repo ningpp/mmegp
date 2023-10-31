@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>  
 <generatorConfiguration>
-    <context id="ANNOTATEDMAPPER" targetRuntime="MyBatis3">
+    <context id="ANNOTATEDMAPPER" targetRuntime="me.ningpp.mmegp.codegen.DoNotGenerateModelIntrospectedTableImpl">
         <plugin type="me.ningpp.mmegp.ExampleGeneratorWrapperPlugin">
             <property name="targetProject" value="target/generated-sources/mme/java"></property>
         </plugin>

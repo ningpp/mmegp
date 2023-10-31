@@ -16,7 +16,6 @@
 package me.ningpp.mmegp;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.mybatis.generator.api.GeneratedJavaFile;
@@ -32,7 +30,6 @@ import org.mybatis.generator.api.GeneratedXmlFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.config.Context;
-import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +44,7 @@ public final class MmeCompileUtil {
     public static void generate(Context context,
             String compileSourceRoot,
             MetaInfoHandler metaInfoHandler,
-            List<Plugin> plugins, int nThreads) throws IOException, ShellException, InterruptedException, ExecutionException {
+            List<Plugin> plugins, int nThreads) throws InterruptedException, ExecutionException {
 
         String modelPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
         String modelFileDir = compileSourceRoot + File.separator + 
@@ -72,9 +69,7 @@ public final class MmeCompileUtil {
         List<GeneratedJavaFile> additionalJavaFiles = new ArrayList<>();
         List<GeneratedXmlFile> generatedXmlFiles = new ArrayList<>();
         for (Pair<IntrospectedTable, File> pair : pairs) {
-            additionalJavaFiles.addAll(pair.getLeft().getGeneratedJavaFiles().stream()
-                        .filter(gjf -> !gjf.getFileName().equals(pair.getRight().getName()))
-                    .collect(Collectors.toList()));
+            additionalJavaFiles.addAll(pair.getLeft().getGeneratedJavaFiles());
 
             generatedXmlFiles.addAll(pair.getLeft().getGeneratedXmlFiles());
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>  
 <generatorConfiguration>
-    <context id="MIXEDMAPPER" targetRuntime="MyBatis3">
+    <context id="MIXEDMAPPER" targetRuntime="me.ningpp.mmegp.codegen.DoNotGenerateModelIntrospectedTableImpl">
         <plugin type="me.ningpp.mmegp.ExampleGeneratorWrapperPlugin">
             <property name="targetProject" value="target/generated-sources/mme/java"></property>
         </plugin>
@@ -22,7 +22,7 @@
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
     </context>
-    <context id="TEST_MULTI_CTX_XMLMAPPER" targetRuntime="MyBatis3">
+    <context id="TEST_MULTI_CTX_XMLMAPPER" targetRuntime="me.ningpp.mmegp.codegen.DoNotGenerateModelIntrospectedTableImpl">
         <plugin type="me.ningpp.mmegp.ExampleGeneratorWrapperPlugin">
             <property name="targetProject" value="target/generated-sources/mme/java"></property>
         </plugin>
