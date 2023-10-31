@@ -45,10 +45,12 @@ import org.xml.sax.InputSource;
         name = "generate",
         defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.COMPILE,
-        requiresProject = true, 
         threadSafe = true
 )
 public class MmeCompileMojo extends AbstractMojo {
+
+    @Parameter(required = false, property = "nThreads", defaultValue = "1")
+    private int nThreads;
 
     /**
      * This is the directory into which the {@code .java} will be created.
@@ -119,7 +121,7 @@ public class MmeCompileMojo extends AbstractMojo {
                 List<Plugin> plugins = resetTargetProjectValue(context);
                 
                 MmeCompileUtil.generate(context, project.getCompileSourceRoots().get(0),
-                        metaInfoHandler, plugins);
+                        metaInfoHandler, plugins, nThreads);
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Generate MyBatis Model Example File Error!", e);

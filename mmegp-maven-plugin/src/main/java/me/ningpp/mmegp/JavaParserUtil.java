@@ -17,6 +17,7 @@ package me.ningpp.mmegp;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,6 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
@@ -73,6 +76,12 @@ public final class JavaParserUtil {
                 //ignore
             }
         }
+    }
+
+    public static JavaParser newParser() {
+        ParserConfiguration jpc = new ParserConfiguration();
+        jpc.setCharacterEncoding(StandardCharsets.UTF_8);
+        return new JavaParser(jpc);
     }
 
     public static GeneratedTableInfo getTableValue(Optional<AnnotationExpr> generatedAnnotationExpr) {

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ast.CompilationUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
@@ -155,7 +157,7 @@ public class MmeCompileUtilTest {
         boolean[] hasGeneratedKeys = { false, true };
         for (boolean hasGeneratedKey : hasGeneratedKeys) {
             for (Pair<String, List<String>> pair : pairs) {
-                IntrospectedTable introspectedTable = MmeCompileUtil.buildIntrospectedTable(context, 
+                IntrospectedTable introspectedTable = buildIntrospectedTable(context,
                         String.format(Locale.CHINESE, 
                                 JAVA_SOURCE_FILE_CONTENT, 
                                 pair.getLeft(), String.valueOf(hasGeneratedKey)),
@@ -193,6 +195,22 @@ public class MmeCompileUtilTest {
                     assertArrayEquals(pair.getRight().toArray(new String[] {}), countGroupByColumns);
                 }
             }
+        }
+    }
+
+    private IntrospectedTable buildIntrospectedTable(Context context,
+                                                     String fileContent,
+                                                     MetaInfoHandler metaInfoHandler) throws ClassNotFoundException {
+        ParseResult<CompilationUnit> parseResult = JavaParserUtil.newParser().parse(fileContent);
+        Optional<CompilationUnit> cuOptional = parseResult.getResult();
+        if (parseResult.isSuccessful() && cuOptional.isPresent()) {
+            return MyBatisGeneratorUtil.buildIntrospectedTable(
+                            context,
+                            cuOptional.get(),
+                            metaInfoHandler
+                    );
+        } else {
+            return null;
         }
     }
 

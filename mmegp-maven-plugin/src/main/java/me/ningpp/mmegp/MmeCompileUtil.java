@@ -17,17 +17,16 @@ package me.ningpp.mmegp;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.GeneratedXmlFile;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -35,54 +34,20 @@ import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
-
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseResult;
-import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.ast.CompilationUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class MmeCompileUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MmeCompileUtil.class);
+
     private MmeCompileUtil() {
     }
 
-    private static final JavaParser JAVA_PARSER;
-
-    static {
-        ParserConfiguration jpc = new ParserConfiguration();
-        jpc.setCharacterEncoding(StandardCharsets.UTF_8);
-        JAVA_PARSER = new JavaParser();
-    }
-
-    private static IntrospectedTable buildIntrospectedTable(Context context, 
-            File file,
-            MetaInfoHandler metaInfoHandler) throws IOException, ClassNotFoundException {
-        if (!file.getName().endsWith(".java")) {
-            return null;
-        }
-        return buildIntrospectedTable(context,
-                Files.readString(file.toPath(), StandardCharsets.UTF_8), 
-                metaInfoHandler);
-    }
-
-    public static IntrospectedTable buildIntrospectedTable(Context context, 
-            String fileContent,
-            MetaInfoHandler metaInfoHandler) throws IOException, ClassNotFoundException {
-        ParseResult<CompilationUnit> parseResult = JAVA_PARSER.parse(fileContent);
-        Optional<CompilationUnit> cuOptional = parseResult.getResult();
-        if (parseResult.isSuccessful() && cuOptional.isPresent()) {
-            return MyBatisGeneratorUtil.buildIntrospectedTable(context, 
-                    cuOptional.get(),
-                    metaInfoHandler);
-        } else {
-            System.err.println(parseResult.getProblems());
-            return null;
-        }
-    }
-
-    public static void generate(Context context, 
+    public static void generate(Context context,
             String compileSourceRoot,
             MetaInfoHandler metaInfoHandler,
-            List<Plugin> plugins) throws IOException, ClassNotFoundException, ShellException {
+            List<Plugin> plugins, int nThreads) throws IOException, ShellException, InterruptedException, ExecutionException {
 
         String modelPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
         String modelFileDir = compileSourceRoot + File.separator + 
@@ -92,20 +57,10 @@ public final class MmeCompileUtil {
         if (javaFiles == null) {
             return;
         }
-        List<GeneratedXmlFile> generatedXmlFiles = new ArrayList<>();
-        List<GeneratedJavaFile> additionalJavaFiles = new ArrayList<>();
-        List<Pair<IntrospectedTable, File>> pairs = new ArrayList<>();
-        for (File file : javaFiles) {
-            IntrospectedTable introspectedTable = buildIntrospectedTable(context, 
-                    file, metaInfoHandler);
-            if (introspectedTable == null) {
-                 continue;
-            }
 
-            pairs.add(Pair.of(introspectedTable, file));
-            context.getIntrospectedTables().add(introspectedTable);
-        }
-
+        List<Pair<IntrospectedTable, File>> pairs = buildIntrospectedTables(
+                javaFiles, context, metaInfoHandler, nThreads
+        );
         for (Pair<IntrospectedTable, File> pair : pairs) {
             var introspectedTable = pair.getLeft();
             introspectedTable.initialize();
@@ -114,6 +69,8 @@ public final class MmeCompileUtil {
             introspectedTable.calculateGenerators(Collections.emptyList(), new NullProgressCallback());
         }
 
+        List<GeneratedJavaFile> additionalJavaFiles = new ArrayList<>();
+        List<GeneratedXmlFile> generatedXmlFiles = new ArrayList<>();
         for (Pair<IntrospectedTable, File> pair : pairs) {
             additionalJavaFiles.addAll(pair.getLeft().getGeneratedJavaFiles().stream()
                         .filter(gjf -> !gjf.getFileName().equals(pair.getRight().getName()))
@@ -125,33 +82,90 @@ public final class MmeCompileUtil {
                 for (Plugin plugin : plugins) {
                     plugin.initialized(pair.getLeft());
                     List<GeneratedJavaFile> files = plugin.contextGenerateAdditionalJavaFiles(pair.getLeft());
-                    files.forEach(f -> System.out.println("generated :   " + f.getFileName()));
+                    files.forEach(f -> LOGGER.info("generated :   " + f.getFileName()));
                     additionalJavaFiles.addAll(files);
                     generatedXmlFiles.addAll(plugin.contextGenerateAdditionalXmlFiles(pair.getLeft()));
                 }
             }
         }
 
+        writeGeneratedFiles(additionalJavaFiles, generatedXmlFiles, nThreads);
+    }
+
+    private static void writeGeneratedFiles(List<GeneratedJavaFile> additionalJavaFiles,
+                                            List<GeneratedXmlFile> generatedXmlFiles,
+                                            int nThreads) throws InterruptedException, ExecutionException {
         DefaultShellCallback shellCallback = new DefaultShellCallback(true);
+        List<WriteGeneratedFileCallable> allTasks = new ArrayList<>();
         for (GeneratedJavaFile gjf : additionalJavaFiles) {
-            writeFile(shellCallback, gjf);
+            allTasks.add(new WriteGeneratedFileCallable(shellCallback, gjf));
         }
 
         for (GeneratedXmlFile gxf : generatedXmlFiles) {
-            writeFile(shellCallback, gxf);
+            allTasks.add(new WriteGeneratedFileCallable(shellCallback, gxf));
+        }
+
+        ExecutorService pool = Executors.newFixedThreadPool(nThreads);
+        try {
+            List<List<WriteGeneratedFileCallable>> listList = toListList(allTasks, nThreads);
+            for (List<WriteGeneratedFileCallable> tasks : listList) {
+                List<Future<Void>> results = pool.invokeAll(tasks);
+                for (Future<Void> future : results) {
+                    future.get();
+                }
+            }
+        } finally {
+            pool.shutdown();
         }
     }
 
-    private static void writeFile(DefaultShellCallback shellCallback, GeneratedFile gf) throws ShellException, IOException {
-        if (!new File(gf.getTargetProject()).exists()) {
-            new File(gf.getTargetProject()).mkdirs();
+    private static List<Pair<IntrospectedTable, File>> buildIntrospectedTables(File[] javaFiles,
+                       Context context, MetaInfoHandler metaInfoHandler, int nThreads) throws InterruptedException, ExecutionException {
+        List<Pair<IntrospectedTable, File>> pairs = new ArrayList<>();
+        ExecutorService pool = Executors.newFixedThreadPool(nThreads);
+        try {
+            List<BuildIntrospectedTableCallable> allTasks = new ArrayList<>(javaFiles.length);
+            for (File file : javaFiles) {
+                if (file.getName().endsWith(".java")
+                        && file.exists()
+                        && file.length() > 0) {
+                    allTasks.add(new BuildIntrospectedTableCallable(
+                            context, file, metaInfoHandler
+                    ));
+                }
+            }
+
+            List<List<BuildIntrospectedTableCallable>> listList = toListList(allTasks, nThreads);
+            for (List<BuildIntrospectedTableCallable> tasks : listList) {
+                List<Future<Pair<IntrospectedTable, File>>> results = pool.invokeAll(tasks);
+                for (Future<Pair<IntrospectedTable, File>> future : results) {
+                    Pair<IntrospectedTable, File> pair = future.get();
+                    if (pair.getLeft() != null) {
+                        pairs.add(pair);
+                        context.getIntrospectedTables().add(pair.getLeft());
+                    }
+                }
+            }
+        } finally {
+            pool.shutdown();
         }
-        File directory = shellCallback.getDirectory(gf.getTargetProject(), gf.getTargetPackage());
-        File targetFile = new File(directory, gf.getFileName());
-        targetFile.getParentFile().mkdirs();
-        targetFile.delete();
-        Files.writeString(targetFile.toPath(), gf.getFormattedContent(), 
-                StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-        System.out.println("writed :   " + targetFile.getAbsolutePath());
+        return pairs;
     }
+
+    private static <E> List<List<E>> toListList(List<E> list, int n) {
+        if (list == null || list.isEmpty()) {
+            return new ArrayList<>(0);
+        }
+
+        List<List<E>> listList = new ArrayList<>();
+        if (list.size() < n) {
+            listList.add(new ArrayList<>(list));
+        } else {
+            for (int i = 0; i < list.size(); i += n) {
+                listList.add(new ArrayList<>(list.subList(i, Math.min(i + n, list.size()))));
+            }
+        }
+        return listList;
+    }
+
 }
