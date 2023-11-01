@@ -305,7 +305,11 @@ public final class JavaParserUtil {
         }
 
         if (clazz != null) {
-            return clazz.getName();
+            if (clazz.isArray()) {
+                return clazz.getSimpleName();
+            } else {
+                return clazz.getName();
+            }
         } else {
             return getMatchedType(importDeclarations, type.asString());
         }

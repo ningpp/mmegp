@@ -36,6 +36,11 @@ public class SysMenu {
     @GeneratedColumn(name = "parent_id", jdbcType = JdbcType.VARCHAR)
     private String parentId;
 
+    @GeneratedColumn(name = "bytes1", jdbcType = JdbcType.BINARY)
+    private byte[] bytes1;
+    @GeneratedColumn(name = "bytes2", jdbcType = JdbcType.BINARY)
+    private Byte[] bytes2;
+
     @GeneratedColumn(name = "uuid", jdbcType = JdbcType.BINARY, typeHandler = UUIDTypeHandler.class)
     private UUID uuid;
     @GeneratedColumn(name = "with_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = UUIDStringTypeHandler.class)
@@ -60,6 +65,22 @@ public class SysMenu {
     }
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+
+    public byte[] getBytes1() {
+        return bytes1;
+    }
+
+    public void setBytes1(byte[] bytes1) {
+        this.bytes1 = bytes1;
+    }
+
+    public Byte[] getBytes2() {
+        return bytes2;
+    }
+
+    public void setBytes2(Byte[] bytes2) {
+        this.bytes2 = bytes2;
     }
 
     public UUID getUuid() {

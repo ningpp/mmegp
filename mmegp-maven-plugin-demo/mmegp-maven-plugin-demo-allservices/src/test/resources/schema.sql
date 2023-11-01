@@ -13,6 +13,8 @@ create table sys_menu (
     id varchar(64) PRIMARY KEY,
     name varchar(255),
     parent_id varchar(64),
+    bytes1 binary(16),
+    bytes2 binary(16),
     uuid binary(16),
     with_dash_uuid varchar(36),
     no_dash_uuid varchar(32)

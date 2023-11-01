@@ -1,5 +1,6 @@
 package me.ningpp.mmegp.demo.service;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import me.ningpp.mmegp.mybatis.UUIDTypeHandler;
 import org.junit.jupiter.api.Test;
 
 import me.ningpp.mmegp.demo.DemoApplicationStarter;
@@ -28,6 +30,14 @@ public class AllServiceTest extends DemoApplicationStarter {
         menu1.setName(uuid());
         menu1.setParentId(uuid());
         UUID uuid = UUID.randomUUID();
+        byte[] bytes1 = UUIDTypeHandler.toBytes(uuid);
+        Byte[] bytes2 = new Byte[16];
+        for (int i = 0; i < 16; i++) {
+            bytes2[i] = bytes1[i];
+        }
+        menu1.setBytes1(bytes1);
+        menu1.setBytes2(bytes2);
+
         menu1.setUuid(uuid);
         menu1.setNoDashUUID(uuid);
         menu1.setWithDashUUID(uuid);
@@ -47,6 +57,13 @@ public class AllServiceTest extends DemoApplicationStarter {
         example.createCriteria().andWithDashUUIDEqualTo(uuid);
         menus = allService.getMenus(example);
         assertTrue(menus.size() == 1 && menu1.getId().equals(menus.get(0).getId()));
+
+        assertArrayEquals(bytes1, menus.get(0).getBytes1());
+        byte[] bytes3 = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            bytes3[i] = menus.get(0).getBytes2()[i];
+        }
+        assertArrayEquals(bytes1, bytes3);
 
         assertEquals(1, allService.deleteMenu(example));
     }
