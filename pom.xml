@@ -70,6 +70,7 @@
         <java.compiler.source>${java.version}</java.compiler.source>
         <java.compiler.target>${java.version}</java.compiler.target>
 
+        <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
         <commons-lang3.version>3.13.0</commons-lang3.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
         <javaparser.version>3.25.5</javaparser.version>
@@ -236,6 +237,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${build-helper-maven-plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>

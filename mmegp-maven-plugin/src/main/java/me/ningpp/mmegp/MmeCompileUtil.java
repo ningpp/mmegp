@@ -42,22 +42,25 @@ public final class MmeCompileUtil {
     }
 
     public static void generate(Context context,
-            String compileSourceRoot,
+            List<String> compileSourceRoots,
             MetaInfoHandler metaInfoHandler,
             List<Plugin> plugins, int nThreads) throws InterruptedException, ExecutionException {
 
-        String modelPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
-        String modelFileDir = compileSourceRoot + File.separator + 
-                    modelPackage.replace('.', File.separatorChar) + File.separator;
-
-        File[] javaFiles = new File(modelFileDir).listFiles();
-        if (javaFiles == null) {
+        if (compileSourceRoots == null) {
             return;
         }
+        List<Pair<IntrospectedTable, File>> pairs = new ArrayList<>();
+        for (String compileSourceRoot : compileSourceRoots) {
+            String modelPackage = context.getJavaModelGeneratorConfiguration().getTargetPackage();
+            String modelFileDir = compileSourceRoot + File.separator +
+                    modelPackage.replace('.', File.separatorChar) + File.separator;
+            File[] javaFiles = new File(modelFileDir).listFiles();
+            if (javaFiles != null) {
+                pairs.addAll(buildIntrospectedTables(
+                        javaFiles, context, metaInfoHandler, nThreads));
+            }
+        }
 
-        List<Pair<IntrospectedTable, File>> pairs = buildIntrospectedTables(
-                javaFiles, context, metaInfoHandler, nThreads
-        );
         for (Pair<IntrospectedTable, File> pair : pairs) {
             var introspectedTable = pair.getLeft();
             introspectedTable.initialize();

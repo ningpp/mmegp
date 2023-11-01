@@ -126,7 +126,7 @@ public class MmeCompileMojo extends AbstractMojo {
 
                 List<Plugin> plugins = resetTargetProjectValue(context);
                 
-                MmeCompileUtil.generate(context, project.getCompileSourceRoots().get(0),
+                MmeCompileUtil.generate(context, project.getCompileSourceRoots(),
                         metaInfoHandler, plugins, nThreads);
             }
         } catch (Exception e) {
