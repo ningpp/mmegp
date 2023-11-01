@@ -18,6 +18,8 @@ public interface AllService {
 
     void insertMenu(SysMenu menu);
 
+    int deleteMenu(SysMenuExample menuExample);
+
     long insertRoleMenu(SysRoleMenu roleMenu);
 
     List<SysRole> getRoles(SysRoleExample roleExample);

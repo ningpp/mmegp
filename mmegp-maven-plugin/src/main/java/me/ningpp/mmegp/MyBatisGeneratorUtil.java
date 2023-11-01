@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.NodeList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
@@ -105,6 +107,7 @@ public final class MyBatisGeneratorUtil {
 
     private static IntrospectedTable buildIntrospectedTable(Context context, 
             ClassOrInterfaceDeclaration modelDeclaration,
+            NodeList<ImportDeclaration> importDeclarations,
             MetaInfoHandler metaInfoHandler) throws ClassNotFoundException {
         GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration.getAnnotationByClass(Generated.class));
         if (tableInfo == null || StringUtils.isEmpty(tableInfo.getName())) {
@@ -135,7 +138,7 @@ public final class MyBatisGeneratorUtil {
             return null;
         }
         for (FieldDeclaration fieldDeclaration : fields) {
-            Pair<IntrospectedColumn, Boolean> pair = JavaParserUtil.buildColumn(modelDeclaration, fieldDeclaration, context);
+            Pair<IntrospectedColumn, Boolean> pair = JavaParserUtil.buildColumn(modelDeclaration, importDeclarations, fieldDeclaration, context);
             if (pair != null) {
                 introspectedTable.addColumn(pair.getLeft());
                 if (Boolean.TRUE.equals(pair.getRight())) {
@@ -180,7 +183,7 @@ public final class MyBatisGeneratorUtil {
         if (! modelDeclaration.isPublic()) {
             return null;
         }
-        return buildIntrospectedTable(context, modelDeclaration, metaInfoHandler);
+        return buildIntrospectedTable(context, modelDeclaration, compilationUnit.getImports(), metaInfoHandler);
     }
 
 }

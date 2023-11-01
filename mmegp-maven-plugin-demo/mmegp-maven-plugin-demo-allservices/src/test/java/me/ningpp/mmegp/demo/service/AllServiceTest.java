@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,36 @@ import me.ningpp.mmegp.demo.entity.SysUser;
 import me.ningpp.mmegp.demo.model.SysUserRole;
 
 public class AllServiceTest extends DemoApplicationStarter {
+
+    @Test
+    void typeHandlerTest() {
+        SysMenu menu1 = new SysMenu();
+        menu1.setId(uuid());
+        menu1.setName(uuid());
+        menu1.setParentId(uuid());
+        UUID uuid = UUID.randomUUID();
+        menu1.setUuid(uuid);
+        menu1.setNoDashUUID(uuid);
+        menu1.setWithDashUUID(uuid);
+        allService.insertMenu(menu1);
+
+        SysMenuExample example = new SysMenuExample();
+        example.createCriteria().andUuidEqualTo(uuid);
+        List<SysMenu> menus = allService.getMenus(example);
+        assertTrue(menus.size() == 1 && menu1.getId().equals(menus.get(0).getId()));
+
+        example = new SysMenuExample();
+        example.createCriteria().andNoDashUUIDEqualTo(uuid);
+        menus = allService.getMenus(example);
+        assertTrue(menus.size() == 1 && menu1.getId().equals(menus.get(0).getId()));
+
+        example = new SysMenuExample();
+        example.createCriteria().andWithDashUUIDEqualTo(uuid);
+        menus = allService.getMenus(example);
+        assertTrue(menus.size() == 1 && menu1.getId().equals(menus.get(0).getId()));
+
+        assertEquals(1, allService.deleteMenu(example));
+    }
 
     @Test
     void userRoleTest() {

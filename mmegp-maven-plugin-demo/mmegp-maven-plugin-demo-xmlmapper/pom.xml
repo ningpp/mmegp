@@ -17,6 +17,11 @@
             <artifactId>mmegp-annotations</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.github.ningpp</groupId>
+            <artifactId>mmegp-mybatis-ext</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
         </dependency>

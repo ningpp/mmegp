@@ -1,28 +1,31 @@
 
 create table sys_user (
-    id varchar(64),
+    id varchar(64) PRIMARY KEY,
     name varchar(255)
 );
 
 create table sys_role (
-    id varchar(64),
+    id varchar(64) PRIMARY KEY,
     name varchar(255)
 );
 
 create table sys_menu (
-    id varchar(64),
+    id varchar(64) PRIMARY KEY,
     name varchar(255),
-    parent_id varchar(64)
+    parent_id varchar(64),
+    uuid binary(16),
+    with_dash_uuid varchar(36),
+    no_dash_uuid varchar(32)
 );
 
 create table sys_role_menu (
-    id identity,
+    id identity PRIMARY KEY,
     role_id varchar(64),
     menu_id varchar(64)
 );
 
 create table sys_user_role (
-    id identity,
+    id identity PRIMARY KEY,
     user_id varchar(64),
     role_id varchar(64)
 );

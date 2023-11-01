@@ -51,6 +51,11 @@ public class AllServiceImpl implements AllService {
     }
 
     @Override
+    public int deleteMenu(SysMenuExample menuExample) {
+        return sysMenuMapper.deleteByExample(menuExample);
+    }
+
+    @Override
     public long insertRoleMenu(SysRoleMenu roleMenu) {
         sysRoleMenuMapper.insert(roleMenu);
         return roleMenu.getId();

@@ -107,6 +107,7 @@
         <module>mmegp-maven-plugin</module>
         <module>mmegp-maven-plugin-demo</module>
         <module>mmegp-mbg-ext</module>
+        <module>mmegp-mybatis-ext</module>
     </modules>
 
     <dependencyManagement>

@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.ClassExpr;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
@@ -156,7 +159,17 @@ public final class JavaParserUtil {
         return null;
     }
 
-    public static Pair<IntrospectedColumn, Boolean> buildColumn(ClassOrInterfaceDeclaration modelDeclaration, FieldDeclaration field, Context context) throws ClassNotFoundException {
+    public static Pair<IntrospectedColumn, Boolean> buildColumn(ClassOrInterfaceDeclaration modelDeclaration,
+                                                                NodeList<ImportDeclaration> importDeclarations,
+                                                                FieldDeclaration field,
+                                                                Context context) throws ClassNotFoundException {
+        if (field.getVariables().size() > 1) {
+            throw new GenerateMyBatisExampleException("can't use multi variables declaration! Model="
+                    + modelDeclaration.getFullyQualifiedName().get()
+                    + ", field = " + field.getVariables().stream()
+                                        .map(VariableDeclarator::getNameAsString)
+                                        .collect(Collectors.joining(", ")));
+        }
         Optional<AnnotationExpr> optionalColumnAnno = field.getAnnotationByClass(GeneratedColumn.class);
         if (!field.isPrivate() || !optionalColumnAnno.isPresent()) {
             return null;
@@ -177,6 +190,7 @@ public final class JavaParserUtil {
         boolean blob = false;
         boolean id = false;
         boolean generatedValue = false;
+        String typeHandler = null;
 
         for (MemberValuePair memberValuePair : memberParis) {
             String memberName = memberValuePair.getNameAsString();
@@ -192,14 +206,17 @@ public final class JavaParserUtil {
                 id = ((BooleanLiteralExpr) memberValue).getValue();
             } else if ("generatedValue".equals(memberName)) {
                 generatedValue = ((BooleanLiteralExpr) memberValue).getValue();
+            } else if ("typeHandler".equals(memberName) && memberValue instanceof ClassExpr ) {
+                ClassExpr expr = (ClassExpr) memberValue;
+                typeHandler = getMatchedType(importDeclarations, expr.getTypeAsString());
             }
         }
 
         if (StringUtils.isEmpty(name) || "null".equals(name) || jdbcType == null) {
             return null;
         }
-        Class<?> clazz = getClassByType(field.getVariable(0).getType());
-        if (clazz == null) {
+        String className = getClassByType(modelDeclaration, importDeclarations, field.getVariable(0).getType());
+        if (StringUtils.isEmpty(className)) {
             throw new GenerateMyBatisExampleException("不支持的Java类型！ " + 
                     "field = " + field.getVariable(0).getNameAsString() + 
                     ", type = " + field.getVariable(0).getType() + 
@@ -212,13 +229,8 @@ public final class JavaParserUtil {
         column.setJavaProperty(field.getVariable(0).getNameAsString());
         column.setJdbcType(jdbcType.TYPE_CODE);
         column.setJdbcTypeName(jdbcType.name());
-        if (clazz == byte[].class) {
-            column.setFullyQualifiedJavaType(new FullyQualifiedJavaType("byte[]"));
-        } else if (clazz == Byte[].class) {
-            column.setFullyQualifiedJavaType(new FullyQualifiedJavaType("Byte[]"));
-        } else {
-            column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(clazz.getName()));
-        }
+        column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(className));
+        column.setTypeHandler(typeHandler);
 
         column.getProperties().put(AGGREGATES_NAME,
                 parseAggregates(memberParis).stream()
@@ -258,41 +270,52 @@ public final class JavaParserUtil {
         return AggregateFunction.parse(value);
     }
 
-    private static Class<?> getClassByType(Type type) throws ClassNotFoundException {
+    private static String getClassByType(ClassOrInterfaceDeclaration modelDeclaration, NodeList<ImportDeclaration> importDeclarations, Type type) throws ClassNotFoundException {
+        Class<?> clazz = null;
         if (type.isPrimitiveType()) {
-            return Class.forName("java.lang." + type.asPrimitiveType().toBoxedType().asString());
+            clazz = Class.forName("java.lang." + type.asPrimitiveType().toBoxedType().asString());
         } else if (type.isArrayType()) {
             if ("byte[]".equals(type.asString())) {
-                return byte[].class;
+                clazz = byte[].class;
             } else if ("Byte[]".equals(type.asString())) {
-                return Byte[].class;
-            } else {
-                return null;
+                clazz = Byte[].class;
             }
         } else if ("String".equals(type.asString())) {
-            return String.class;
+            clazz = String.class;
         } else if ("Date".equals(type.asString()) || "java.util.Date".equals(type.asString())) {
-            return Date.class;
+            clazz = Date.class;
         } else if ("java.sql.Date".equals(type.asString())) {
-            return java.sql.Date.class;
+            clazz = java.sql.Date.class;
         } else if ("LocalTime".equals(type.asString()) || "java.time.LocalTime".equals(type.asString())) {
-            return LocalTime.class;
+            clazz = LocalTime.class;
         } else if ("LocalDate".equals(type.asString()) || "java.time.LocalDate".equals(type.asString())) {
-            return LocalDate.class;
+            clazz = LocalDate.class;
         } else if ("LocalDateTime".equals(type.asString()) || "java.time.LocalDateTime".equals(type.asString())) {
-            return LocalDateTime.class;
+            clazz = LocalDateTime.class;
         } else if ("Year".equals(type.asString()) || "java.time.Year".equals(type.asString())) {
-            return Year.class;
+            clazz = Year.class;
         } else if ("YearMonth".equals(type.asString()) || "java.time.YearMonth".equals(type.asString())) {
-            return YearMonth.class;
+            clazz = YearMonth.class;
         } else if ("BigDecimal".equals(type.asString()) || "java.math.BigDecimal".equals(type.asString())) {
-            return BigDecimal.class;
+            clazz = BigDecimal.class;
         } else if ("BigInteger".equals(type.asString()) || "java.math.BigInteger".equals(type.asString())) {
-            return BigInteger.class;
+            clazz = BigInteger.class;
         } else if (type.isClassOrInterfaceType()) {
-            return BOXED_TYPES.get(type.asString());
+            clazz = BOXED_TYPES.get(type.asString());
         }
-        return null;
+
+        if (clazz != null) {
+            return clazz.getName();
+        } else {
+            return getMatchedType(importDeclarations, type.asString());
+        }
+    }
+
+    private static String getMatchedType(NodeList<ImportDeclaration> importDeclarations, String typeStr) {
+        ImportDeclaration matched = importDeclarations == null ? null : importDeclarations.stream()
+            .filter(importDeclar -> typeStr.equals(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName()))
+            .findFirst().orElse(null);
+        return matched == null ? typeStr : matched.getNameAsString();
     }
 
 }

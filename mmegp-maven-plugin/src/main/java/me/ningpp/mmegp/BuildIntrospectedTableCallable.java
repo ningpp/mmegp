@@ -59,7 +59,7 @@ public class BuildIntrospectedTableCallable implements Callable<Pair<Introspecte
                             file);
             }
         } catch (Exception e) {
-            LOGGER.error("error occur when build IntrospectedTable.", e);
+            throw new GenerateMyBatisExampleException(e.getMessage(), e);
         }
         return Pair.of(null, file);
     }

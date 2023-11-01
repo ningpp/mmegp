@@ -15,10 +15,15 @@
  */
 package me.ningpp.mmegp.demo.entity;
 
+import me.ningpp.mmegp.mybatis.UUIDNoDashStringTypeHandler;
+import me.ningpp.mmegp.mybatis.UUIDStringTypeHandler;
+import me.ningpp.mmegp.mybatis.UUIDTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
 import me.ningpp.mmegp.annotations.Generated;
 import me.ningpp.mmegp.annotations.GeneratedColumn;
+
+import java.util.UUID;
 
 @Generated(table = "sys_menu")
 public class SysMenu {
@@ -30,6 +35,13 @@ public class SysMenu {
 
     @GeneratedColumn(name = "parent_id", jdbcType = JdbcType.VARCHAR)
     private String parentId;
+
+    @GeneratedColumn(name = "uuid", jdbcType = JdbcType.BINARY, typeHandler = UUIDTypeHandler.class)
+    private UUID uuid;
+    @GeneratedColumn(name = "with_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = UUIDStringTypeHandler.class)
+    private UUID withDashUUID;
+    @GeneratedColumn(name = "no_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = me.ningpp.mmegp.mybatis.UUIDNoDashStringTypeHandler.class)
+    private UUID noDashUUID;
 
     public String getId() {
         return id;
@@ -48,5 +60,29 @@ public class SysMenu {
     }
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public UUID getWithDashUUID() {
+        return withDashUUID;
+    }
+
+    public void setWithDashUUID(UUID withDashUUID) {
+        this.withDashUUID = withDashUUID;
+    }
+
+    public UUID getNoDashUUID() {
+        return noDashUUID;
+    }
+
+    public void setNoDashUUID(UUID noDashUUID) {
+        this.noDashUUID = noDashUUID;
     }
 }
