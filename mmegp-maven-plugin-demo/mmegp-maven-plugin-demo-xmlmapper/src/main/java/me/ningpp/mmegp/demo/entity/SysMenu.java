@@ -15,14 +15,26 @@
  */
 package me.ningpp.mmegp.demo.entity;
 
-import me.ningpp.mmegp.mybatis.UUIDNoDashStringTypeHandler;
-import me.ningpp.mmegp.mybatis.UUIDStringTypeHandler;
-import me.ningpp.mmegp.mybatis.UUIDTypeHandler;
-import org.apache.ibatis.type.JdbcType;
-
 import me.ningpp.mmegp.annotations.Generated;
 import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.mybatis.type.list.ListCommaIntegerTypeHandler;
+import me.ningpp.mmegp.mybatis.type.list.ListCommaLongTypeHandler;
+import me.ningpp.mmegp.mybatis.type.list.ListCommaStringTypeHandler;
+import me.ningpp.mmegp.mybatis.type.set.LinkedHashSetCommaIntegerTypeHandler;
+import me.ningpp.mmegp.mybatis.type.set.LinkedHashSetCommaLongTypeHandler;
+import me.ningpp.mmegp.mybatis.type.set.LinkedHashSetCommaStringTypeHandler;
+import me.ningpp.mmegp.mybatis.type.set.SetCommaIntegerTypeHandler;
+import me.ningpp.mmegp.mybatis.type.set.SetCommaLongTypeHandler;
+import me.ningpp.mmegp.mybatis.type.set.SetCommaStringTypeHandler;
+import me.ningpp.mmegp.mybatis.type.uuid.UUIDNoDashStringTypeHandler;
+import me.ningpp.mmegp.mybatis.type.uuid.UUIDStringTypeHandler;
+import me.ningpp.mmegp.mybatis.type.uuid.UUIDTypeHandler;
+import org.apache.ibatis.type.JdbcType;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Generated(table = "sys_menu")
@@ -36,6 +48,25 @@ public class SysMenu {
     @GeneratedColumn(name = "parent_id", jdbcType = JdbcType.VARCHAR)
     private String parentId;
 
+    @GeneratedColumn(name = "integer_list", jdbcType = JdbcType.VARCHAR, typeHandler = ListCommaIntegerTypeHandler.class)
+    private List<Integer> integerList;
+    @GeneratedColumn(name = "long_list", jdbcType = JdbcType.VARCHAR, typeHandler = ListCommaLongTypeHandler.class)
+    private List<Long> longList;
+    @GeneratedColumn(name = "string_list", jdbcType = JdbcType.VARCHAR, typeHandler = ListCommaStringTypeHandler.class)
+    private List<String> stringList;
+    @GeneratedColumn(name = "integer_set", jdbcType = JdbcType.VARCHAR, typeHandler = SetCommaIntegerTypeHandler.class)
+    private Set<Integer> integerSet;
+    @GeneratedColumn(name = "long_set", jdbcType = JdbcType.VARCHAR, typeHandler = SetCommaLongTypeHandler.class)
+    private Set<Long> longSet;
+    @GeneratedColumn(name = "string_set", jdbcType = JdbcType.VARCHAR, typeHandler = SetCommaStringTypeHandler.class)
+    private Set<String> stringSet;
+    @GeneratedColumn(name = "integer_linkedhashset", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaIntegerTypeHandler.class)
+    private LinkedHashSet<Integer> integerLinkedhashset;
+    @GeneratedColumn(name = "long_linkedhashset", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaLongTypeHandler.class)
+    private HashSet<Long> longLinkedhashset;
+    @GeneratedColumn(name = "string_linkedhashset", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaStringTypeHandler.class)
+    private Set<String> stringLinkedhashset;
+
     @GeneratedColumn(name = "bytes1", jdbcType = JdbcType.BINARY)
     private byte[] bytes1;
     @GeneratedColumn(name = "bytes2", jdbcType = JdbcType.BINARY)
@@ -45,7 +76,7 @@ public class SysMenu {
     private UUID uuid;
     @GeneratedColumn(name = "with_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = UUIDStringTypeHandler.class)
     private UUID withDashUUID;
-    @GeneratedColumn(name = "no_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = me.ningpp.mmegp.mybatis.UUIDNoDashStringTypeHandler.class)
+    @GeneratedColumn(name = "no_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = UUIDNoDashStringTypeHandler.class)
     private UUID noDashUUID;
 
     public String getId() {
@@ -65,6 +96,78 @@ public class SysMenu {
     }
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+
+    public List<Integer> getIntegerList() {
+        return integerList;
+    }
+
+    public void setIntegerList(List<Integer> integerList) {
+        this.integerList = integerList;
+    }
+
+    public List<Long> getLongList() {
+        return longList;
+    }
+
+    public void setLongList(List<Long> longList) {
+        this.longList = longList;
+    }
+
+    public List<String> getStringList() {
+        return stringList;
+    }
+
+    public void setStringList(List<String> stringList) {
+        this.stringList = stringList;
+    }
+
+    public Set<Integer> getIntegerSet() {
+        return integerSet;
+    }
+
+    public void setIntegerSet(Set<Integer> integerSet) {
+        this.integerSet = integerSet;
+    }
+
+    public Set<Long> getLongSet() {
+        return longSet;
+    }
+
+    public void setLongSet(Set<Long> longSet) {
+        this.longSet = longSet;
+    }
+
+    public Set<String> getStringSet() {
+        return stringSet;
+    }
+
+    public void setStringSet(Set<String> stringSet) {
+        this.stringSet = stringSet;
+    }
+
+    public LinkedHashSet<Integer> getIntegerLinkedhashset() {
+        return integerLinkedhashset;
+    }
+
+    public void setIntegerLinkedhashset(LinkedHashSet<Integer> integerLinkedhashset) {
+        this.integerLinkedhashset = integerLinkedhashset;
+    }
+
+    public HashSet<Long> getLongLinkedhashset() {
+        return longLinkedhashset;
+    }
+
+    public void setLongLinkedhashset(HashSet<Long> longLinkedhashset) {
+        this.longLinkedhashset = longLinkedhashset;
+    }
+
+    public Set<String> getStringLinkedhashset() {
+        return stringLinkedhashset;
+    }
+
+    public void setStringLinkedhashset(Set<String> stringLinkedhashset) {
+        this.stringLinkedhashset = stringLinkedhashset;
     }
 
     public byte[] getBytes1() {

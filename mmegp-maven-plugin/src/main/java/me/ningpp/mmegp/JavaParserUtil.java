@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ClassExpr;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
@@ -208,19 +210,19 @@ public final class JavaParserUtil {
                 generatedValue = ((BooleanLiteralExpr) memberValue).getValue();
             } else if ("typeHandler".equals(memberName) && memberValue instanceof ClassExpr ) {
                 ClassExpr expr = (ClassExpr) memberValue;
-                typeHandler = getMatchedType(importDeclarations, expr.getTypeAsString());
+                typeHandler = getMatchedType(importDeclarations, expr.getType());
             }
         }
 
         if (StringUtils.isEmpty(name) || "null".equals(name) || jdbcType == null) {
             return null;
         }
-        String className = getClassByType(modelDeclaration, importDeclarations, field.getVariable(0).getType());
+        String className = getClassByType(importDeclarations, field.getVariable(0).getType());
         if (StringUtils.isEmpty(className)) {
             throw new GenerateMyBatisExampleException("不支持的Java类型！ " + 
                     "field = " + field.getVariable(0).getNameAsString() + 
                     ", type = " + field.getVariable(0).getType() + 
-                    ", FullyQualifiedName = " + modelDeclaration.getFullyQualifiedName().get());
+                    ", FullyQualifiedName = " + modelDeclaration.getFullyQualifiedName().orElse(null));
         }
         column.setBlobColumn(blob);
         column.setIdentity(id && generatedValue);
@@ -270,7 +272,7 @@ public final class JavaParserUtil {
         return AggregateFunction.parse(value);
     }
 
-    private static String getClassByType(ClassOrInterfaceDeclaration modelDeclaration, NodeList<ImportDeclaration> importDeclarations, Type type) throws ClassNotFoundException {
+    private static String getClassByType(NodeList<ImportDeclaration> importDeclarations, Type type) throws ClassNotFoundException {
         Class<?> clazz = null;
         if (type.isPrimitiveType()) {
             clazz = Class.forName("java.lang." + type.asPrimitiveType().toBoxedType().asString());
@@ -311,14 +313,33 @@ public final class JavaParserUtil {
                 return clazz.getName();
             }
         } else {
-            return getMatchedType(importDeclarations, type.asString());
+            return getMatchedType(importDeclarations, type);
         }
+    }
+
+    public static String getMatchedType(NodeList<ImportDeclaration> importDeclarations, Type type) {
+        if (type.isClassOrInterfaceType()) {
+            ClassOrInterfaceType ctype = type.asClassOrInterfaceType();
+            Optional<NodeList<Type>> typeArgs = ctype.getTypeArguments();
+            if (typeArgs.isPresent()) {
+                int size = typeArgs.get().size();
+                if (size == 1) {
+                    return String.format(Locale.ROOT,
+                            "%s<%s>",
+                            getMatchedType(importDeclarations, ctype.getNameWithScope()),
+                            getMatchedType(importDeclarations, typeArgs.get().get(0).asString()));
+                } else {
+                    return null;
+                }
+            }
+        }
+        return getMatchedType(importDeclarations, type.asString());
     }
 
     private static String getMatchedType(NodeList<ImportDeclaration> importDeclarations, String typeStr) {
         ImportDeclaration matched = importDeclarations == null ? null : importDeclarations.stream()
-            .filter(importDeclar -> typeStr.equals(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName()))
-            .findFirst().orElse(null);
+                .filter(importDeclar -> typeStr.equals(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName()))
+                .findFirst().orElse(null);
         return matched == null ? typeStr : matched.getNameAsString();
     }
 

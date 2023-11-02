@@ -4,12 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import me.ningpp.mmegp.mybatis.UUIDTypeHandler;
+import me.ningpp.mmegp.mybatis.type.uuid.UUIDTypeHandler;
 import org.junit.jupiter.api.Test;
 
 import me.ningpp.mmegp.demo.DemoApplicationStarter;
@@ -22,6 +29,74 @@ import me.ningpp.mmegp.demo.entity.SysUser;
 import me.ningpp.mmegp.demo.model.SysUserRole;
 
 public class AllServiceTest extends DemoApplicationStarter {
+
+    @Test
+    void commaStringConverterTypeHandlerTest() {
+        SysMenu menu1 = new SysMenu();
+        menu1.setId(uuid());
+        menu1.setName(uuid());
+        menu1.setParentId(uuid());
+        allService.insertMenu(menu1);
+        SysMenuExample example = new SysMenuExample();
+        example.createCriteria().andIdEqualTo(menu1.getId());
+        SysMenu menu = allService.getMenus(example).get(0);
+        assertTrue(menu.getIntegerList().isEmpty());
+        assertTrue(menu.getLongList().isEmpty());
+        assertTrue(menu.getStringList().isEmpty());
+        assertTrue(menu.getIntegerSet().isEmpty());
+        assertTrue(menu.getLongSet().isEmpty());
+        assertTrue(menu.getStringSet().isEmpty());
+        assertTrue(menu.getIntegerLinkedhashset().isEmpty());
+        assertTrue(menu.getLongLinkedhashset().isEmpty());
+        assertTrue(menu.getStringLinkedhashset().isEmpty());
+
+        List<Integer> integers = Arrays.asList(1, 311, 17);
+        List<Long> longs = Arrays.asList(1L, 311L, 17L);
+        List<String> strings = Arrays.asList("1", "311", "17");
+        menu1.setIntegerList(new ArrayList<>(integers));
+        menu1.setLongList(new ArrayList<>(longs));
+        menu1.setStringList(strings);
+        menu1.setIntegerSet(new HashSet<>(integers));
+        menu1.setLongSet(new HashSet<>(longs));
+        menu1.setStringSet(new HashSet<>(strings));
+        menu1.setIntegerLinkedhashset(new LinkedHashSet<>(integers));
+        menu1.setLongLinkedhashset(new LinkedHashSet<>(longs));
+        menu1.setStringLinkedhashset(new LinkedHashSet<>(strings));
+        allService.deleteMenu(example);
+        allService.insertMenu(menu1);
+        menu = allService.getMenus(example).get(0);
+
+        assertCollectionEquals(integers, menu.getIntegerList());
+        assertCollectionEquals(new HashSet<>(integers), menu.getIntegerSet());
+        assertCollectionEquals(new LinkedHashSet<>(integers), menu.getIntegerLinkedhashset());
+
+        assertCollectionEquals(longs, menu.getLongList());
+        assertCollectionEquals(new HashSet<>(longs), menu.getLongSet());
+        assertCollectionEquals(new LinkedHashSet<>(longs), menu.getLongLinkedhashset());
+
+        assertCollectionEquals(strings, menu.getStringList());
+        assertCollectionEquals(new HashSet<>(strings), menu.getStringSet());
+        assertCollectionEquals(new LinkedHashSet<>(strings), menu.getStringLinkedhashset());
+
+        allService.deleteMenu(example);
+    }
+
+    private <E> void assertCollectionEquals(Collection<E> c1, Collection<E> c2) {
+        String msg = c1.stream().map(E::toString).collect(Collectors.joining(", "))
+                + " != "
+                + c2.stream().map(E::toString).collect(Collectors.joining(", "));
+        if (c1.size() == c2.size()) {
+            List<E> l1 = new ArrayList<>(c1);
+            List<E> l2 = new ArrayList<>(c2);
+            for (int i = 0; i < l1.size(); i++) {
+                if (!Objects.equals(l1.get(i), l2.get(i))) {
+                    assertTrue(false, msg);
+                }
+            }
+        } else {
+            assertTrue(false, msg);
+        }
+    }
 
     @Test
     void typeHandlerTest() {
