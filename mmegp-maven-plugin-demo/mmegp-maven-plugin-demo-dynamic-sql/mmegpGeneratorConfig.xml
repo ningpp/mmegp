@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>  
 <generatorConfiguration>
-    <context id="DYNAMICSQL" targetRuntime="MyBatis3DynamicSql">
-        <plugin type="me.ningpp.mmegp.ExampleGeneratorWrapperPlugin">
-            <property name="targetProject" value="target/generated-sources/mme/java"></property>
+    <context id="DYNAMICSQL" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
         </plugin>
-
-        <commentGenerator>
-            <property name="suppressDate" value="true" />
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
             <property name="suppressAllComments" value="true" />
-            <property name="addRemarkComments" value="false" />
-            <property name="removeDateAnnotation" value="true" />
         </commentGenerator>
         <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.entity" >
             <property name="enableSubPackages" value="true" />
