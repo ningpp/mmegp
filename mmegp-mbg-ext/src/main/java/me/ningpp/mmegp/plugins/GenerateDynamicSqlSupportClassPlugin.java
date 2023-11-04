@@ -22,7 +22,7 @@ import org.mybatis.generator.runtime.dynamic.sql.DynamicSqlSupportClassGenerator
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenerateDynamicSqlSupportClassPlugin extends MmegpGenerateMapperPlugin {
+public class GenerateDynamicSqlSupportClassPlugin extends MmegpPluginAdapter {
 
     @Override
     public List<CompilationUnit> generateCompilationUnits(IntrospectedTable introspectedTable) {
