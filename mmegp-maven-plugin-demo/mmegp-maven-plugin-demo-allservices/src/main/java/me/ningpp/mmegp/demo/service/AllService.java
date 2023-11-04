@@ -1,7 +1,10 @@
 package me.ningpp.mmegp.demo.service;
 
+import java.util.Collection;
 import java.util.List;
 
+import me.ningpp.mmegp.demo.entity.SysAutoUser;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.springframework.transaction.annotation.Transactional;
 
 import me.ningpp.mmegp.demo.entity.SysMenu;
@@ -29,6 +32,12 @@ public interface AllService {
     List<SysRoleMenu> getRoleMenus(String roleId);
 
     void deleteRoleMenu(Long roleMenuId);
+
+    void insertAutoUser(SysAutoUser autoUser);
+
+    void batchInsertAutoUser(Collection<SysAutoUser> autoUsers);
+
+    List<SysAutoUser> queryAutoUser(SelectDSLCompleter completer);
 
     void insertUser(SysUser user);
 

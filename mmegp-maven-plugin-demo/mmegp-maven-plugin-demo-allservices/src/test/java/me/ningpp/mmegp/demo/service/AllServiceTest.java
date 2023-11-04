@@ -3,8 +3,8 @@ package me.ningpp.mmegp.demo.service;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import me.ningpp.mmegp.demo.entity.SysAutoUser;
+import me.ningpp.mmegp.demo.mapper.SysAutoUserDynamicSqlSupport;
 import me.ningpp.mmegp.mybatis.type.uuid.UUIDTypeHandler;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +31,32 @@ import me.ningpp.mmegp.demo.entity.SysUser;
 import me.ningpp.mmegp.demo.model.SysUserRole;
 
 public class AllServiceTest extends DemoApplicationStarter {
+
+    @Test
+    void sysAutoUserTest() {
+        List<SysAutoUser> sysAutoUsers = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            SysAutoUser sysAutoUser = new SysAutoUser();
+            sysAutoUser.setFirstName(UUID.randomUUID().toString());
+            sysAutoUser.setLastName("ning");
+            sysAutoUsers.add(sysAutoUser);
+        }
+        allService.insertAutoUser(sysAutoUsers.get(0));
+        allService.batchInsertAutoUser(sysAutoUsers.subList(1, 3));
+        for (SysAutoUser sysAutoUser : sysAutoUsers) {
+            assertTrue(sysAutoUser.getId() != null && sysAutoUser.getId().intValue() > 0);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            final int finalI = i;
+            List<SysAutoUser> records = allService.queryAutoUser(dsl -> dsl.where()
+                    .and(
+                            SysAutoUserDynamicSqlSupport.firstName,
+                            isEqualTo(sysAutoUsers.get(finalI).getFirstName())));
+            assertTrue(records.size() == 1
+                    && records.get(0).getId().equals(sysAutoUsers.get(i).getId()));
+        }
+    }
 
     @Test
     void commaStringConverterTypeHandlerTest() {

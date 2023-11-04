@@ -152,8 +152,16 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(Constants.FQJT_COLLECTION.getShortName());
         parameterType.addTypeArgument(recordType);
         method.addParameter(new Parameter(parameterType, "records"));
-        method.addBodyLine(String.format(Locale.ROOT,
-            "return insertMultiple(DynamicSqlUtil.renderMultiInsert(records, %s, columnMappings4Insert()));", tableFieldName));
+        if (hasGeneratedKeys) {
+            interfaze.addImportedType(Constants.FQJT_MULTI_INSERT_PROVIDER);
+            method.addBodyLine(String.format(Locale.ROOT,
+                    "MultiRowInsertStatementProvider<%s> provider = DynamicSqlUtil.renderMultiInsert(records, %s, columnMappings4Insert());",
+                    recordType.getShortName(), tableFieldName));
+            method.addBodyLine("return insertMultiple(provider.getInsertStatement(), provider.getRecords());");
+        } else {
+            method.addBodyLine(String.format(Locale.ROOT,
+                    "return insertMultiple(DynamicSqlUtil.renderMultiInsert(records, %s, columnMappings4Insert()));", tableFieldName));
+        }
         interfaze.addMethod(method);
     }
 

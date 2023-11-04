@@ -1,10 +1,14 @@
 package me.ningpp.mmegp.demo.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import me.ningpp.mmegp.demo.entity.SysAutoUser;
+import me.ningpp.mmegp.demo.mapper.SysAutoUserMapper;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.where.condition.IsLike;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +41,8 @@ public class AllServiceImpl implements AllService {
     private SysMenuMapper sysMenuMapper;
     @Autowired
     private SysUserMapper sysUserMapper;
+    @Autowired
+    private SysAutoUserMapper sysAutoUserMapper;
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
 
@@ -81,6 +87,21 @@ public class AllServiceImpl implements AllService {
     @Override
     public void deleteRoleMenu(Long roleMenuId) {
         sysRoleMenuMapper.deleteByPrimaryKey(roleMenuId);
+    }
+
+    @Override
+    public void insertAutoUser(SysAutoUser autoUser) {
+        sysAutoUserMapper.insert(autoUser);
+    }
+
+    @Override
+    public void batchInsertAutoUser(Collection<SysAutoUser> autoUsers) {
+        sysAutoUserMapper.insertMultiple(autoUsers);
+    }
+
+    @Override
+    public List<SysAutoUser> queryAutoUser(SelectDSLCompleter completer) {
+        return sysAutoUserMapper.select(completer);
     }
 
     @Override

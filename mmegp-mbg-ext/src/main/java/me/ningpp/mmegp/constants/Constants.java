@@ -32,4 +32,5 @@ public final class Constants {
 
     public static final FullyQualifiedJavaType FQJT_ABS_COLUMN_MAPPING = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.AbstractColumnMapping");
 
+    public static final FullyQualifiedJavaType FQJT_MULTI_INSERT_PROVIDER = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider");
 }

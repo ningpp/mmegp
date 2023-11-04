@@ -4,6 +4,12 @@ create table sys_user (
     name varchar(255)
 );
 
+create table sys_auto_user (
+    id identity PRIMARY KEY,
+    first_name varchar(64),
+    last_name varchar(64)
+);
+
 create table sys_role (
     id varchar(64) PRIMARY KEY,
     name varchar(255)
