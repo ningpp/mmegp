@@ -50,7 +50,6 @@ public class AllServiceTest extends DemoApplicationStarter {
             user.setId(String.format(Locale.ROOT, "%09d", i));
             user.setName("name" + i);
             allService.insertUser(user);
-            System.out.println(user.getId());
         }
 
         SelectDSL<SelectModel> dsl = SqlBuilder.select(SysUserMapper.selectList)
