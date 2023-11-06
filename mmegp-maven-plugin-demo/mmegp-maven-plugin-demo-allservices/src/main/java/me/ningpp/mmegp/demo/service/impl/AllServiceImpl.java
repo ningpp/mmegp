@@ -6,9 +6,13 @@ import java.util.Locale;
 
 import me.ningpp.mmegp.demo.entity.SysAutoUser;
 import me.ningpp.mmegp.demo.mapper.SysAutoUserMapper;
+import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.select.PagingModel;
+import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
+import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.where.condition.IsLike;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,6 +119,11 @@ public class AllServiceImpl implements AllService {
                 .from(SysUserDynamicSqlSupport.sysUser)
                 .where().and(SysUserDynamicSqlSupport.name, IsLike.of(String.format(Locale.ENGLISH, "%%%s%%", nameLike)))
                 .build().render(RenderingStrategies.MYBATIS3));
+    }
+
+    @Override
+    public Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel) {
+        return sysUserMapper.selectPage(dsl, pagingModel);
     }
 
     @Override

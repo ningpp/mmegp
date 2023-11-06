@@ -6,6 +6,7 @@
         </plugin>
         <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
             <property name="targetProject" value="target/generated-sources/mme/java" />
+            <property name="paginationModelRendererProviderType" value="OffsetFetch" />
         </plugin>
         <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
             <property name="suppressAllComments" value="true" />

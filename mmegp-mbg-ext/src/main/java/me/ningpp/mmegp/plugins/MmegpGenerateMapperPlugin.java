@@ -16,18 +16,25 @@
 package me.ningpp.mmegp.plugins;
 
 import me.ningpp.mmegp.NullProgressCallback;
+import me.ningpp.mmegp.dsql.DefaultSelectPageMethodGenerator;
 import me.ningpp.mmegp.dsql.MmegpDynamicSqlMapperGenerator;
+import me.ningpp.mmegp.dsql.SelectPageMethodGenerator;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
+import org.mybatis.generator.internal.ObjectFactory;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.runtime.dynamic.sql.DynamicSqlMapperGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+
 public class MmegpGenerateMapperPlugin extends MmegpPluginAdapter {
     // don't gen selectDistinct method by default, because it is rarely used
     private boolean generateSelectDistinctMethod;
+    private SelectPageMethodGenerator selectPageMethodGenerator;
 
     @Override
     public void setProperties(Properties properties) {
@@ -36,12 +43,24 @@ public class MmegpGenerateMapperPlugin extends MmegpPluginAdapter {
         if (properties.containsKey(propertyKey)) {
             generateSelectDistinctMethod = Boolean.parseBoolean(properties.getProperty(propertyKey));
         }
+
+        String selectPageMethodGeneratorType = properties.getProperty("selectPageMethodGeneratorType");
+        if (properties.containsKey(SelectPageMethodGenerator.PROPERTY_KEY)) {
+            if (!stringHasValue(selectPageMethodGeneratorType)) {
+                selectPageMethodGeneratorType = DefaultSelectPageMethodGenerator.class.getName();
+            }
+        }
+        if (stringHasValue(selectPageMethodGeneratorType)) {
+            selectPageMethodGenerator = (SelectPageMethodGenerator) ObjectFactory
+                    .createInternalObject(selectPageMethodGeneratorType);
+        }
     }
 
     @Override
     public List<CompilationUnit> generateCompilationUnits(IntrospectedTable introspectedTable) {
         DynamicSqlMapperGenerator generator = new MmegpDynamicSqlMapperGenerator(
-                getTargetProject(), generateSelectDistinctMethod);
+                getTargetProject(), generateSelectDistinctMethod,
+                selectPageMethodGenerator, properties);
         generator.setContext(context);
         generator.setIntrospectedTable(introspectedTable);
         generator.setProgressCallback(new NullProgressCallback());

@@ -4,7 +4,11 @@ import java.util.Collection;
 import java.util.List;
 
 import me.ningpp.mmegp.demo.entity.SysAutoUser;
+import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
+import org.mybatis.dynamic.sql.select.PagingModel;
+import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
+import org.mybatis.dynamic.sql.select.SelectModel;
 import org.springframework.transaction.annotation.Transactional;
 
 import me.ningpp.mmegp.demo.entity.SysMenu;
@@ -42,6 +46,8 @@ public interface AllService {
     void insertUser(SysUser user);
 
     List<SysUser> queryUser(String nameLike);
+
+    Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel);
 
     void insertUserRole(SysUserRole userRole);
 

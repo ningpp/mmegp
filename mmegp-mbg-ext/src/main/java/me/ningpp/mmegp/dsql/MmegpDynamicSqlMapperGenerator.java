@@ -30,6 +30,7 @@ import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
 
@@ -38,10 +39,17 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
     private static final FullyQualifiedJavaType FQJT_UPDATE_DSL_MODEL = new FullyQualifiedJavaType("UpdateDSL<UpdateModel>");
 
     private final boolean generateSelectDistinctMethod;
+    private final SelectPageMethodGenerator selectPageMethodGenerator;
+    private final Properties properties;
 
-    public MmegpDynamicSqlMapperGenerator(String project, boolean generateSelectDistinctMethod) {
+    public MmegpDynamicSqlMapperGenerator(String project,
+                                          boolean generateSelectDistinctMethod,
+                                          SelectPageMethodGenerator selectPageMethodGenerator,
+                                          Properties properties) {
         super(project);
         this.generateSelectDistinctMethod = generateSelectDistinctMethod;
+        this.selectPageMethodGenerator = selectPageMethodGenerator;
+        this.properties = properties == null ? new Properties() : properties;
     }
 
     @Override
@@ -90,6 +98,10 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         if (Utils.generateUpdateByPrimaryKey(introspectedTable)) {
             addUpdateByPrimaryKeyMethod(interfaze);
             addUpdateByPrimaryKeySelectiveMethod(interfaze);
+        }
+
+        if (selectPageMethodGenerator != null) {
+            selectPageMethodGenerator.generate(introspectedTable, interfaze, properties);
         }
 
         return List.of(interfaze);
