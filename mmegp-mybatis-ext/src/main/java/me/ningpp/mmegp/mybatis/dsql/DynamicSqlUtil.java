@@ -15,20 +15,72 @@
  */
 package me.ningpp.mmegp.mybatis.dsql;
 
+import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
+import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
+import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationSelectRenderer;
+import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.insert.InsertModel;
 import org.mybatis.dynamic.sql.insert.MultiRowInsertModel;
 import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
 import org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.select.PagingModel;
+import org.mybatis.dynamic.sql.select.SelectDSL;
+import org.mybatis.dynamic.sql.select.SelectModel;
+import org.mybatis.dynamic.sql.select.aggregate.CountAll;
+import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 public final class DynamicSqlUtil {
 
     private DynamicSqlUtil() {
+    }
+
+    public static SelectStatementProvider renderSelect(SelectModel selectModel, PaginationModelRenderer paginationModelRender) {
+        Optional<PagingModel> pagingModel = selectModel.pagingModel();
+        if (pagingModel.isPresent() && (
+                pagingModel.get().limit().isPresent()
+                || pagingModel.get().offset().isPresent()
+            )) {
+            return new PaginationSelectRenderer(selectModel, paginationModelRender).render();
+        }
+        return selectModel.render(RenderingStrategies.MYBATIS3);
+    }
+
+    public static <R> Page<R> selectPage(
+            ToLongFunction<SelectStatementProvider> countMapper,
+            Function<SelectStatementProvider, List<R>> listMapper,
+            SelectDSL<SelectModel> listDsl,
+            PagingModel paging,
+            PaginationModelRenderer renderer) {
+        long totalCount = countFrom(countMapper, listDsl);
+        if (totalCount > 0L) {
+            if (paging.limit().isPresent()) {
+                listDsl.limit(paging.limit().get());
+            }
+            if (paging.offset().isPresent()) {
+                listDsl.offset(paging.offset().get());
+            }
+            SelectStatementProvider selectStmtProvider = renderSelect(
+                    listDsl.build(),
+                    renderer
+            );
+            return new Page<>(listMapper.apply(selectStmtProvider), totalCount);
+        } else {
+            return Page.empty();
+        }
+    }
+
+    public static long countFrom(ToLongFunction<SelectStatementProvider> mapper, SelectDSL<SelectModel> dsl) {
+        SelectModel selectCount = SqlBuilder.select(new CountAll()).from(dsl, "_mmegp_").build();
+        return mapper.applyAsLong(selectCount.render(RenderingStrategies.MYBATIS3));
     }
 
     public static <T> InsertStatementProvider<T> renderInsert(T row, SqlTable table, List<AbstractColumnMapping> columnMappings) {
