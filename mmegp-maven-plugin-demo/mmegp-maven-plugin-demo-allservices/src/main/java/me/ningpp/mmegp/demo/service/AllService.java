@@ -16,7 +16,7 @@ import me.ningpp.mmegp.demo.entity.SysMenuExample;
 import me.ningpp.mmegp.demo.entity.SysRole;
 import me.ningpp.mmegp.demo.entity.SysRoleExample;
 import me.ningpp.mmegp.demo.entity.SysRoleMenu;
-import me.ningpp.mmegp.demo.entity.SysUser;
+import me.ningpp.mmegp.demo.entity2.SysUser;
 import me.ningpp.mmegp.demo.model.SysUserRole;
 
 @Transactional
@@ -42,6 +42,8 @@ public interface AllService {
     void batchInsertAutoUser(Collection<SysAutoUser> autoUsers);
 
     List<SysAutoUser> queryAutoUser(SelectDSLCompleter completer);
+
+    Page<SysAutoUser> selectAutoUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel);
 
     void insertUser(SysUser user);
 

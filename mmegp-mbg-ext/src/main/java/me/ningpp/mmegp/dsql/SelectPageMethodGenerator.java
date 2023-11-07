@@ -22,8 +22,6 @@ import java.util.Properties;
 
 public interface SelectPageMethodGenerator {
 
-    String PROPERTY_KEY = "paginationModelRendererProviderType";
-
     void generate(IntrospectedTable introspectedTable, Interface mapperInterface, Properties pluginProperties);
 
 }

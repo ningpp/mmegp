@@ -15,42 +15,41 @@
  */
 package me.ningpp.mmegp.dsql;
 
-import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffsetPaginationModelRendererProvider;
-import me.ningpp.mmegp.mybatis.dsql.pagination.MySqlPaginationModelRendererProvider;
-import me.ningpp.mmegp.mybatis.dsql.pagination.OffsetFetchPaginationModelRendererProvider;
-import me.ningpp.mmegp.mybatis.dsql.pagination.SqlServerPaginationModelRendererProvider;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
-public class DefaultSelectPageMethodGenerator implements SelectPageMethodGenerator {
+public abstract class AbstractSelectPageMethodGenerator implements SelectPageMethodGenerator {
 
-    private String getPaginationModelRendererProviderType(Properties pluginProperties) {
-        String type = pluginProperties.getProperty(PROPERTY_KEY);
-        if (type == null || type.isEmpty()) {
-            throw new IllegalArgumentException(PROPERTY_KEY + " should set in plugin properties");
-        }
-
-        if ("OffsetFetch".equalsIgnoreCase(type)) {
-            type = OffsetFetchPaginationModelRendererProvider.class.getName();
-        } else if ("LimitOffset".equalsIgnoreCase(type)) {
-            type = LimitOffsetPaginationModelRendererProvider.class.getName();
-        } else if ("MySql".equalsIgnoreCase(type)) {
-            type = MySqlPaginationModelRendererProvider.class.getName();
-        } else if ("SqlServer".equalsIgnoreCase(type)) {
-            type = SqlServerPaginationModelRendererProvider.class.getName();
-        }
-        return type;
+    protected Set<FullyQualifiedJavaType> getSuperInterfaces(IntrospectedTable introspectedTable, Properties pluginProperties) {
+        return Set.of();
     }
 
+    protected Set<FullyQualifiedJavaType> getImportedTypes(IntrospectedTable introspectedTable, Properties pluginProperties) {
+        return Set.of();
+    }
+
+    protected List<Parameter> getOtherParameters(IntrospectedTable introspectedTable, Properties pluginProperties) {
+        return List.of();
+    }
+
+    protected abstract List<String> getBodyLines(IntrospectedTable introspectedTable, Properties pluginProperties);
+
     @Override
-    public void generate(IntrospectedTable introspectedTable, Interface mapperInterface, Properties pluginProperties) {
-        String providerType = getPaginationModelRendererProviderType(pluginProperties);
-        mapperInterface.addSuperInterface(new FullyQualifiedJavaType(providerType));
+    public final void generate(IntrospectedTable introspectedTable, Interface mapperInterface, Properties pluginProperties) {
+        Set<FullyQualifiedJavaType> superInterfaces = getSuperInterfaces(introspectedTable, pluginProperties);
+        if (superInterfaces != null) {
+            superInterfaces.forEach(mapperInterface::addSuperInterface);
+        }
 
         mapperInterface.addImportedType(new FullyQualifiedJavaType(
                 "me.ningpp.mmegp.mybatis.dsql.pagination.Page"));
@@ -61,6 +60,9 @@ public class DefaultSelectPageMethodGenerator implements SelectPageMethodGenerat
         mapperInterface.addImportedType(new FullyQualifiedJavaType(
                 "org.mybatis.dynamic.sql.select.SelectModel"));
 
+        Set<FullyQualifiedJavaType> importTypes = getImportedTypes(introspectedTable, pluginProperties);
+        mapperInterface.addImportedTypes(Optional.ofNullable(importTypes).orElse(new HashSet<>(0)));
+
         Method method = new Method("selectPage");
         mapperInterface.addMethod(method);
         method.setDefault(true);
@@ -69,7 +71,12 @@ public class DefaultSelectPageMethodGenerator implements SelectPageMethodGenerat
                 FullyQualifiedJavaType("SelectDSL<SelectModel>"), "listDsl"));
         method.addParameter(new Parameter(new
                 FullyQualifiedJavaType("PagingModel"), "paging"));
-        method.addBodyLine("return DynamicSqlUtil.selectPage(this::count, this::selectMany, listDsl, paging, RENDERER);");
+
+        List<Parameter> otherParms = getOtherParameters(introspectedTable, pluginProperties);
+        method.getParameters().addAll(Optional.ofNullable(otherParms).orElse(new ArrayList<>(0)));
+
+        List<String> bodyLines = getBodyLines(introspectedTable, pluginProperties);
+        method.getBodyLines().addAll(Optional.ofNullable(bodyLines).orElse(new ArrayList<>(0)));
     }
 
 }

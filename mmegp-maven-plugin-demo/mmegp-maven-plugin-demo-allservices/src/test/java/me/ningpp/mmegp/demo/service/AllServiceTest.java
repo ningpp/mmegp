@@ -33,7 +33,7 @@ import me.ningpp.mmegp.demo.entity.SysMenuExample;
 import me.ningpp.mmegp.demo.entity.SysRole;
 import me.ningpp.mmegp.demo.entity.SysRoleExample;
 import me.ningpp.mmegp.demo.entity.SysRoleMenu;
-import me.ningpp.mmegp.demo.entity.SysUser;
+import me.ningpp.mmegp.demo.entity2.SysUser;
 import me.ningpp.mmegp.demo.model.SysUserRole;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.PagingModel;

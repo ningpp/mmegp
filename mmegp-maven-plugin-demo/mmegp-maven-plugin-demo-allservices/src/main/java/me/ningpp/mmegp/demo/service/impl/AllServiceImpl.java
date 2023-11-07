@@ -7,6 +7,7 @@ import java.util.Locale;
 import me.ningpp.mmegp.demo.entity.SysAutoUser;
 import me.ningpp.mmegp.demo.mapper.SysAutoUserMapper;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
+import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.PagingModel;
@@ -24,7 +25,7 @@ import me.ningpp.mmegp.demo.entity.SysRole;
 import me.ningpp.mmegp.demo.entity.SysRoleExample;
 import me.ningpp.mmegp.demo.entity.SysRoleMenu;
 import me.ningpp.mmegp.demo.entity.SysRoleMenuExample;
-import me.ningpp.mmegp.demo.entity.SysUser;
+import me.ningpp.mmegp.demo.entity2.SysUser;
 import me.ningpp.mmegp.demo.mapper.SysMenuMapper;
 import me.ningpp.mmegp.demo.mapper.SysRoleMapper;
 import me.ningpp.mmegp.demo.mapper.SysRoleMenuMapper;
@@ -109,6 +110,11 @@ public class AllServiceImpl implements AllService {
     }
 
     @Override
+    public Page<SysAutoUser> selectAutoUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel) {
+        return sysAutoUserMapper.selectPage(dsl, pagingModel);
+    }
+
+    @Override
     public void insertUser(SysUser user) {
         sysUserMapper.insert(user);
     }
@@ -121,9 +127,12 @@ public class AllServiceImpl implements AllService {
                 .build().render(RenderingStrategies.MYBATIS3));
     }
 
+    @Autowired
+    PaginationModelRenderer renderer;
+
     @Override
     public Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel) {
-        return sysUserMapper.selectPage(dsl, pagingModel);
+        return sysUserMapper.selectPage(dsl, pagingModel, renderer);
     }
 
     @Override

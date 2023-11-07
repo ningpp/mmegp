@@ -22,4 +22,25 @@
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
     </context>
+    <context id="DYNAMICSQL2" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.entity2" >
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="false" />
+        </javaModelGenerator>
+        <sqlMapGenerator targetPackage="me.ningpp.mmegp.demo.mapper">
+            <property name="enableSubPackages" value="true" />
+        </sqlMapGenerator>
+        <javaClientGenerator type="MIXEDMAPPER" targetPackage="me.ningpp.mmegp.demo.mapper">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+    </context>
 </generatorConfiguration>
