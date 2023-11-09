@@ -25,4 +25,4 @@ jobs:
       - name: Cache local Maven m2
         uses: actions/cache@v3
       - name: Test with Maven
-        run: ./mvn test -V
+        run: mvn -B -V package
