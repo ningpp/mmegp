@@ -15,20 +15,29 @@
  */
 package me.ningpp.mmegp.mybatis.dsql.pagination;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public interface Page<T> {
+public class DefaultPageImpl<T> implements Page<T> {
+    private final List<T> items;
+    private final long totalCount;
 
-    List<T> getItems();
-
-    long getTotalCount();
-
-    static <T> Page<T> of(List<T> items, long totalCount) {
-        return new DefaultPageImpl<>(items, totalCount);
+    public DefaultPageImpl() {
+        this(null, 0L);
     }
 
-    static <T> Page<T> empty() {
-        return of(null, 0L);
+    public DefaultPageImpl(List<T> items, long totalCount) {
+        this.items = items == null ? new ArrayList<>(0) : new ArrayList<>(items);
+        this.totalCount = totalCount;
     }
 
+    @Override
+    public List<T> getItems() {
+        return items;
+    }
+
+    @Override
+    public long getTotalCount() {
+        return totalCount;
+    }
 }

@@ -15,6 +15,7 @@
  */
 package me.ningpp.mmegp.mybatis.dsql;
 
+import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationSelectRenderer;
@@ -32,9 +33,11 @@ import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
@@ -58,24 +61,39 @@ public final class DynamicSqlUtil {
             ToLongFunction<SelectStatementProvider> countMapper,
             Function<SelectStatementProvider, List<R>> listMapper,
             SelectDSL<SelectModel> listDsl,
-            PagingModel paging,
+            LimitOffset limitOffset,
+            PaginationModelRenderer renderer) {
+        return selectPage(countMapper, listMapper, listDsl, limitOffset,
+                Page::of, renderer);
+    }
+
+    public static <R> Page<R> selectPage(
+            ToLongFunction<SelectStatementProvider> countMapper,
+            Function<SelectStatementProvider, List<R>> listMapper,
+            SelectDSL<SelectModel> listDsl,
+            LimitOffset limitOffset,
+            BiFunction<List<R>, Long, Page<R>> pageFun,
             PaginationModelRenderer renderer) {
         long totalCount = countFrom(countMapper, listDsl);
+        List<R> items;
         if (totalCount > 0L) {
-            if (paging.limit().isPresent()) {
-                listDsl.limit(paging.limit().get());
-            }
-            if (paging.offset().isPresent()) {
-                listDsl.offset(paging.offset().get());
+            if (limitOffset != null) {
+                if (limitOffset.limit() != null) {
+                    listDsl.limit(limitOffset.limit());
+                }
+                if (limitOffset.offset() != null) {
+                    listDsl.offset(limitOffset.offset());
+                }
             }
             SelectStatementProvider selectStmtProvider = renderSelect(
                     listDsl.build(),
                     renderer
             );
-            return new Page<>(listMapper.apply(selectStmtProvider), totalCount);
+            items  = listMapper.apply(selectStmtProvider);
         } else {
-            return Page.empty();
+            items = new ArrayList<>(0);
         }
+        return pageFun.apply(items, totalCount);
     }
 
     public static long countFrom(ToLongFunction<SelectStatementProvider> mapper, SelectDSL<SelectModel> dsl) {

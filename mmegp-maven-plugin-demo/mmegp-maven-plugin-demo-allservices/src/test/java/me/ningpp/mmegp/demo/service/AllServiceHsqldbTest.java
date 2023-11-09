@@ -7,10 +7,10 @@ import me.ningpp.mmegp.demo.mapper.SysAutoUserDynamicSqlSupport;
 import me.ningpp.mmegp.demo.mapper.SysAutoUserMapper;
 import me.ningpp.mmegp.demo.mapper.SysUserDynamicSqlSupport;
 import me.ningpp.mmegp.demo.mapper.SysUserMapper;
+import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlBuilder;
-import org.mybatis.dynamic.sql.select.PagingModel;
 import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 
@@ -39,10 +39,7 @@ class AllServiceHsqldbTest extends DemoApplicationStarterHsqldb {
                         SqlBuilder.sortColumn(SysAutoUserDynamicSqlSupport.id.name()).descending()
                 );
         Page<SysAutoUser> autoUserPage = allService.selectAutoUserPage(dsl,
-                new PagingModel.Builder()
-                        .withLimit(3L)
-                        .withOffset(7L)
-                        .build());
+                LimitOffset.of(3L, 7L));
         assertTrue(autoUserPage.getItems().isEmpty());
         assertEquals(0, autoUserPage.getTotalCount());
     }
@@ -63,10 +60,7 @@ class AllServiceHsqldbTest extends DemoApplicationStarterHsqldb {
                 .and(name, SqlBuilder.isLike("name%"))
                 .orderBy(SqlBuilder.sortColumn(SysUserDynamicSqlSupport.id.name()));
         Page<SysUser> userPage = allService.selectUserPage(dsl,
-                new PagingModel.Builder()
-                        .withLimit(3L)
-                        .withOffset(7L)
-                        .build());
+                LimitOffset.of(3L, 7L));
         assertEquals(total, userPage.getTotalCount());
         assertEquals(3, userPage.getItems().size());
         assertEquals("name7", userPage.getItems().get(0).getName());

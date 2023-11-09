@@ -6,11 +6,11 @@ import java.util.Locale;
 
 import me.ningpp.mmegp.demo.entity.SysAutoUser;
 import me.ningpp.mmegp.demo.mapper.SysAutoUserMapper;
+import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
-import org.mybatis.dynamic.sql.select.PagingModel;
 import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.SelectModel;
@@ -110,8 +110,8 @@ public class AllServiceImpl implements AllService {
     }
 
     @Override
-    public Page<SysAutoUser> selectAutoUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel) {
-        return sysAutoUserMapper.selectPage(dsl, pagingModel);
+    public Page<SysAutoUser> selectAutoUserPage(SelectDSL<SelectModel> dsl, LimitOffset limitOffset) {
+        return sysAutoUserMapper.selectPage(dsl, limitOffset);
     }
 
     @Override
@@ -131,8 +131,8 @@ public class AllServiceImpl implements AllService {
     PaginationModelRenderer renderer;
 
     @Override
-    public Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel) {
-        return sysUserMapper.selectPage(dsl, pagingModel, renderer);
+    public Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, LimitOffset limitOffset) {
+        return sysUserMapper.selectPage(dsl, limitOffset, renderer);
     }
 
     @Override

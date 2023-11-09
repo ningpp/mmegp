@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import me.ningpp.mmegp.demo.entity.SysAutoUser;
 import me.ningpp.mmegp.demo.mapper.SysAutoUserDynamicSqlSupport;
 import me.ningpp.mmegp.demo.mapper.SysUserMapper;
+import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.mybatis.type.uuid.UUIDTypeHandler;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,6 @@ import me.ningpp.mmegp.demo.entity.SysRoleMenu;
 import me.ningpp.mmegp.demo.entity2.SysUser;
 import me.ningpp.mmegp.demo.model.SysUserRole;
 import org.mybatis.dynamic.sql.SqlBuilder;
-import org.mybatis.dynamic.sql.select.PagingModel;
 import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 
@@ -58,10 +58,7 @@ public class AllServiceTest extends DemoApplicationStarter {
                 .and(name, SqlBuilder.isLike("name%"))
                 .orderBy(SqlBuilder.sortColumn(id.name()));
         Page<SysUser> userPage = allService.selectUserPage(dsl,
-                new PagingModel.Builder()
-                        .withLimit(3L)
-                        .withOffset(7L)
-                        .build());
+                LimitOffset.of(3L, 7L));
         assertEquals(total, userPage.getTotalCount());
         assertEquals(3, userPage.getItems().size());
         assertEquals("name7", userPage.getItems().get(0).getName());

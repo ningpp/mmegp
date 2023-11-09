@@ -15,20 +15,22 @@
  */
 package me.ningpp.mmegp.mybatis.dsql.pagination;
 
-import java.util.List;
+public interface LimitOffset {
 
-public interface Page<T> {
+    Long limit();
 
-    List<T> getItems();
+    Long offset();
 
-    long getTotalCount();
-
-    static <T> Page<T> of(List<T> items, long totalCount) {
-        return new DefaultPageImpl<>(items, totalCount);
+    static LimitOffset of(Long limit, Long offset) {
+        return new DefaultLimitOffsetImpl(limit, offset);
     }
 
-    static <T> Page<T> empty() {
-        return of(null, 0L);
+    static LimitOffset ofLimit(Long limit) {
+        return of(limit, null);
+    }
+
+    static LimitOffset ofOffset(Long offset) {
+        return of(null, offset);
     }
 
 }

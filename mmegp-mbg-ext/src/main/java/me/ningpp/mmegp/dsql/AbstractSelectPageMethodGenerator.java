@@ -54,7 +54,7 @@ public abstract class AbstractSelectPageMethodGenerator implements SelectPageMet
         mapperInterface.addImportedType(new FullyQualifiedJavaType(
                 "me.ningpp.mmegp.mybatis.dsql.pagination.Page"));
         mapperInterface.addImportedType(new FullyQualifiedJavaType(
-                "org.mybatis.dynamic.sql.select.PagingModel"));
+                "me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset"));
         mapperInterface.addImportedType(new FullyQualifiedJavaType(
                 "org.mybatis.dynamic.sql.select.SelectDSL"));
         mapperInterface.addImportedType(new FullyQualifiedJavaType(
@@ -70,7 +70,7 @@ public abstract class AbstractSelectPageMethodGenerator implements SelectPageMet
         method.addParameter(new Parameter(new
                 FullyQualifiedJavaType("SelectDSL<SelectModel>"), "listDsl"));
         method.addParameter(new Parameter(new
-                FullyQualifiedJavaType("PagingModel"), "paging"));
+                FullyQualifiedJavaType("LimitOffset"), "limitOffset"));
 
         List<Parameter> otherParms = getOtherParameters(introspectedTable, pluginProperties);
         method.getParameters().addAll(Optional.ofNullable(otherParms).orElse(new ArrayList<>(0)));

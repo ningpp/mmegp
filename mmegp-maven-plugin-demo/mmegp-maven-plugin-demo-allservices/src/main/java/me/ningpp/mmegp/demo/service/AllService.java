@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 import me.ningpp.mmegp.demo.entity.SysAutoUser;
+import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
-import org.mybatis.dynamic.sql.select.PagingModel;
 import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.SelectModel;
@@ -43,13 +43,13 @@ public interface AllService {
 
     List<SysAutoUser> queryAutoUser(SelectDSLCompleter completer);
 
-    Page<SysAutoUser> selectAutoUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel);
+    Page<SysAutoUser> selectAutoUserPage(SelectDSL<SelectModel> dsl, LimitOffset limitOffset);
 
     void insertUser(SysUser user);
 
     List<SysUser> queryUser(String nameLike);
 
-    Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, PagingModel pagingModel);
+    Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, LimitOffset limitOffset);
 
     void insertUserRole(SysUserRole userRole);
 
