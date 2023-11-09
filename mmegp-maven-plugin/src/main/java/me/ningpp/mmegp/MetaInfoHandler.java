@@ -15,12 +15,11 @@
  */
 package me.ningpp.mmegp;
 
+import com.github.javaparser.ast.body.TypeDeclaration;
 import org.mybatis.generator.api.IntrospectedTable;
-
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
 public interface MetaInfoHandler {
 
-    void handle(IntrospectedTable table, ClassOrInterfaceDeclaration typeDeclaration);
+    void handle(IntrospectedTable table, TypeDeclaration<?> typeDeclaration);
 
 }

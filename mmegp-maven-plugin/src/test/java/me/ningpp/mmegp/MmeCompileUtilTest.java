@@ -2,9 +2,9 @@ package me.ningpp.mmegp;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -110,12 +110,37 @@ public class MmeCompileUtilTest {
             + "";
 
     @Test
-    void buildIntrospectedTableTest() throws ClassNotFoundException, IOException, InterruptedException {
+    void parseRecordTest() throws InterruptedException, ClassNotFoundException {
+        String code = "import me.ningpp.mmegp.annotations.Generated;\n" +
+                "import me.ningpp.mmegp.annotations.GeneratedColumn;\n" +
+                "import org.apache.ibatis.type.JdbcType;\n" +
+                "\n" +
+                "@Generated(table = \"sys_person\")\n" +
+                "public record SysPerson(\n" +
+                "        @GeneratedColumn(name = \"id\", jdbcType = JdbcType.VARCHAR, id = true)\n" +
+                "        String id,\n" +
+                "        @GeneratedColumn(name = \"name\", jdbcType = JdbcType.VARCHAR)\n" +
+                "        String name\n" +
+                ") {\n" +
+                "}";
+        Context context = buildContext();
+        IntrospectedTable introspectedTable = buildIntrospectedTable(context,
+                code, new EmptyMetaInfoHandler());
+        assertNotNull(introspectedTable);
+        assertEquals(2, introspectedTable.getAllColumns().size());
+        assertEquals("sys_person", introspectedTable.getTableConfiguration().getTableName());
+        assertEquals("SysPerson", introspectedTable.getTableConfiguration().getDomainObjectName());
+
+        assertEquals("id", introspectedTable.getAllColumns().get(0).getActualColumnName());
+        assertEquals("name", introspectedTable.getAllColumns().get(1).getActualColumnName());
+    }
+
+    private Context buildContext() throws InterruptedException {
         String targetProject = System.getProperty("java.dir");
         String javaClientGeneratorConfigurationType = "XMLMAPPER";
         String modelPackageName = "me.ningpp.mmegp.entity";
         String mapperPackageName = "me.ningpp.mmegp.mapper";
-        
+
         Context context = new Context(ModelType.FLAT);
 
         CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
@@ -144,9 +169,14 @@ public class MmeCompileUtilTest {
         context.setJavaModelGeneratorConfiguration(jmgConfig);
 
         //为了初始化pluginAggregator
-        context.generateFiles(new NullProgressCallback(), Collections.emptyList(), 
+        context.generateFiles(new NullProgressCallback(), Collections.emptyList(),
                 Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return context;
+    }
 
+    @Test
+    void buildIntrospectedTableTest() throws ClassNotFoundException, InterruptedException {
+        Context context = buildContext();
         List<Pair<String, List<String>>> pairs = List.of(
                 Pair.of("", null),
                 Pair.of(", countGroupByColumns = \"OF_YEAR\"", List.of("OF_YEAR")),

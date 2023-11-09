@@ -20,6 +20,7 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,13 +30,17 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.GeneratedKey;
 import org.mybatis.generator.config.TableConfiguration;
@@ -105,16 +110,18 @@ public final class MyBatisGeneratorUtil {
         return JDBC_TYPE_MAPPING.get(clazz);
     }
 
-    private static IntrospectedTable buildIntrospectedTable(Context context, 
-            ClassOrInterfaceDeclaration modelDeclaration,
+    private static IntrospectedTable buildIntrospectedTable(Context context,
+            TypeDeclaration<?> modelDeclaration,
             NodeList<ImportDeclaration> importDeclarations,
             MetaInfoHandler metaInfoHandler) throws ClassNotFoundException {
+        if (modelDeclaration == null || modelDeclaration.getFullyQualifiedName().isEmpty()) {
+            return null;
+        }
         GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration.getAnnotationByClass(Generated.class));
         if (tableInfo == null || StringUtils.isEmpty(tableInfo.getName())) {
             return null;
         }
-        String fullName = modelDeclaration.getFullyQualifiedName().get();
-        String domainObjectName = fullName.substring(fullName.lastIndexOf('.')+1, fullName.length());
+        String domainObjectName = new FullyQualifiedJavaType(modelDeclaration.getFullyQualifiedName().get()).getShortName();
         IntrospectedTable introspectedTable = ObjectFactory.createIntrospectedTableForValidation(context);
         FullyQualifiedTable table = new FullyQualifiedTable(null, null, tableInfo.getName(), domainObjectName, null, false, null, null, null, false, null, context);
         introspectedTable.setFullyQualifiedTable(table);
@@ -133,12 +140,27 @@ public final class MyBatisGeneratorUtil {
 
         introspectedTable.setExampleType(modelDeclaration.getFullyQualifiedName().get() + "Example");
         introspectedTable.setMyBatis3JavaMapperType(context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + domainObjectName + "Mapper");
-        List<FieldDeclaration> fields = modelDeclaration.getFields();
-        if (fields == null || fields.size() == 0) {
-            return null;
+
+        List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
+        if (modelDeclaration.isRecordDeclaration()) {
+            NodeList<Parameter> parameters = modelDeclaration.asRecordDeclaration().getParameters();
+            if (parameters != null) {
+                for (Parameter param : parameters) {
+                    Pair<IntrospectedColumn, Boolean> pair = JavaParserUtil.buildColumn(modelDeclaration, importDeclarations, param, context);
+                    pairs.add(pair);
+                }
+            }
+        } else {
+            List<FieldDeclaration> fields = modelDeclaration.getFields();
+            if (fields != null) {
+                for (FieldDeclaration field : fields) {
+                    Pair<IntrospectedColumn, Boolean> pair = JavaParserUtil.buildColumn(modelDeclaration, importDeclarations, field, context);
+                    pairs.add(pair);
+                }
+            }
         }
-        for (FieldDeclaration fieldDeclaration : fields) {
-            Pair<IntrospectedColumn, Boolean> pair = JavaParserUtil.buildColumn(modelDeclaration, importDeclarations, fieldDeclaration, context);
+
+        for (Pair<IntrospectedColumn, Boolean> pair : pairs) {
             if (pair != null) {
                 introspectedTable.addColumn(pair.getLeft());
                 if (Boolean.TRUE.equals(pair.getRight())) {
@@ -163,27 +185,21 @@ public final class MyBatisGeneratorUtil {
     public static IntrospectedTable buildIntrospectedTable(Context context, 
             CompilationUnit compilationUnit,
             MetaInfoHandler metaInfoHandler) throws ClassNotFoundException {
-        Optional<TypeDeclaration<?>> ptOptional = compilationUnit.getPrimaryType();
-        TypeDeclaration<?> typeDeclaration;
-        if (ptOptional.isPresent()) {
-            typeDeclaration = ptOptional.get();
-        } else if (compilationUnit.getTypes().size() > 0) {
-            typeDeclaration = compilationUnit.getType(0);
-        } else {
-            typeDeclaration = null;
+        TypeDeclaration<?> typeDeclaration = compilationUnit.getTypes().stream()
+                .filter(typeDeclar -> typeDeclar.hasModifier(Modifier.Keyword.PUBLIC))
+                .findFirst().orElse(null);
+        if (typeDeclaration != null) {
+            if (typeDeclaration.isRecordDeclaration()
+                    || (typeDeclaration.isClassOrInterfaceDeclaration()
+                        && !typeDeclaration.asClassOrInterfaceDeclaration().isInterface())) {
+                return buildIntrospectedTable(
+                        context,
+                        typeDeclaration,
+                        compilationUnit.getImports(),
+                        metaInfoHandler);
+            }
         }
-        if (!(typeDeclaration instanceof ClassOrInterfaceDeclaration) 
-                || !typeDeclaration.isClassOrInterfaceDeclaration()) {
-            return null;
-        }
-        ClassOrInterfaceDeclaration modelDeclaration = (ClassOrInterfaceDeclaration) typeDeclaration;
-        if (modelDeclaration.isInterface()) {
-            return null;
-        }
-        if (! modelDeclaration.isPublic()) {
-            return null;
-        }
-        return buildIntrospectedTable(context, modelDeclaration, compilationUnit.getImports(), metaInfoHandler);
+        return null;
     }
 
 }

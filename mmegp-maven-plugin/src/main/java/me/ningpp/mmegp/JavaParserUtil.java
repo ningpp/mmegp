@@ -35,9 +35,16 @@ import java.util.stream.Collectors;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ParserConfiguration.LanguageLevel;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ClassExpr;
+import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
+import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
+import com.github.javaparser.ast.nodeTypes.NodeWithType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -47,7 +54,6 @@ import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
@@ -84,12 +90,13 @@ public final class JavaParserUtil {
 
     public static JavaParser newParser() {
         ParserConfiguration jpc = new ParserConfiguration();
+        jpc.setLanguageLevel(LanguageLevel.JAVA_17);
         jpc.setCharacterEncoding(StandardCharsets.UTF_8);
         return new JavaParser(jpc);
     }
 
     public static GeneratedTableInfo getTableValue(Optional<AnnotationExpr> generatedAnnotationExpr) {
-        if (!generatedAnnotationExpr.isPresent()) {
+        if (generatedAnnotationExpr == null || generatedAnnotationExpr.isEmpty()) {
             return null;
         }
         AnnotationExpr generatedAnnotation = generatedAnnotationExpr.get();
@@ -161,7 +168,15 @@ public final class JavaParserUtil {
         return null;
     }
 
-    public static Pair<IntrospectedColumn, Boolean> buildColumn(ClassOrInterfaceDeclaration modelDeclaration,
+    public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
+                                                                NodeList<ImportDeclaration> importDeclarations,
+                                                                Parameter param,
+                                                                Context context) throws ClassNotFoundException {
+        return buildColumn(modelDeclaration, importDeclarations, context,
+                param, param, param);
+    }
+
+    public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
                                                                 NodeList<ImportDeclaration> importDeclarations,
                                                                 FieldDeclaration field,
                                                                 Context context) throws ClassNotFoundException {
@@ -172,8 +187,20 @@ public final class JavaParserUtil {
                                         .map(VariableDeclarator::getNameAsString)
                                         .collect(Collectors.joining(", ")));
         }
-        Optional<AnnotationExpr> optionalColumnAnno = field.getAnnotationByClass(GeneratedColumn.class);
-        if (!field.isPrivate() || !optionalColumnAnno.isPresent()) {
+        return buildColumn(modelDeclaration, importDeclarations, context,
+                field, field.getVariable(0), field.getVariable(0));
+    }
+
+    private static <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
+            TypeDeclaration<?> modelDeclaration,
+            NodeList<ImportDeclaration> importDeclarations,
+            Context context,
+            NodeWithAnnotations<N1> annotationNode,
+            NodeWithType<N2, Type> typeNode,
+            NodeWithSimpleName<N2> nameNode) throws ClassNotFoundException {
+
+        Optional<AnnotationExpr> optionalColumnAnno = annotationNode.getAnnotationByClass(GeneratedColumn.class);
+        if (optionalColumnAnno.isEmpty()) {
             return null;
         }
         AnnotationExpr columnAnnotation = optionalColumnAnno.get();
@@ -186,7 +213,7 @@ public final class JavaParserUtil {
         }
         IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
         column.setContext(context);
-        
+
         String name = null;
         JdbcType jdbcType = null;
         boolean blob = false;
@@ -217,18 +244,18 @@ public final class JavaParserUtil {
         if (StringUtils.isEmpty(name) || "null".equals(name) || jdbcType == null) {
             return null;
         }
-        String className = getClassByType(importDeclarations, field.getVariable(0).getType());
+        String className = getClassByType(importDeclarations, typeNode.getType());
         if (StringUtils.isEmpty(className)) {
-            throw new GenerateMyBatisExampleException("不支持的Java类型！ " + 
-                    "field = " + field.getVariable(0).getNameAsString() + 
-                    ", type = " + field.getVariable(0).getType() + 
+            throw new GenerateMyBatisExampleException("不支持的Java类型！ " +
+                    "field = " + nameNode.getNameAsString() +
+                    ", type = " + typeNode.getType() +
                     ", FullyQualifiedName = " + modelDeclaration.getFullyQualifiedName().orElse(null));
         }
         column.setBlobColumn(blob);
         column.setIdentity(id && generatedValue);
         column.setActualColumnName(name);
         column.setAutoIncrement(generatedValue);
-        column.setJavaProperty(field.getVariable(0).getNameAsString());
+        column.setJavaProperty(nameNode.getNameAsString());
         column.setJdbcType(jdbcType.TYPE_CODE);
         column.setJdbcTypeName(jdbcType.name());
         column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(className));
@@ -236,8 +263,8 @@ public final class JavaParserUtil {
 
         column.getProperties().put(AGGREGATES_NAME,
                 parseAggregates(memberParis).stream()
-                .map(AggregateFunction::name)
-                .collect(Collectors.joining(",")));
+                        .map(AggregateFunction::name)
+                        .collect(Collectors.joining(",")));
 
         return Pair.of(column, id);
     }

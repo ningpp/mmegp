@@ -20,8 +20,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import org.apache.commons.lang3.tuple.Pair;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -30,8 +28,6 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 
 public class BuildIntrospectedTableCallable implements Callable<Pair<IntrospectedTable, File>> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BuildIntrospectedTableCallable.class);
 
     private final Context context;
     private final File file;
