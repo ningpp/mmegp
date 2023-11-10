@@ -35,7 +35,6 @@ public class WriteGeneratedFileCallable implements Callable<Void> {
             targetFile.getParentFile().mkdirs();
             targetFile.delete();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
             throw new GenerateMyBatisExampleException(e.getMessage(), e);
         }
     }
@@ -47,7 +46,9 @@ public class WriteGeneratedFileCallable implements Callable<Void> {
                 gf.getFileName());
         Files.writeString(targetFile.toPath(), gf.getFormattedContent(),
                 StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-        LOGGER.info("writed :   " + targetFile.getAbsolutePath());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Successfully write file :   " + targetFile.getAbsolutePath());
+        }
         return null;
     }
 }

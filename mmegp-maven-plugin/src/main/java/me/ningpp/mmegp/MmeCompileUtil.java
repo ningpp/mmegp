@@ -80,7 +80,10 @@ public final class MmeCompileUtil {
                 for (Plugin plugin : plugins) {
                     plugin.initialized(pair.getLeft());
                     List<GeneratedJavaFile> files = plugin.contextGenerateAdditionalJavaFiles(pair.getLeft());
-                    files.forEach(f -> LOGGER.info("generated :   " + f.getFileName()));
+                    if (LOGGER.isDebugEnabled()) {
+                        files.forEach(f -> LOGGER.debug("Successfully generate file :   " + f.getFileName()));
+                    }
+
                     additionalJavaFiles.addAll(files);
                     generatedXmlFiles.addAll(plugin.contextGenerateAdditionalXmlFiles(pair.getLeft()));
                 }
