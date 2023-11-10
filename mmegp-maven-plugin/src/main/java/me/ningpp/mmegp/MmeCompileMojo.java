@@ -98,6 +98,10 @@ public class MmeCompileMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // mbg use line.separator render file lines,
+        // for stable, don't use system-dependent value.
+        System.setProperty("line.separator", "\n");
+
         MetaInfoHandler metaInfoHandler = createMetaInfoHandler(metaInfoHandlerClassName);
 
         try ( FileReader cfgFileReader = new FileReader(new File(generatorConfigFilePath)) ) {
