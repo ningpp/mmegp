@@ -15,11 +15,42 @@
  */
 package me.ningpp.mmegp;
 
+import com.github.javaparser.ast.body.AnnotationDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
+import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import org.mybatis.generator.api.IntrospectedTable;
 
 public interface MetaInfoHandler {
 
-    void handle(IntrospectedTable table, TypeDeclaration<?> typeDeclaration);
+    default void handle(IntrospectedTable table, TypeDeclaration<?> typeDeclaration) {
+        if (table == null || typeDeclaration == null) {
+            return;
+        }
+        if (typeDeclaration.isClassOrInterfaceDeclaration()) {
+            handle(table, typeDeclaration.asClassOrInterfaceDeclaration());
+        } else if (typeDeclaration.isRecordDeclaration()) {
+            handle(table, typeDeclaration.asRecordDeclaration());
+        } else if (typeDeclaration.isEnumDeclaration()) {
+            handle(table, typeDeclaration.asEnumDeclaration());
+        } else if (typeDeclaration.isAnnotationDeclaration()) {
+            handle(table, typeDeclaration.asAnnotationDeclaration());
+        } else {
+            throw new GenerateMyBatisExampleException("unknown TypeDeclaration: " + typeDeclaration.getClass().getName());
+        }
+    }
+
+    default void handle(IntrospectedTable table, ClassOrInterfaceDeclaration typeDeclaration) {
+    }
+
+    default void handle(IntrospectedTable table, RecordDeclaration typeDeclaration) {
+    }
+
+    default void handle(IntrospectedTable table, EnumDeclaration typeDeclaration) {
+    }
+
+    default void handle(IntrospectedTable table, AnnotationDeclaration typeDeclaration) {
+    }
 
 }
