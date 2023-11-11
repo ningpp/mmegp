@@ -14,6 +14,8 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.StringTypeHandler;
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -114,12 +116,13 @@ public class MmeCompileUtilTest {
         String code = "import me.ningpp.mmegp.annotations.Generated;\n" +
                 "import me.ningpp.mmegp.annotations.GeneratedColumn;\n" +
                 "import org.apache.ibatis.type.JdbcType;\n" +
-                "\n" +
+                "import org.apache.ibatis.type.StringTypeHandler;\n" +
+                "import static org.apache.ibatis.type.JdbcType.VARCHAR;\n" +
                 "@Generated(table = \"sys_person\")\n" +
                 "public record SysPerson(\n" +
-                "        @GeneratedColumn(name = \"id\", jdbcType = JdbcType.VARCHAR, id = true)\n" +
+                "        @GeneratedColumn(name = \"id\", jdbcType = VARCHAR, id = true, typeHandler = StringTypeHandler.class)\n" +
                 "        String id,\n" +
-                "        @GeneratedColumn(name = \"name\", jdbcType = JdbcType.VARCHAR)\n" +
+                "        @GeneratedColumn(name = \"name\", jdbcType = JdbcType.VARCHAR, typeHandler = org.apache.ibatis.type.StringTypeHandler.class)\n" +
                 "        String name\n" +
                 ") {\n" +
                 "}";
@@ -132,7 +135,12 @@ public class MmeCompileUtilTest {
         assertEquals("SysPerson", introspectedTable.getTableConfiguration().getDomainObjectName());
 
         assertEquals("id", introspectedTable.getAllColumns().get(0).getActualColumnName());
+        assertEquals(JdbcType.VARCHAR.TYPE_CODE, introspectedTable.getAllColumns().get(0).getJdbcType());
+        assertEquals(StringTypeHandler.class.getName(), introspectedTable.getAllColumns().get(0).getTypeHandler());
+
         assertEquals("name", introspectedTable.getAllColumns().get(1).getActualColumnName());
+        assertEquals(JdbcType.VARCHAR.TYPE_CODE, introspectedTable.getAllColumns().get(1).getJdbcType());
+        assertEquals(StringTypeHandler.class.getName(), introspectedTable.getAllColumns().get(1).getTypeHandler());
     }
 
     private Context buildContext() throws InterruptedException {

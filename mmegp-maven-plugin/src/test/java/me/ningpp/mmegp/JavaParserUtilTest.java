@@ -17,10 +17,14 @@ package me.ningpp.mmegp;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import org.junit.jupiter.api.Test;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,14 +55,19 @@ class JavaParserUtilTest {
         assertTrue(field1.isPresent());
         assertTrue(field2.isPresent());
 
+        Map<String, ImportDeclaration> declarMappings = new HashMap<>();
+        for (ImportDeclaration importDeclar : result.getResult().get().getImports()) {
+            declarMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(), importDeclar);
+        }
+
         String field1Type = JavaParserUtil.getMatchedType(
-                result.getResult().get().getImports(),
+                declarMappings,
                 field1.get().getVariable(0).getType()
         );
         assertEquals("java.util.Set<String>", field1Type);
 
         String field2Type = JavaParserUtil.getMatchedType(
-                result.getResult().get().getImports(),
+                declarMappings,
                 field2.get().getVariable(0).getType()
         );
         assertEquals("java.util.HashSet<String>", field2Type);

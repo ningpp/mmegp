@@ -19,12 +19,15 @@ import org.apache.ibatis.type.JdbcType;
 
 import me.ningpp.mmegp.annotations.Generated;
 import me.ningpp.mmegp.annotations.GeneratedColumn;
+import org.apache.ibatis.type.StringTypeHandler;
+
+import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
 @Generated(table = "sys_user")
 public class SysUser {
-    @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
+    @GeneratedColumn(name = "id", jdbcType = VARCHAR, id = true, typeHandler = StringTypeHandler.class)
     private String id;
-    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR, id = false)
+    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
     private String name;
     public String getId() {
         return id;

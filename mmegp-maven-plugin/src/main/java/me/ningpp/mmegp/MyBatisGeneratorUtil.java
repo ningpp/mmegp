@@ -117,7 +117,7 @@ public final class MyBatisGeneratorUtil {
         if (modelDeclaration == null || modelDeclaration.getFullyQualifiedName().isEmpty()) {
             return null;
         }
-        GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration.getAnnotationByClass(Generated.class));
+        GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration);
         if (tableInfo == null || StringUtils.isEmpty(tableInfo.getName())) {
             return null;
         }
@@ -141,21 +141,24 @@ public final class MyBatisGeneratorUtil {
         introspectedTable.setExampleType(modelDeclaration.getFullyQualifiedName().get() + "Example");
         introspectedTable.setMyBatis3JavaMapperType(context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + domainObjectName + "Mapper");
 
+        Map<String, ImportDeclaration> declarMappings = new HashMap<>();
+        for (ImportDeclaration importDeclar : importDeclarations) {
+            declarMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(), importDeclar);
+        }
+
         List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
         if (modelDeclaration.isRecordDeclaration()) {
             NodeList<Parameter> parameters = modelDeclaration.asRecordDeclaration().getParameters();
             if (parameters != null) {
                 for (Parameter param : parameters) {
-                    Pair<IntrospectedColumn, Boolean> pair = JavaParserUtil.buildColumn(modelDeclaration, importDeclarations, param, context);
-                    pairs.add(pair);
+                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, declarMappings, param, context));
                 }
             }
         } else {
             List<FieldDeclaration> fields = modelDeclaration.getFields();
             if (fields != null) {
                 for (FieldDeclaration field : fields) {
-                    Pair<IntrospectedColumn, Boolean> pair = JavaParserUtil.buildColumn(modelDeclaration, importDeclarations, field, context);
-                    pairs.add(pair);
+                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, declarMappings, field, context));
                 }
             }
         }

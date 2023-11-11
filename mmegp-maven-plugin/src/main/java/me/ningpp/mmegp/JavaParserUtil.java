@@ -15,6 +15,36 @@
  */
 package me.ningpp.mmegp;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ParserConfiguration.LanguageLevel;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
+import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
+import com.github.javaparser.ast.nodeTypes.NodeWithType;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
+import me.ningpp.mmegp.annotations.Generated;
+import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.enums.AggregateFunction;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.ibatis.type.JdbcType;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.config.Context;
+
+import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -24,67 +54,27 @@ import java.time.LocalTime;
 import java.time.Year;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.ParserConfiguration.LanguageLevel;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.ClassExpr;
-import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
-import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
-import com.github.javaparser.ast.nodeTypes.NodeWithType;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.ibatis.type.JdbcType;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.config.Context;
-
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.ArrayInitializerExpr;
-import com.github.javaparser.ast.expr.BooleanLiteralExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
-import com.github.javaparser.ast.expr.MemberValuePair;
-import com.github.javaparser.ast.expr.NormalAnnotationExpr;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
-import com.github.javaparser.ast.type.PrimitiveType;
-import com.github.javaparser.ast.type.PrimitiveType.Primitive;
-import com.github.javaparser.ast.type.Type;
-
-import me.ningpp.mmegp.annotations.GeneratedColumn;
-import me.ningpp.mmegp.enums.AggregateFunction;
 
 public final class JavaParserUtil {
     private JavaParserUtil() {
     }
 
-    private static final Map<String, Class<?>> BOXED_TYPES = new HashMap<>();
+    private static final Map<String, JdbcType> JDBC_TYPES = new HashMap<>();
     public static final String COUNT_GROUP_BY_COLUMNS_NAME = "countGroupByColumns";
     public static final String AGGREGATES_NAME = "aggregates";
 
     static {
-        for (Primitive pt : PrimitiveType.Primitive.values()) {
-            try {
-                BOXED_TYPES.put(pt.toBoxedType().asString(), Class.forName("java.lang." + pt.toBoxedType().asString()));
-            } catch (ClassNotFoundException e) {
-                //ignore
-            }
+        for (JdbcType jdbcType : JdbcType.values()) {
+            JDBC_TYPES.put(jdbcType.name(), jdbcType);
         }
     }
 
@@ -95,244 +85,251 @@ public final class JavaParserUtil {
         return new JavaParser(jpc);
     }
 
-    public static GeneratedTableInfo getTableValue(Optional<AnnotationExpr> generatedAnnotationExpr) {
-        if (generatedAnnotationExpr == null || generatedAnnotationExpr.isEmpty()) {
-            return null;
-        }
-        AnnotationExpr generatedAnnotation = generatedAnnotationExpr.get();
-        if (!(generatedAnnotation instanceof NormalAnnotationExpr)) {
-            return null;
-        }
-        NodeList<MemberValuePair> memberParis = ((NormalAnnotationExpr) generatedAnnotation).getPairs();
-        if (memberParis == null || memberParis.isEmpty()) {
+    public static GeneratedTableInfo getTableValue(NodeWithAnnotations<?> annotationNode) {
+        Map<String, List<MemberValuePair>> annotationMembers = getNormalAnnotationMembers(annotationNode, Generated.class);
+        if (annotationMembers.isEmpty()) {
             return null;
         }
 
-        String tableName = getStringValue("table", memberParis);
-        List<String> countGroupByColumns = getArrayStringValue(COUNT_GROUP_BY_COLUMNS_NAME, memberParis);
-        if (countGroupByColumns == null) {
-            String value = getStringValue(COUNT_GROUP_BY_COLUMNS_NAME, memberParis);
-            if (value != null) {
-                countGroupByColumns = List.of(value);
-            }
-        }
+        String tableName = parseString(annotationMembers, "table", null);
+        List<String> countGroupByColumns = parseArrayString(annotationMembers, COUNT_GROUP_BY_COLUMNS_NAME);
         return new GeneratedTableInfo(tableName, countGroupByColumns);
     }
 
-    private static String getStringValue(String name, NodeList<MemberValuePair> memberParis) {
-        String value = null;
-        for (MemberValuePair memberValuePair : memberParis) {
-            value = getStringValue(name, memberValuePair);
-            if (value != null) {
-                break;
-            }
-        }
-        return value;
-    }
-
-    private static String getStringValue(String name, MemberValuePair memberValuePair) {
-        String memberName = memberValuePair.getNameAsString();
-        Expression memberValue = memberValuePair.getValue();
-        if (name.equals(memberName) && memberValue instanceof StringLiteralExpr ) {
-            return ((StringLiteralExpr) memberValue).asString();
-        }
-        return null;
-    }
-
-    private static List<String> getArrayStringValue(String name, NodeList<MemberValuePair> memberParis) {
-        List<String> value = null;
-        for (MemberValuePair memberValuePair : memberParis) {
-            value = getArrayStringValue(name, memberValuePair);
-            if (value != null) {
-                break;
-            }
-        }
-        return value;
-    }
-
-    private static List<String> getArrayStringValue(String name, MemberValuePair memberValuePair) {
-        String memberName = memberValuePair.getNameAsString();
-        Expression memberValue = memberValuePair.getValue();
-        if (name.equals(memberName) && memberValue instanceof ArrayInitializerExpr ) {
-            List<Expression> expressions = ((ArrayInitializerExpr) memberValue).getValues();
-            if (expressions != null) {
-                List<String> values = new ArrayList<>();
-                for (Expression expression : expressions) {
-                    if (expression instanceof StringLiteralExpr) {
-                        values.add(((StringLiteralExpr) expression).asString());
-                    }
-                }
-                return values;
-            }
-        }
-        return null;
-    }
-
     public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
-                                                                NodeList<ImportDeclaration> importDeclarations,
+                                                                Map<String, ImportDeclaration> declarMappings,
                                                                 Parameter param,
                                                                 Context context) throws ClassNotFoundException {
-        return buildColumn(modelDeclaration, importDeclarations, context,
-                param, param, param);
+        return buildColumn(modelDeclaration, declarMappings, context, param, param, param);
     }
 
     public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
-                                                                NodeList<ImportDeclaration> importDeclarations,
+                                                                Map<String, ImportDeclaration> declarMappings,
                                                                 FieldDeclaration field,
                                                                 Context context) throws ClassNotFoundException {
         if (field.getVariables().size() > 1) {
             throw new GenerateMyBatisExampleException("can't use multi variables declaration! Model="
-                    + modelDeclaration.getFullyQualifiedName().get()
+                    + modelDeclaration.getFullyQualifiedName().orElse(null)
                     + ", field = " + field.getVariables().stream()
                                         .map(VariableDeclarator::getNameAsString)
                                         .collect(Collectors.joining(", ")));
         }
-        return buildColumn(modelDeclaration, importDeclarations, context,
+        return buildColumn(modelDeclaration, declarMappings, context,
                 field, field.getVariable(0), field.getVariable(0));
+    }
+
+    private static Map<String, List<MemberValuePair>> getNormalAnnotationMembers(NodeWithAnnotations<?> annotationNode,
+                                                                                 Class<? extends Annotation> annotationClass) {
+        Optional<AnnotationExpr> optionalColumnAnno = annotationNode.getAnnotationByClass(annotationClass);
+        if (optionalColumnAnno.isEmpty()
+                || !optionalColumnAnno.get().isNormalAnnotationExpr()) {
+            return Map.of();
+        }
+        return optionalColumnAnno.get().asNormalAnnotationExpr()
+                .getPairs().stream().collect(
+                        Collectors.groupingBy(MemberValuePair::getNameAsString));
     }
 
     private static <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
             TypeDeclaration<?> modelDeclaration,
-            NodeList<ImportDeclaration> importDeclarations,
+            Map<String, ImportDeclaration> declarMappings,
             Context context,
             NodeWithAnnotations<N1> annotationNode,
             NodeWithType<N2, Type> typeNode,
             NodeWithSimpleName<N2> nameNode) throws ClassNotFoundException {
+        Map<String, List<MemberValuePair>> annotationMembers = getNormalAnnotationMembers(annotationNode, GeneratedColumn.class);
+        if (annotationMembers.isEmpty()) {
+            return null;
+        }
 
-        Optional<AnnotationExpr> optionalColumnAnno = annotationNode.getAnnotationByClass(GeneratedColumn.class);
-        if (optionalColumnAnno.isEmpty()) {
-            return null;
+        String name = parseString(annotationMembers, "name", null);
+        JdbcType jdbcType = parseJdbcType(annotationMembers);
+        if (StringUtils.isEmpty(name) || jdbcType == null) {
+            throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
+                    "can't get column name or jdbcType, field = %s, type = %s, FullyQualifiedName = %s",
+                    nameNode.getNameAsString(), typeNode.getType().toString(),
+                    modelDeclaration.getFullyQualifiedName().orElse(null)));
         }
-        AnnotationExpr columnAnnotation = optionalColumnAnno.get();
-        if (!(columnAnnotation instanceof NormalAnnotationExpr)) {
-            return null;
+
+        String className = getClassByType(declarMappings, typeNode.getType());
+        if (StringUtils.isEmpty(className)) {
+            throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
+                    "not supported Java Type, field = %s, type = %s, FullyQualifiedName = %s",
+                    nameNode.getNameAsString(), typeNode.getType().toString(),
+                    modelDeclaration.getFullyQualifiedName().orElse(null)));
         }
-        NodeList<MemberValuePair> memberParis = ((NormalAnnotationExpr) columnAnnotation).getPairs();
-        if (memberParis == null || memberParis.isEmpty()) {
-            return null;
-        }
+
         IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
         column.setContext(context);
-
-        String name = null;
-        JdbcType jdbcType = null;
-        boolean blob = false;
-        boolean id = false;
-        boolean generatedValue = false;
-        String typeHandler = null;
-
-        for (MemberValuePair memberValuePair : memberParis) {
-            String memberName = memberValuePair.getNameAsString();
-            Expression memberValue = memberValuePair.getValue();
-            if ("name".equals(memberName) && memberValue instanceof StringLiteralExpr ) {
-                name = ((StringLiteralExpr) memberValue).asString();
-            } else if ("jdbcType".equals(memberName) && memberValue instanceof FieldAccessExpr ) {
-                FieldAccessExpr expr = (FieldAccessExpr) memberValue;
-                jdbcType = JdbcType.valueOf(expr.getName().asString());
-            } else if ("blob".equals(memberName)) {
-                blob = ((BooleanLiteralExpr) memberValue).getValue();
-            } else if ("id".equals(memberName)) {
-                id = ((BooleanLiteralExpr) memberValue).getValue();
-            } else if ("generatedValue".equals(memberName)) {
-                generatedValue = ((BooleanLiteralExpr) memberValue).getValue();
-            } else if ("typeHandler".equals(memberName) && memberValue instanceof ClassExpr ) {
-                ClassExpr expr = (ClassExpr) memberValue;
-                typeHandler = getMatchedType(importDeclarations, expr.getType());
-            }
-        }
-
-        if (StringUtils.isEmpty(name) || "null".equals(name) || jdbcType == null) {
-            return null;
-        }
-        String className = getClassByType(importDeclarations, typeNode.getType());
-        if (StringUtils.isEmpty(className)) {
-            throw new GenerateMyBatisExampleException("不支持的Java类型！ " +
-                    "field = " + nameNode.getNameAsString() +
-                    ", type = " + typeNode.getType() +
-                    ", FullyQualifiedName = " + modelDeclaration.getFullyQualifiedName().orElse(null));
-        }
-        column.setBlobColumn(blob);
-        column.setIdentity(id && generatedValue);
         column.setActualColumnName(name);
-        column.setAutoIncrement(generatedValue);
         column.setJavaProperty(nameNode.getNameAsString());
+
+        column.setBlobColumn(parseBoolean(annotationMembers, "blob", false));
+
+        boolean id = parseBoolean(annotationMembers, "id", false);
+        boolean generatedValue = parseBoolean(annotationMembers, "generatedValue", false);
+        column.setIdentity(id && generatedValue);
+        column.setAutoIncrement(generatedValue);
+
         column.setJdbcType(jdbcType.TYPE_CODE);
         column.setJdbcTypeName(jdbcType.name());
         column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(className));
-        column.setTypeHandler(typeHandler);
+        column.setTypeHandler(parseTypeHandler(annotationMembers, declarMappings));
 
         column.getProperties().put(AGGREGATES_NAME,
-                parseAggregates(memberParis).stream()
+                parseAggregates(annotationMembers).stream()
                         .map(AggregateFunction::name)
                         .collect(Collectors.joining(",")));
 
         return Pair.of(column, id);
     }
 
-    private static List<AggregateFunction> parseAggregates(NodeList<MemberValuePair> memberParis) {
-        List<AggregateFunction> aggregateFunctions = new ArrayList<>();
-        for (MemberValuePair memberValuePair : memberParis) {
-            String memberName = memberValuePair.getNameAsString();
-            Expression memberValue = memberValuePair.getValue();
-            if (!AGGREGATES_NAME.equals(memberName)) {
-                continue;
-            }
-            if (memberValue instanceof ArrayInitializerExpr) {
-                NodeList<Expression> expressions = ((ArrayInitializerExpr) memberValue).getValues();
-                for (Expression expression : expressions) {
-                    aggregateFunctions.add(parseAggregate(expression));
-                }
-            } else {
-                aggregateFunctions.add(parseAggregate(memberValue));
-            }
-            
+    private static String parseTypeHandler(Map<String, List<MemberValuePair>> annotationMembers,
+                                           Map<String, ImportDeclaration> declarMappings) {
+        return parse(annotationMembers, "typeHandler")
+                .filter(Expression::isClassExpr)
+                .map(mv -> getMatchedType(declarMappings, mv.asClassExpr().getType()))
+                .orElse(null);
+    }
+
+    private static JdbcType parseJdbcType(Map<String, List<MemberValuePair>> annotationMembers) {
+        return parse(annotationMembers, "jdbcType")
+                .flatMap(memberValue -> {
+                    String jdbcTypeName = null;
+                    if (memberValue.isFieldAccessExpr()) {
+                        jdbcTypeName = memberValue.asFieldAccessExpr().getNameAsString();
+                    } else if (memberValue.isNameExpr()) {
+                        jdbcTypeName = memberValue.asNameExpr().getNameAsString();
+                    }
+                    return Optional.ofNullable(JDBC_TYPES.get(jdbcTypeName));
+                }).orElse(null);
+    }
+
+    private static List<Expression> parseArray(Map<String, List<MemberValuePair>> annotationMembers, String name) {
+        Optional<ArrayInitializerExpr> arrayInitExpr = parse(annotationMembers, name)
+                .filter(Expression::isArrayInitializerExpr)
+                .map(Expression::asArrayInitializerExpr);
+        if (arrayInitExpr.isPresent()) {
+            return arrayInitExpr.get().getValues();
+        } else {
+            Optional<Expression> expr = parse(annotationMembers, name);
+            return expr.map(List::of).orElseGet(List::of);
         }
-        return aggregateFunctions.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    private static List<String> parseArrayString(Map<String, List<MemberValuePair>> annotationMembers, String name) {
+        return parseArray(annotationMembers, name)
+                .stream().filter(Expression::isStringLiteralExpr)
+                .map(expr -> expr.asStringLiteralExpr().asString())
+                .collect(Collectors.toList());
+    }
+
+    private static String parseString(Map<String, List<MemberValuePair>> annotationMembers, String name, String defaultValue) {
+        return parse(annotationMembers, name)
+                .filter(Expression::isStringLiteralExpr)
+                .map(mv -> mv.asStringLiteralExpr().asString())
+                .orElse(defaultValue);
+    }
+
+    private static boolean parseBoolean(Map<String, List<MemberValuePair>> annotationMembers, String name, boolean defaultValue) {
+        return parse(annotationMembers, name)
+                .filter(Expression::isBooleanLiteralExpr)
+                .map(mv -> mv.asBooleanLiteralExpr().getValue())
+                .orElse(defaultValue);
+    }
+
+    private static Optional<Expression> parse(Map<String, List<MemberValuePair>> annotationMembers, String name) {
+        List<MemberValuePair> pairs = annotationMembers.get(name);
+        if (pairs != null && pairs.size() == 1) {
+            return Optional.ofNullable(pairs.get(0).getValue());
+        }
+        return Optional.empty();
+    }
+
+    private static <T> List<T> null2Empty(List<T> list) {
+        return list == null ? List.of() : list;
+    }
+
+    private static List<AggregateFunction> parseAggregates(Map<String, List<MemberValuePair>> annotationMembers) {
+        return parseArray(annotationMembers, AGGREGATES_NAME)
+                .stream().map(JavaParserUtil::parseAggregate)
+                .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private static AggregateFunction parseAggregate(Expression exp) {
         String value = null;
-        if (exp instanceof FieldAccessExpr) {
-            FieldAccessExpr expr = (FieldAccessExpr) exp;
-            value = expr.getName().asString();
+        if (exp != null && exp.isFieldAccessExpr()) {
+            value = exp.asFieldAccessExpr().getNameAsString();
         }
         return AggregateFunction.parse(value);
     }
 
-    private static String getClassByType(NodeList<ImportDeclaration> importDeclarations, Type type) throws ClassNotFoundException {
-        Class<?> clazz = null;
-        if (type.isPrimitiveType()) {
-            clazz = Class.forName("java.lang." + type.asPrimitiveType().toBoxedType().asString());
-        } else if (type.isArrayType()) {
-            if ("byte[]".equals(type.asString())) {
-                clazz = byte[].class;
-            } else if ("Byte[]".equals(type.asString())) {
-                clazz = Byte[].class;
-            }
-        } else if ("String".equals(type.asString())) {
-            clazz = String.class;
-        } else if ("Date".equals(type.asString()) || "java.util.Date".equals(type.asString())) {
-            clazz = Date.class;
-        } else if ("java.sql.Date".equals(type.asString())) {
-            clazz = java.sql.Date.class;
-        } else if ("LocalTime".equals(type.asString()) || "java.time.LocalTime".equals(type.asString())) {
-            clazz = LocalTime.class;
-        } else if ("LocalDate".equals(type.asString()) || "java.time.LocalDate".equals(type.asString())) {
-            clazz = LocalDate.class;
-        } else if ("LocalDateTime".equals(type.asString()) || "java.time.LocalDateTime".equals(type.asString())) {
-            clazz = LocalDateTime.class;
-        } else if ("Year".equals(type.asString()) || "java.time.Year".equals(type.asString())) {
-            clazz = Year.class;
-        } else if ("YearMonth".equals(type.asString()) || "java.time.YearMonth".equals(type.asString())) {
-            clazz = YearMonth.class;
-        } else if ("BigDecimal".equals(type.asString()) || "java.math.BigDecimal".equals(type.asString())) {
-            clazz = BigDecimal.class;
-        } else if ("BigInteger".equals(type.asString()) || "java.math.BigInteger".equals(type.asString())) {
-            clazz = BigInteger.class;
-        } else if (type.isClassOrInterfaceType()) {
-            clazz = BOXED_TYPES.get(type.asString());
-        }
+    private static final Set<Class<?>> PRIMITIVES_AND_BOXED_TYPES;
+    static {
+        Set<Class<?>> classes = new HashSet<>();
+        classes.add(Boolean.class);
+        classes.add(Byte.class);
+        classes.add(Character.class);
+        classes.add(Short.class);
+        classes.add(Integer.class);
+        classes.add(Long.class);
+        classes.add(Float.class);
+        classes.add(Double.class);
+        classes.add(Boolean.TYPE);
+        classes.add(Byte.TYPE);
+        classes.add(Character.TYPE);
+        classes.add(Short.TYPE);
+        classes.add(Integer.TYPE);
+        classes.add(Long.TYPE);
+        classes.add(Float.TYPE);
+        classes.add(Double.TYPE);
+        PRIMITIVES_AND_BOXED_TYPES = Set.copyOf(classes);
+    }
 
+    private static final Map<String, Class<?>> MAPPING_TYPES;
+    static {
+        List<Class<?>> classes = new ArrayList<>(PRIMITIVES_AND_BOXED_TYPES);
+        classes.add(String.class);
+
+        classes.add(BigInteger.class);
+        classes.add(BigDecimal.class);
+
+        classes.add(LocalTime.class);
+        classes.add(LocalDate.class);
+        classes.add(LocalDateTime.class);
+        classes.add(Year.class);
+        classes.add(YearMonth.class);
+        classes.add(java.util.Date.class);
+        classes.add(java.sql.Time.class);
+        classes.add(java.sql.Timestamp.class);
+
+        classes.add(byte[].class);
+        classes.add(Byte[].class);
+
+        Map<String, Class<?>> mappings = new HashMap<>();
+        mappings.put(java.sql.Date.class.getName(), java.sql.Date.class);
+        for (Class<?> clazz : classes) {
+            if (!clazz.isArray()) {
+                mappings.put(clazz.getName(), clazz);
+            }
+            mappings.put(clazz.getSimpleName(), clazz);
+        }
+        MAPPING_TYPES = Map.copyOf(mappings);
+    }
+
+    public static void main(String[] args) throws ClassNotFoundException {
+        System.out.println(Integer.TYPE);
+        System.out.println(Integer.TYPE.getName());
+        System.out.println(Integer.TYPE.getSimpleName());
+        System.out.println(Integer.TYPE.getModule());
+        System.out.println(Class.forName(
+                Integer.TYPE.getName(),
+                true,
+                Integer.TYPE.getClassLoader()));
+    }
+
+    private static String getClassByType(Map<String, ImportDeclaration> declarMappings, Type type) throws ClassNotFoundException {
+        Class<?> clazz = MAPPING_TYPES.get(type.asString());
         if (clazz != null) {
             if (clazz.isArray()) {
                 return clazz.getSimpleName();
@@ -340,11 +337,11 @@ public final class JavaParserUtil {
                 return clazz.getName();
             }
         } else {
-            return getMatchedType(importDeclarations, type);
+            return getMatchedType(declarMappings, type);
         }
     }
 
-    public static String getMatchedType(NodeList<ImportDeclaration> importDeclarations, Type type) {
+    public static String getMatchedType(Map<String, ImportDeclaration> declarMappings, Type type) {
         if (type.isClassOrInterfaceType()) {
             ClassOrInterfaceType ctype = type.asClassOrInterfaceType();
             Optional<NodeList<Type>> typeArgs = ctype.getTypeArguments();
@@ -353,20 +350,18 @@ public final class JavaParserUtil {
                 if (size == 1) {
                     return String.format(Locale.ROOT,
                             "%s<%s>",
-                            getMatchedType(importDeclarations, ctype.getNameWithScope()),
-                            getMatchedType(importDeclarations, typeArgs.get().get(0).asString()));
+                            getMatchedType(declarMappings, ctype.getNameWithScope()),
+                            getMatchedType(declarMappings, typeArgs.get().get(0).asString()));
                 } else {
                     return null;
                 }
             }
         }
-        return getMatchedType(importDeclarations, type.asString());
+        return getMatchedType(declarMappings, type.asString());
     }
 
-    private static String getMatchedType(NodeList<ImportDeclaration> importDeclarations, String typeStr) {
-        ImportDeclaration matched = importDeclarations == null ? null : importDeclarations.stream()
-                .filter(importDeclar -> typeStr.equals(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName()))
-                .findFirst().orElse(null);
+    private static String getMatchedType(Map<String, ImportDeclaration> declarMappings, String typeStr) {
+        ImportDeclaration matched = declarMappings.get(typeStr);
         return matched == null ? typeStr : matched.getNameAsString();
     }
 
