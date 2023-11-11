@@ -64,7 +64,7 @@
     </scm>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.compiler.compilerVersion>${java.version}</java.compiler.compilerVersion>
         <java.compiler.source>${java.version}</java.compiler.source>
