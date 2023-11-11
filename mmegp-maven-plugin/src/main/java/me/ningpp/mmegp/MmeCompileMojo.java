@@ -33,16 +33,21 @@ import org.mybatis.generator.api.CompositePlugin;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
@@ -104,7 +109,7 @@ public class MmeCompileMojo extends AbstractMojo {
 
         MetaInfoHandler metaInfoHandler = createMetaInfoHandler(metaInfoHandlerClassName);
 
-        try ( FileReader cfgFileReader = new FileReader(new File(generatorConfigFilePath)) ) {
+        try ( FileReader cfgFileReader = new FileReader(generatorConfigFilePath) ) {
             List<Context> contexts = MmegpConfigurationParser.parseContexts(new InputSource(cfgFileReader));
             for (Context context : contexts) {
                 resetContextTargetRuntime(context);
@@ -133,8 +138,16 @@ public class MmeCompileMojo extends AbstractMojo {
                 MmeCompileUtil.generate(context, project.getCompileSourceRoots(),
                         metaInfoHandler, plugins, nThreads);
             }
-        } catch (Exception e) {
-            throw new MojoExecutionException("Generate MyBatis Model Example File Error!", e);
+        } catch (InterruptedException e) {
+            getLog().warn(e);
+            Thread.currentThread().interrupt();
+        } catch (ReflectiveOperationException
+                 | ExecutionException
+                 | XMLParserException
+                 | SAXException
+                 | ParserConfigurationException
+                 | IOException e) {
+            throw new GenerateMyBatisExampleException(e.getMessage(), e);
         }
 
         projectHelper.addResource(project, outputDirectory.getAbsolutePath(), 
@@ -158,7 +171,7 @@ public class MmeCompileMojo extends AbstractMojo {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Plugin> resetTargetProjectValue(Context context) throws ReflectiveOperationException, SecurityException {
+    private List<Plugin> resetTargetProjectValue(Context context) throws ReflectiveOperationException {
         //hack
         Field pluginsField = CompositePlugin.class.getDeclaredField("plugins");
         pluginsField.setAccessible(true);
