@@ -1,4 +1,11 @@
 
+create table sys_company (
+    id varchar(64) PRIMARY KEY,
+    name varchar(255) DEFAULT NULL,
+    start_date DATE DEFAULT NULL,
+    unified_code varchar(255) DEFAULT NULL
+);
+
 create table sys_user (
     id varchar(64) PRIMARY KEY,
     name varchar(255)

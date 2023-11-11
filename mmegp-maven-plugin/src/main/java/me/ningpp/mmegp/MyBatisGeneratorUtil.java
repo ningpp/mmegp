@@ -34,6 +34,7 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
+import me.ningpp.mmegp.enums.ModelType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
@@ -43,6 +44,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.GeneratedKey;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
 
@@ -182,6 +184,14 @@ public final class MyBatisGeneratorUtil {
             metaInfoHandler.handle(introspectedTable, modelDeclaration);
         }
 
+        introspectedTable.setAttribute(
+            ModelType.class.getName(),
+            modelDeclaration.isRecordDeclaration() ? ModelType.RECORD : ModelType.CLASS
+        );
+        tableConfiguration.getProperties()
+            .setProperty(
+                PropertyRegistry.ANY_IMMUTABLE,
+                String.valueOf(modelDeclaration.isRecordDeclaration()));
         return introspectedTable;
     }
 

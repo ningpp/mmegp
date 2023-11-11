@@ -16,6 +16,7 @@
 package me.ningpp.mmegp.dsql;
 
 import me.ningpp.mmegp.constants.Constants;
+import me.ningpp.mmegp.enums.ModelType;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
@@ -24,14 +25,22 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
+import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.runtime.dynamic.sql.DynamicSqlMapperGenerator;
+import org.mybatis.generator.runtime.dynamic.sql.elements.AbstractMethodGenerator;
 import org.mybatis.generator.runtime.dynamic.sql.elements.MethodAndImports;
 import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+/**
+ * copy code from
+ * @see org.mybatis.generator.runtime.dynamic.sql.DynamicSqlMapperGenerator
+ */
 public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
 
     private static final FullyQualifiedJavaType FQJT_UPDATE_DSL = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.update.UpdateDSL");
@@ -179,14 +188,14 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
 
     protected void addUpdateAllColumnsExceptPkMethod(Interface interfaze) {
         Method method = createUpdateColumnsExceptPkMethod("updateAllColumnsExceptPk");
-        method.addBodyLines(fragmentGenerator.getSetEqualLines(
+        method.addBodyLines(getSetEqualLines(
                 introspectedTable.getNonPrimaryKeyColumns(), "return dsl", "        ", true));
         interfaze.addMethod(method);
     }
 
     protected void addUpdateSelectiveColumnsExceptPkMethod(Interface interfaze) {
         Method method = createUpdateColumnsExceptPkMethod("updateSelectiveColumnsExceptPk");
-        method.addBodyLines(fragmentGenerator.getSetEqualWhenPresentLines(
+        method.addBodyLines(getSetEqualWhenPresentLines(
                 introspectedTable.getNonPrimaryKeyColumns(), "return dsl", "        ", true));
         interfaze.addMethod(method);
     }
@@ -209,7 +218,7 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         method.addParameter(new Parameter(recordType, "row"));
 
         method.addBodyLine("return update(dsl -> updateAllColumnsExceptPk(row, dsl)");
-        method.addBodyLines(fragmentGenerator.getPrimaryKeyWhereClauseForUpdate("    "));
+        method.addBodyLines(getPrimaryKeyWhereClauseForUpdate("    "));
         method.addBodyLine(");");
         interfaze.addMethod(method);
     }
@@ -222,9 +231,103 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         method.addParameter(new Parameter(recordType, "row"));
 
         method.addBodyLine("return update(dsl -> updateSelectiveColumnsExceptPk(row, dsl)");
-        method.addBodyLines(fragmentGenerator.getPrimaryKeyWhereClauseForUpdate("    "));
+        method.addBodyLines(getPrimaryKeyWhereClauseForUpdate("    "));
         method.addBodyLine(");");
         interfaze.addMethod(method);
+    }
+
+    @Override
+    protected void addInsertSelectiveMethod(Interface interfaze) {
+        InsertSelectiveMethodMmegpGenerator generator = new InsertSelectiveMethodMmegpGenerator.Builder()
+                .withContext(context)
+                .withIntrospectedTable(introspectedTable)
+                .withTableFieldName(tableFieldName)
+                .withRecordType(recordType)
+                .build();
+        if (generate(interfaze, generator) && !hasGeneratedKeys) {
+            // add common interface
+            addCommonInsertInterface(interfaze);
+        }
+    }
+
+    private List<String> getSetEqualLines(List<IntrospectedColumn> columnList, String firstLinePrefix,
+                                          String subsequentLinePrefix, boolean terminate) {
+        return getSetLines(columnList, firstLinePrefix, subsequentLinePrefix, terminate, "equalTo");
+    }
+
+    private List<String> getSetEqualWhenPresentLines(List<IntrospectedColumn> columnList, String firstLinePrefix,
+                                                    String subsequentLinePrefix, boolean terminate) {
+        return getSetLines(columnList, firstLinePrefix, subsequentLinePrefix, terminate, "equalToWhenPresent");
+    }
+
+    private List<String> getSetLines(List<IntrospectedColumn> columnList, String firstLinePrefix,
+                                     String subsequentLinePrefix, boolean terminate, String fragment) {
+        List<String> lines = new ArrayList<>();
+        List<IntrospectedColumn> columns = ListUtilities.removeIdentityAndGeneratedAlwaysColumns(columnList);
+        Iterator<IntrospectedColumn> iter = columns.iterator();
+        boolean modelIsRecord = isRecordModel(introspectedTable);
+        boolean first = true;
+        while (iter.hasNext()) {
+            IntrospectedColumn column = iter.next();
+            String fieldName = AbstractMethodGenerator.calculateFieldName(tableFieldName, column);
+            String propertyGetter = getPropertyGetter(column, modelIsRecord);
+
+            String start;
+            if (first) {
+                start = firstLinePrefix;
+                first = false;
+            } else {
+                start = subsequentLinePrefix;
+            }
+
+            String line = start
+                    + ".set(" //$NON-NLS-1$
+                    + fieldName
+                    + ")." //$NON-NLS-1$
+                    + fragment
+                    + "(row::" //$NON-NLS-1$
+                    + propertyGetter
+                    + ")"; //$NON-NLS-1$
+
+            if (terminate && !iter.hasNext()) {
+                line += ";"; //$NON-NLS-1$
+            }
+
+            lines.add(line);
+        }
+
+        return lines;
+    }
+
+    private List<String> getPrimaryKeyWhereClauseForUpdate(String prefix) {
+        List<String> lines = new ArrayList<>();
+        String format = "%s.%s(%s, isEqualTo(row::%s))";
+        boolean modelIsRecord = isRecordModel(introspectedTable);
+        boolean first = true;
+        for (IntrospectedColumn column : introspectedTable.getPrimaryKeyColumns()) {
+            String fieldName = AbstractMethodGenerator.calculateFieldName(tableFieldName, column);
+            String propertyGetter = getPropertyGetter(column, modelIsRecord);
+            if (first) {
+                lines.add(String.format(Locale.ROOT,
+                        format, prefix, "where", fieldName, propertyGetter));
+                first = false;
+            } else {
+                lines.add(String.format(Locale.ROOT,
+                        format, prefix, "and", fieldName, propertyGetter));
+            }
+        }
+        return lines;
+    }
+
+    public static String getPropertyGetter(IntrospectedColumn column, boolean modelIsRecord) {
+        return modelIsRecord ? column.getJavaProperty()
+                : JavaBeansUtil.getGetterMethodName(
+                    column.getJavaProperty(), column.getFullyQualifiedJavaType());
+    }
+
+    public static boolean isRecordModel(IntrospectedTable introspectedTable) {
+        return ModelType.RECORD.equals(
+                introspectedTable.getAttribute(ModelType.class.getName()));
     }
 
 }
