@@ -26,14 +26,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.nodeTypes.NodeWithModifiers;
 import me.ningpp.mmegp.enums.ModelType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,11 +47,8 @@ import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-
-import me.ningpp.mmegp.annotations.Generated;
 
 public final class MyBatisGeneratorUtil {
 
@@ -134,48 +129,24 @@ public final class MyBatisGeneratorUtil {
         TableConfiguration tableConfiguration = new TableConfiguration(context);
         tableConfiguration.setDomainObjectName(domainObjectName);
         tableConfiguration.setTableName(tableInfo.getName());
-        if (tableInfo.getCountGroupByColumns() != null) {
-            tableConfiguration.addProperty(JavaParserUtil.COUNT_GROUP_BY_COLUMNS_NAME, 
-                    StringUtils.join(tableInfo.getCountGroupByColumns(), ";"));
-        }
+        tableConfiguration.addProperty(JavaParserUtil.COUNT_GROUP_BY_COLUMNS_NAME,
+                String.join(";", tableInfo.getCountGroupByColumns()));
         introspectedTable.setTableConfiguration(tableConfiguration);
 
         introspectedTable.setExampleType(modelDeclaration.getFullyQualifiedName().get() + "Example");
         introspectedTable.setMyBatis3JavaMapperType(context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + domainObjectName + "Mapper");
 
-        Map<String, ImportDeclaration> declarMappings = new HashMap<>();
+        Map<String, ImportDeclaration> importMappings = new HashMap<>();
         for (ImportDeclaration importDeclar : importDeclarations) {
-            declarMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(), importDeclar);
+            importMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(), importDeclar);
         }
 
-        List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
-        if (modelDeclaration.isRecordDeclaration()) {
-            NodeList<Parameter> parameters = modelDeclaration.asRecordDeclaration().getParameters();
-            if (parameters != null) {
-                for (Parameter param : parameters) {
-                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, declarMappings, param, context));
-                }
-            }
-        } else {
-            List<FieldDeclaration> fields = modelDeclaration.getFields();
-            if (fields != null) {
-                for (FieldDeclaration field : fields) {
-                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, declarMappings, field, context));
-                }
-            }
-        }
+        List<Pair<IntrospectedColumn, Boolean>> pairs = buildColumns(
+                modelDeclaration, importMappings, context
+        );
 
-        for (Pair<IntrospectedColumn, Boolean> pair : pairs) {
-            if (pair != null) {
-                introspectedTable.addColumn(pair.getLeft());
-                if (Boolean.TRUE.equals(pair.getRight())) {
-                    introspectedTable.addPrimaryKeyColumn(pair.getLeft().getActualColumnName());
-                }
-                if (pair.getLeft().isIdentity()) {
-                    tableConfiguration.setGeneratedKey(new GeneratedKey(pair.getLeft().getActualColumnName(), "JDBC", true, null));
-                }
-            }
-        }
+        addTableColumns(introspectedTable, pairs);
+
         if (introspectedTable.getAllColumns().isEmpty()) {
             return null;
         }
@@ -193,6 +164,46 @@ public final class MyBatisGeneratorUtil {
                 PropertyRegistry.ANY_IMMUTABLE,
                 String.valueOf(modelDeclaration.isRecordDeclaration()));
         return introspectedTable;
+    }
+
+    private static List<Pair<IntrospectedColumn, Boolean>> buildColumns(TypeDeclaration<?> modelDeclaration,
+                                                                        Map<String, ImportDeclaration> importMappings,
+                                                                        Context context) {
+        List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
+        if (modelDeclaration.isRecordDeclaration()) {
+            NodeList<Parameter> parameters = modelDeclaration.asRecordDeclaration().getParameters();
+            if (parameters != null) {
+                for (Parameter param : parameters) {
+                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, importMappings, param, context));
+                }
+            }
+        } else {
+            List<FieldDeclaration> fields = modelDeclaration.getFields();
+            if (fields != null) {
+                for (FieldDeclaration field : fields) {
+                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, importMappings, field, context));
+                }
+            }
+        }
+        return pairs;
+    }
+
+    private static void addTableColumns(IntrospectedTable introspectedTable,
+                                        List<Pair<IntrospectedColumn, Boolean>> pairs) {
+        for (Pair<IntrospectedColumn, Boolean> pair : pairs) {
+            if (pair != null) {
+                introspectedTable.addColumn(pair.getLeft());
+                if (Boolean.TRUE.equals(pair.getRight())) {
+                    introspectedTable.addPrimaryKeyColumn(pair.getLeft().getActualColumnName());
+                }
+                if (pair.getLeft().isIdentity()) {
+                    introspectedTable.getTableConfiguration()
+                        .setGeneratedKey(new GeneratedKey(
+                            pair.getLeft().getActualColumnName(),
+                            "JDBC", true, null));
+                }
+            }
+        }
     }
 
     public static IntrospectedTable buildIntrospectedTable(Context context, 

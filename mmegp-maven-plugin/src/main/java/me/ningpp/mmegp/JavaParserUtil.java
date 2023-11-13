@@ -99,14 +99,14 @@ public final class JavaParserUtil {
     public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
                                                                 Map<String, ImportDeclaration> declarMappings,
                                                                 Parameter param,
-                                                                Context context) throws ClassNotFoundException {
+                                                                Context context) {
         return buildColumn(modelDeclaration, declarMappings, context, param, param, param);
     }
 
     public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
                                                                 Map<String, ImportDeclaration> declarMappings,
                                                                 FieldDeclaration field,
-                                                                Context context) throws ClassNotFoundException {
+                                                                Context context) {
         if (field.getVariables().size() > 1) {
             throw new GenerateMyBatisExampleException("can't use multi variables declaration! Model="
                     + modelDeclaration.getFullyQualifiedName().orElse(null)
@@ -136,7 +136,7 @@ public final class JavaParserUtil {
             Context context,
             NodeWithAnnotations<N1> annotationNode,
             NodeWithType<N2, Type> typeNode,
-            NodeWithSimpleName<N2> nameNode) throws ClassNotFoundException {
+            NodeWithSimpleName<N2> nameNode) {
         Map<String, List<MemberValuePair>> annotationMembers = getNormalAnnotationMembers(annotationNode, GeneratedColumn.class);
         if (annotationMembers.isEmpty()) {
             return null;
@@ -246,10 +246,6 @@ public final class JavaParserUtil {
         return Optional.empty();
     }
 
-    private static <T> List<T> null2Empty(List<T> list) {
-        return list == null ? List.of() : list;
-    }
-
     private static List<AggregateFunction> parseAggregates(Map<String, List<MemberValuePair>> annotationMembers) {
         return parseArray(annotationMembers, AGGREGATES_NAME)
                 .stream().map(JavaParserUtil::parseAggregate)
@@ -317,18 +313,7 @@ public final class JavaParserUtil {
         MAPPING_TYPES = Map.copyOf(mappings);
     }
 
-    public static void main(String[] args) throws ClassNotFoundException {
-        System.out.println(Integer.TYPE);
-        System.out.println(Integer.TYPE.getName());
-        System.out.println(Integer.TYPE.getSimpleName());
-        System.out.println(Integer.TYPE.getModule());
-        System.out.println(Class.forName(
-                Integer.TYPE.getName(),
-                true,
-                Integer.TYPE.getClassLoader()));
-    }
-
-    private static String getClassByType(Map<String, ImportDeclaration> declarMappings, Type type) throws ClassNotFoundException {
+    private static String getClassByType(Map<String, ImportDeclaration> declarMappings, Type type) {
         Class<?> clazz = MAPPING_TYPES.get(type.asString());
         if (clazz != null) {
             if (clazz.isArray()) {
