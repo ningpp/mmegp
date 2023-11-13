@@ -387,7 +387,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <testFailureIgnore>false</testFailureIgnore>
-                    <forkMode>once</forkMode>
+                    <argLine>
+                        --add-opens java.base/java.time.format=ALL-UNNAMED
+                    </argLine>
                 </configuration>
             </plugin>
             <plugin>
