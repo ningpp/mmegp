@@ -100,7 +100,7 @@ public class MySqlTimeFunction implements SqlTimeFunction {
         @Override
         public String translate(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
             if (minWidth == 2) {
-                return "%k";
+                return "%i";
             }
             return null;
         }

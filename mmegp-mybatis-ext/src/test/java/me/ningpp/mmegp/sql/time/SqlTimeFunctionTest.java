@@ -26,14 +26,14 @@ class SqlTimeFunctionTest {
         String pattern = "yyyy-MM-dd HH:mm:ss";
         assertEquals(pattern, new H2TimeFunction().tranlateFormat(pattern));
         assertEquals(pattern, new HsqldbTimeFunction().tranlateFormat(pattern));
-        assertEquals("%Y-%m-%d %H:%k:%s", new MySqlTimeFunction().tranlateFormat(pattern));
+        assertEquals("%Y-%m-%d %H:%i:%s", new MySqlTimeFunction().tranlateFormat(pattern));
         assertEquals("yyyy-MM-dd HH:mm:ss", new SqlServerTimeFunction().tranlateFormat(pattern));
         assertEquals("YYYY-MM-DD HH24:MI:SS", new OracleAndPostgreSqlTimeFunction().tranlateFormat(pattern));
 
         String pattern2 = "yy-MM-dd HH:mm:ss";
         assertEquals(pattern2, new H2TimeFunction().tranlateFormat(pattern2));
         assertEquals(pattern2, new HsqldbTimeFunction().tranlateFormat(pattern2));
-        assertEquals("%y-%m-%d %H:%k:%s", new MySqlTimeFunction().tranlateFormat(pattern2));
+        assertEquals("%y-%m-%d %H:%i:%s", new MySqlTimeFunction().tranlateFormat(pattern2));
         assertEquals("yy-MM-dd HH:mm:ss", new SqlServerTimeFunction().tranlateFormat(pattern2));
         assertEquals("YY-MM-DD HH24:MI:SS", new OracleAndPostgreSqlTimeFunction().tranlateFormat(pattern2));
     }
