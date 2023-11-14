@@ -28,8 +28,13 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+    - name: Print JDK Version
+      run: java -version
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       with:
