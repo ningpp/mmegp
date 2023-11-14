@@ -16,17 +16,18 @@
 package me.ningpp.mmegp.sql.time;
 
 import java.time.format.SignStyle;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalField;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.HashMap;
 
 /**
- * DATE_FORMAT      %Y-%m-%d %H:%k:%s
+ * DATE_FORMAT      %Y-%m-%d %H:%i:%s
  * <p><a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html">Date and Time Functions</a></p>
  * <p><a href="https://dev.mysql.com/doc/refman/8.0/en/two-digit-years.html">2-Digit Years in Dates</a></p>
  */
-public class MySqlTimeFunction implements SqlTimeFunction {
+public class MySqlTimeFunction extends AbstractTimeFunction {
+
+    public MySqlTimeFunction() {
+        super(new HashMap<>());
+    }
 
     @Override
     public String formatFunctionName() {
@@ -34,86 +35,57 @@ public class MySqlTimeFunction implements SqlTimeFunction {
     }
 
     @Override
-    public TemporalFieldTranslator getFieldTranslator(TemporalField temporalField) {
-        return TRANSLATOR_MAPPING.get(temporalField);
-    }
-
-    protected static final Map<TemporalField, TemporalFieldTranslator> TRANSLATOR_MAPPING = new LinkedHashMap<>();
-
-    static {
-        TRANSLATOR_MAPPING.put(ChronoField.YEAR, new YearFieldTranslator());
-        TRANSLATOR_MAPPING.put(ChronoField.YEAR_OF_ERA, new YearFieldTranslator());
-        TRANSLATOR_MAPPING.put(ChronoField.MONTH_OF_YEAR, new MonthOfYearFieldTranslator());
-        TRANSLATOR_MAPPING.put(ChronoField.DAY_OF_MONTH, new DayOfMonthFieldTranslator());
-        TRANSLATOR_MAPPING.put(ChronoField.HOUR_OF_DAY, new HourOfDayFieldTranslator());
-        TRANSLATOR_MAPPING.put(ChronoField.MINUTE_OF_HOUR, new MinuteOfHourFieldTranslator());
-        TRANSLATOR_MAPPING.put(ChronoField.SECOND_OF_MINUTE, new SecondOfMinuteFieldTranslator());
-    }
-
-    private static class YearFieldTranslator implements TemporalFieldTranslator {
-        @Override
-        public String translate(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
-            if (minWidth == 2 && maxWidth == 2) {
-                return "%y";
-            } else if (minWidth == 4) {
-                return "%Y";
-            }
-            return null;
+    protected String translateYear(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
+        if (minWidth == 2 && maxWidth == 2) {
+            return "%y";
+        } else if (minWidth == 4) {
+            return "%Y";
         }
+        return null;
     }
 
-    private static class MonthOfYearFieldTranslator implements TemporalFieldTranslator {
-        @Override
-        public String translate(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
-            if (minWidth == 1) {
-                return "%c";
-            } else if (minWidth == 2) {
-                return "%m";
-            }
-            return null;
+    @Override
+    protected String translateMonthOfYear(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
+        if (minWidth == 1) {
+            return "%c";
+        } else if (minWidth == 2) {
+            return "%m";
         }
+        return null;
     }
 
-    private static class DayOfMonthFieldTranslator implements TemporalFieldTranslator {
-        @Override
-        public String translate(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
-            if (minWidth == 1) {
-                return "%e";
-            } else if (minWidth == 2) {
-                return "%d";
-            }
-            return null;
+    @Override
+    protected String translateDayOfMonth(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
+        if (minWidth == 1) {
+            return "%e";
+        } else if (minWidth == 2) {
+            return "%d";
         }
+        return null;
     }
 
-    private static class HourOfDayFieldTranslator implements TemporalFieldTranslator {
-        @Override
-        public String translate(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
-            if (minWidth == 2) {
-                return "%H";
-            }
-            return null;
+    @Override
+    protected String translateHourOfDay(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
+        if (minWidth == 2) {
+            return "%H";
         }
+        return null;
     }
 
-    private static class MinuteOfHourFieldTranslator implements TemporalFieldTranslator {
-        @Override
-        public String translate(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
-            if (minWidth == 2) {
-                return "%i";
-            }
-            return null;
+    @Override
+    protected String translateMinuteOfHour(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
+        if (minWidth == 2) {
+            return "%i";
         }
+        return null;
     }
 
-    private static class SecondOfMinuteFieldTranslator implements TemporalFieldTranslator {
-        @Override
-        public String translate(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
-            if (minWidth == 2) {
-                return "%s";
-            }
-            return null;
+    @Override
+    protected String translateSecondOfMinute(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
+        if (minWidth == 2) {
+            return "%s";
         }
+        return null;
     }
 
 }
