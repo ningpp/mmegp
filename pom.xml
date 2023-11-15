@@ -70,6 +70,9 @@
         <java.compiler.source>${java.version}</java.compiler.source>
         <java.compiler.target>${java.version}</java.compiler.target>
 
+        <sonar.organization>ningpp</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
         <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
         <commons-lang3.version>3.13.0</commons-lang3.version>
         <hsqldb.version>2.7.2</hsqldb.version>
