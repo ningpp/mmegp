@@ -23,6 +23,7 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.internal.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,9 +71,9 @@ public class AddMmegpAnnotationPlugin extends PluginAdapter {
         String countGroupByColumnsValue = introspectedTable.getTableConfigurationProperty("countGroupByColumns");
         if (stringHasValue(countGroupByColumnsValue)) {
             List<String> multiGroup = Arrays.stream(countGroupByColumnsValue.split(";\\s*"))
-                    .filter(str -> stringHasValue(str))
+                    .filter(StringUtility::stringHasValue)
                     .map(str -> String.format(Locale.ROOT, "\"%s\"", str))
-                    .collect(Collectors.toList());
+                    .toList();
             infos.add(String.format(Locale.ROOT,
                     "countGroupByColumns = {%s}",
                     String.join(DELIMITER, multiGroup)));

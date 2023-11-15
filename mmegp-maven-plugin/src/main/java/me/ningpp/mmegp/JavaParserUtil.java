@@ -221,7 +221,7 @@ public final class JavaParserUtil {
         return parseArray(annotationMembers, name)
                 .stream().filter(Expression::isStringLiteralExpr)
                 .map(expr -> expr.asStringLiteralExpr().asString())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static String parseString(Map<String, List<MemberValuePair>> annotationMembers, String name, String defaultValue) {
@@ -249,7 +249,7 @@ public final class JavaParserUtil {
     private static List<AggregateFunction> parseAggregates(Map<String, List<MemberValuePair>> annotationMembers) {
         return parseArray(annotationMembers, AGGREGATES_NAME)
                 .stream().map(JavaParserUtil::parseAggregate)
-                .filter(Objects::nonNull).collect(Collectors.toList());
+                .filter(Objects::nonNull).toList();
     }
 
     private static AggregateFunction parseAggregate(Expression exp) {

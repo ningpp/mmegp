@@ -56,7 +56,7 @@ public enum AggregateFunction {
             return new ArrayList<>(0);
         }
         return Arrays.stream(str.split(",\\s*")).map(AggregateFunction::parse)
-                .filter(Objects::nonNull).collect(Collectors.toList());
+                .filter(Objects::nonNull).toList();
     }
 
     public static AggregateFunction parse(String str) {
