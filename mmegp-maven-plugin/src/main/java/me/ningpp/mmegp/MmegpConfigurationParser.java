@@ -33,7 +33,10 @@ import org.xml.sax.SAXException;
 /**
  * @see org.mybatis.generator.config.xml.ConfigurationParser
  */
-public class MmegpConfigurationParser {
+public final class MmegpConfigurationParser {
+
+    private MmegpConfigurationParser() {
+    }
 
     public static List<Context> parseContexts(InputSource inputSource)
             throws ParserConfigurationException, SAXException, IOException,
