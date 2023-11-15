@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class UUIDTypeHandlerTest extends BaseTypeHandlerTest {
+class UUIDTypeHandlerTest extends BaseTypeHandlerCase {
 
     UUIDTypeHandler typeHandler = new UUIDTypeHandler();
     byte[] bytes = UUIDTypeHandler.toBytes(UUID.randomUUID());

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class UUIDNoDashStringTypeHandlerTest extends BaseTypeHandlerTest {
+class UUIDNoDashStringTypeHandlerTest extends BaseTypeHandlerCase {
 
     UUIDNoDashStringTypeHandler typeHandler = new UUIDNoDashStringTypeHandler();
     UUID nodashUuid = UUID.randomUUID();

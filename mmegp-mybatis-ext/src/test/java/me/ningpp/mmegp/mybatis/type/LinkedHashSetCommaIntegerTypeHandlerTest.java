@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class LinkedHashSetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
+class LinkedHashSetCommaIntegerTypeHandlerTest extends BaseTypeHandlerCase {
 
     LinkedHashSetCommaIntegerTypeHandler typeHandler = new LinkedHashSetCommaIntegerTypeHandler();
 
@@ -38,7 +38,7 @@ class LinkedHashSetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultByNameTest() throws SQLException {
+    void getNullableResultByNameTest() throws SQLException {
         when(rs.getString("ids")).thenReturn(null);
         LinkedHashSet<Integer> ids = typeHandler.getResult(rs, "ids");
         assertTrue(ids.isEmpty());
@@ -53,7 +53,7 @@ class LinkedHashSetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultByIndexTest() throws SQLException {
+    void getNullableResultByIndexTest() throws SQLException {
         when(rs.getString(1)).thenReturn(null);
         LinkedHashSet<Integer> ids = typeHandler.getResult(rs, 1);
         assertTrue(ids.isEmpty());
@@ -68,7 +68,7 @@ class LinkedHashSetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultCallableStatementTest() throws SQLException {
+    void getNullableResultCallableStatementTest() throws SQLException {
         when(cs.getString(1)).thenReturn(null);
         LinkedHashSet<Integer> ids = typeHandler.getResult(cs, 1);
         assertTrue(ids.isEmpty());

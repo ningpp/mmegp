@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 @ExtendWith(MockitoExtension.class)
-class BaseTypeHandlerTest {
+class BaseTypeHandlerCase {
     @Mock
     protected ResultSet rs;
     @Mock

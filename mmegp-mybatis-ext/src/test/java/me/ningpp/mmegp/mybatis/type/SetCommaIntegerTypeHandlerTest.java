@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class SetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
+class SetCommaIntegerTypeHandlerTest extends BaseTypeHandlerCase {
 
     SetCommaIntegerTypeHandler typeHandler = new SetCommaIntegerTypeHandler();
 
@@ -38,7 +38,7 @@ class SetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultByNameTest() throws SQLException {
+    void getNullableResultByNameTest() throws SQLException {
         when(rs.getString("ids")).thenReturn(null);
         Set<Integer> ids = typeHandler.getResult(rs, "ids");
         assertTrue(ids.isEmpty());
@@ -53,7 +53,7 @@ class SetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultByIndexTest() throws SQLException {
+    void getNullableResultByIndexTest() throws SQLException {
         when(rs.getString(1)).thenReturn(null);
         Set<Integer> ids = typeHandler.getResult(rs, 1);
         assertTrue(ids.isEmpty());
@@ -68,7 +68,7 @@ class SetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultCallableStatementTest() throws SQLException {
+    void getNullableResultCallableStatementTest() throws SQLException {
         when(cs.getString(1)).thenReturn(null);
         Set<Integer> ids = typeHandler.getResult(cs, 1);
         assertTrue(ids.isEmpty());

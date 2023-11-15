@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class ListCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
+class ListCommaIntegerTypeHandlerTest extends BaseTypeHandlerCase {
 
     ListCommaIntegerTypeHandler typeHandler = new ListCommaIntegerTypeHandler();
 
@@ -37,7 +37,7 @@ class ListCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultByNameTest() throws SQLException {
+    void getNullableResultByNameTest() throws SQLException {
         when(rs.getString("ids")).thenReturn(null);
         List<Integer> ids = typeHandler.getResult(rs, "ids");
         assertTrue(ids.isEmpty());
@@ -52,7 +52,7 @@ class ListCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultByIndexTest() throws SQLException {
+    void getNullableResultByIndexTest() throws SQLException {
         when(rs.getString(1)).thenReturn(null);
         List<Integer> ids = typeHandler.getResult(rs, 1);
         assertTrue(ids.isEmpty());
@@ -67,7 +67,7 @@ class ListCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
     }
 
     @Test
-    public void getNullableResultCallableStatementTest() throws SQLException {
+    void getNullableResultCallableStatementTest() throws SQLException {
         when(cs.getString(1)).thenReturn(null);
         List<Integer> ids = typeHandler.getResult(cs, 1);
         assertTrue(ids.isEmpty());
