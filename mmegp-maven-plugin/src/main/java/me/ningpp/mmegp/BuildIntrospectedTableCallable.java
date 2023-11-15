@@ -40,7 +40,7 @@ public class BuildIntrospectedTableCallable implements Callable<Pair<Introspecte
     }
 
     @Override
-    public Pair<IntrospectedTable, File> call() throws Exception {
+    public Pair<IntrospectedTable, File> call() {
         try {
             String fileContent = Files.readString(file.toPath(), StandardCharsets.UTF_8);
             ParseResult<CompilationUnit> parseResult = JavaParserUtil.newParser().parse(fileContent);

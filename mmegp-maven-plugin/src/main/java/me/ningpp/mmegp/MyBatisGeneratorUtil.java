@@ -110,7 +110,7 @@ public final class MyBatisGeneratorUtil {
     private static IntrospectedTable buildIntrospectedTable(Context context,
             TypeDeclaration<?> modelDeclaration,
             NodeList<ImportDeclaration> importDeclarations,
-            MetaInfoHandler metaInfoHandler) throws ClassNotFoundException {
+            MetaInfoHandler metaInfoHandler) {
         if (modelDeclaration == null || modelDeclaration.getFullyQualifiedName().isEmpty()) {
             return null;
         }
@@ -208,7 +208,7 @@ public final class MyBatisGeneratorUtil {
 
     public static IntrospectedTable buildIntrospectedTable(Context context, 
             CompilationUnit compilationUnit,
-            MetaInfoHandler metaInfoHandler) throws ClassNotFoundException {
+            MetaInfoHandler metaInfoHandler) {
         TypeDeclaration<?> typeDeclaration = compilationUnit.getTypes().stream()
                 .filter(typeDeclar -> typeDeclar.hasModifier(Modifier.Keyword.PUBLIC))
                 .findFirst().orElse(null);

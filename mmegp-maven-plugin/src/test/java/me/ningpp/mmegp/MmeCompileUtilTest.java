@@ -112,7 +112,7 @@ public class MmeCompileUtilTest {
             + "";
 
     @Test
-    void parseRecordTest() throws InterruptedException, ClassNotFoundException {
+    void parseRecordTest() throws InterruptedException {
         String code = "import me.ningpp.mmegp.annotations.Generated;\n" +
                 "import me.ningpp.mmegp.annotations.GeneratedColumn;\n" +
                 "import org.apache.ibatis.type.JdbcType;\n" +
@@ -183,7 +183,7 @@ public class MmeCompileUtilTest {
     }
 
     @Test
-    void buildIntrospectedTableTest() throws ClassNotFoundException, InterruptedException {
+    void buildIntrospectedTableTest() throws InterruptedException {
         Context context = buildContext();
         List<Pair<String, List<String>>> pairs = List.of(
                 Pair.of("", null),
@@ -238,7 +238,7 @@ public class MmeCompileUtilTest {
 
     private IntrospectedTable buildIntrospectedTable(Context context,
                                                      String fileContent,
-                                                     MetaInfoHandler metaInfoHandler) throws ClassNotFoundException {
+                                                     MetaInfoHandler metaInfoHandler) {
         ParseResult<CompilationUnit> parseResult = JavaParserUtil.newParser().parse(fileContent);
         Optional<CompilationUnit> cuOptional = parseResult.getResult();
         if (parseResult.isSuccessful() && cuOptional.isPresent()) {
