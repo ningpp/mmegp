@@ -1,7 +1,6 @@
 package me.ningpp.mmegp.demo.cfg;
 
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffsetPaginationModelRenderer;
-import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffsetPaginationModelRendererProvider;
 import me.ningpp.mmegp.mybatis.dsql.pagination.OffsetFetchPaginationModelRenderer;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;

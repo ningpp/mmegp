@@ -16,7 +16,6 @@
 package me.ningpp.mmegp.mybatis.type.set;
 
 import me.ningpp.mmegp.mybatis.type.CommaStringConverterTypeHandler;
-import me.ningpp.mmegp.mybatis.type.converter.StringToIntegerConverter;
 import me.ningpp.mmegp.mybatis.type.converter.StringToStringConverter;
 
 import java.util.HashSet;
