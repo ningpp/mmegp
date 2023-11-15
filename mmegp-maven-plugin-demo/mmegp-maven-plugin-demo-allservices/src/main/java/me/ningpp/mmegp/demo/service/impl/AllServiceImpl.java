@@ -38,18 +38,30 @@ import me.ningpp.mmegp.demo.service.AllService;
 @Service
 public class AllServiceImpl implements AllService {
 
+    private final SysRoleMapper sysRoleMapper;
+    private final SysRoleMenuMapper sysRoleMenuMapper;
+    private final SysMenuMapper sysMenuMapper;
+    private final SysUserMapper sysUserMapper;
+    private final SysAutoUserMapper sysAutoUserMapper;
+    private final SysUserRoleMapper sysUserRoleMapper;
+    private final PaginationModelRenderer renderer;
+
     @Autowired
-    private SysRoleMapper sysRoleMapper;
-    @Autowired
-    private SysRoleMenuMapper sysRoleMenuMapper;
-    @Autowired
-    private SysMenuMapper sysMenuMapper;
-    @Autowired
-    private SysUserMapper sysUserMapper;
-    @Autowired
-    private SysAutoUserMapper sysAutoUserMapper;
-    @Autowired
-    private SysUserRoleMapper sysUserRoleMapper;
+    public AllServiceImpl(PaginationModelRenderer renderer,
+                          SysRoleMapper sysRoleMapper,
+                          SysRoleMenuMapper sysRoleMenuMapper,
+                          SysMenuMapper sysMenuMapper,
+                          SysUserMapper sysUserMapper,
+                          SysAutoUserMapper sysAutoUserMapper,
+                          SysUserRoleMapper sysUserRoleMapper) {
+        this.renderer = renderer;
+        this.sysRoleMapper = sysRoleMapper;
+        this.sysRoleMenuMapper = sysRoleMenuMapper;
+        this.sysMenuMapper = sysMenuMapper;
+        this.sysUserMapper = sysUserMapper;
+        this.sysAutoUserMapper = sysAutoUserMapper;
+        this.sysUserRoleMapper = sysUserRoleMapper;
+    }
 
     @Override
     public void insertRole(SysRole role) {
@@ -126,9 +138,6 @@ public class AllServiceImpl implements AllService {
                 .where().and(SysUserDynamicSqlSupport.name, IsLike.of(String.format(Locale.ENGLISH, "%%%s%%", nameLike)))
                 .build().render(RenderingStrategies.MYBATIS3));
     }
-
-    @Autowired
-    PaginationModelRenderer renderer;
 
     @Override
     public Page<SysUser> selectUserPage(SelectDSL<SelectModel> dsl, LimitOffset limitOffset) {

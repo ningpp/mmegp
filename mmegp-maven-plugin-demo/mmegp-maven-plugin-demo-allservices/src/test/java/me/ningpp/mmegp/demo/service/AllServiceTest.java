@@ -40,7 +40,7 @@ import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 
-public class AllServiceTest extends DemoApplicationStarter {
+class AllServiceTest extends DemoApplicationStarter {
 
     @Test
     void selectUserPageTest() {
