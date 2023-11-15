@@ -55,7 +55,7 @@ public class UUIDNoDashStringTypeHandler extends BaseTypeHandler<UUID> {
     }
 
     private UUID fromNoDashString(String str) {
-        if (str == null) {
+        if (str == null || str.isEmpty()) {
             return null;
         }
         final String withDashString = str.substring(0, 8)

@@ -46,7 +46,7 @@ public class UUIDStringTypeHandler extends BaseTypeHandler<UUID> {
     }
 
     public static UUID fromString(String str) {
-        return str == null ? null : UUID.fromString(str);
+        return str == null || str.isEmpty() ? null : UUID.fromString(str);
     }
 
 }

@@ -28,7 +28,7 @@ public class UUIDTypeHandler extends BaseTypeHandler<UUID> {
 
     public static byte[] toBytes(UUID uuid) {
         if (uuid == null) {
-            return null;
+            return new byte[0];
         }
         byte[] bytes = new byte[16];
         toBytes(uuid.getMostSignificantBits(), bytes, 0);
@@ -37,7 +37,7 @@ public class UUIDTypeHandler extends BaseTypeHandler<UUID> {
     }
 
     public static UUID fromBytes(byte[] bytes) {
-        if (bytes == null) {
+        if (bytes == null || bytes.length == 0) {
             return null;
         }
         return new UUID(toLong(bytes, 0 ), toLong(bytes, 8 ));
