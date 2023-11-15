@@ -13,11 +13,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package me.ningpp.mmegp;
+package me.ningpp.mmegp.plugins;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import me.ningpp.mmegp.NullProgressCallback;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.IntrospectedTable;

@@ -16,26 +16,28 @@
 package me.ningpp.mmegp;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-import org.sonatype.plexus.build.incremental.BuildContext;
 
 @Mojo(
         name = "generate-test",
-        defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES,
         requiresDependencyResolution = ResolutionScope.TEST,
         requiresProject = true, 
         threadSafe = true
 )
-public class MmeTestCompileMojo extends AbstractMojo {
+public class MmeTestCompileMojo extends AbstractMmeMojo {
+
+    /**
+     * This is the generator config xml file path (like mbg config file).
+     */
+    @Parameter(required = false, property = "testGeneratorConfigFilePath")
+    private String testGeneratorConfigFilePath;
 
     /**
      * This is the directory into which the {@code .java} will be created.
@@ -45,21 +47,32 @@ public class MmeTestCompileMojo extends AbstractMojo {
             property = "javaTestOutputDirectory",
             defaultValue = "${project.build.directory}/generated-test-sources/mme/java"
     )
-    private File javaTestOutputDirectory;
-
-    @Parameter(defaultValue = "${project}", readonly = true)
-    protected MavenProject project;
-
-    @Component
-    protected BuildContext buildContext;
+    private File testOutputDirectory;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        if (!javaTestOutputDirectory.exists()) {
-            javaTestOutputDirectory.mkdirs();
+    protected String getConfigFile() {
+        return testGeneratorConfigFilePath;
+    }
+
+    @Override
+    protected List<String> getSourceRoots() {
+        return project.getTestCompileSourceRoots();
+    }
+
+    @Override
+    protected File getOutputDirectory() {
+        return testOutputDirectory;
+    }
+
+    @Override
+    protected void afterExecute() {
+        if (!testOutputDirectory.exists()) {
+            testOutputDirectory.mkdirs();
         }
-        project.addTestCompileSourceRoot(javaTestOutputDirectory.getAbsolutePath());
-        buildContext.refresh(javaTestOutputDirectory);
+        projectHelper.addTestResource(project, getOutputDirectory().getAbsolutePath(),
+                List.of("**/*.xml"), Collections.emptyList());
+        project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
+        buildContext.refresh(testOutputDirectory);
     }
 
 }

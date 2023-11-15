@@ -15,42 +15,68 @@
  */
 package me.ningpp.mmegp;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
+import me.ningpp.mmegp.codegen.DoNotGenerateDsqlModelIntrospectedTableImpl;
+import me.ningpp.mmegp.codegen.DoNotGenerateModelIntrospectedTableImpl;
+import me.ningpp.mmegp.codegen.DoNotGenerateSimpleModelIntrospectedTableImpl;
 import me.ningpp.mmegp.enums.ModelType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
+import org.mybatis.generator.api.CompositePlugin;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.Plugin;
+import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.GeneratedKey;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.ObjectFactory;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public final class MyBatisGeneratorUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyBatisGeneratorUtil.class);
+
+    private static final String XML_TARGET_PROJECT = "targetProject";
 
     private static final Map<Class<?>, JdbcType> JDBC_TYPE_MAPPING = new HashMap<>();
 
@@ -226,4 +252,97 @@ public final class MyBatisGeneratorUtil {
         return null;
     }
 
+    public static void generate(String configFile,
+                                List<String> sourceRoots,
+                                File outputDirectory,
+                                String metaInfoHandlerClassName,
+                                int nThreads,
+                                File baseDir) {
+        MetaInfoHandler metaInfoHandler = createMetaInfoHandler(metaInfoHandlerClassName);
+
+        try ( FileReader cfgFileReader = new FileReader(configFile) ) {
+            List<Context> contexts = MmegpConfigurationParser.parseContexts(new InputSource(cfgFileReader));
+            for (Context context : contexts) {
+                resetContextTargetRuntime(context);
+
+                var sqlMapGeneratorCfg = context.getSqlMapGeneratorConfiguration();
+                if (sqlMapGeneratorCfg != null) {
+                    sqlMapGeneratorCfg.setTargetProject(outputDirectory.getAbsolutePath());
+                }
+
+                var javaClientGeneratorCfg = context.getJavaClientGeneratorConfiguration();
+                if (javaClientGeneratorCfg != null) {
+                    javaClientGeneratorCfg.setTargetProject(outputDirectory.getAbsolutePath());
+                }
+
+                var javaModelGeneratorCfg = context.getJavaModelGeneratorConfiguration();
+                if (javaModelGeneratorCfg != null) {
+                    javaModelGeneratorCfg.setTargetProject(outputDirectory.getAbsolutePath());
+                }
+
+                context.generateFiles(new NullProgressCallback(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), Collections.emptyList());
+
+                List<Plugin> plugins = resetTargetProjectValue(context, baseDir);
+
+                MmeCompileUtil.generate(context, sourceRoots,
+                        metaInfoHandler, plugins, nThreads);
+            }
+        } catch (InterruptedException e) {
+            LOGGER.warn(e.getMessage(), e);
+            Thread.currentThread().interrupt();
+        } catch (ReflectiveOperationException
+                 | ExecutionException
+                 | XMLParserException
+                 | SAXException
+                 | ParserConfigurationException
+                 | IOException e) {
+            throw new GenerateMyBatisExampleException(e.getMessage(), e);
+        }
+    }
+
+    private static void resetContextTargetRuntime(Context context) {
+        String type = context.getTargetRuntime();
+        if (!stringHasValue(type)) {
+            type = DoNotGenerateDsqlModelIntrospectedTableImpl.class.getName();
+        } else if ("MyBatis3".equalsIgnoreCase(type)) {
+            type = DoNotGenerateModelIntrospectedTableImpl.class.getName();
+        } else if ("MyBatis3Simple".equalsIgnoreCase(type)) {
+            type = DoNotGenerateSimpleModelIntrospectedTableImpl.class.getName();
+        } else if ("MyBatis3DynamicSql".equalsIgnoreCase(type)) {
+            type = DoNotGenerateDsqlModelIntrospectedTableImpl.class.getName();
+        }
+        context.setTargetRuntime(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Plugin> resetTargetProjectValue(Context context, File baseDir) throws ReflectiveOperationException {
+        //hack
+        Field pluginsField = CompositePlugin.class.getDeclaredField("plugins");
+        pluginsField.setAccessible(true);
+        List<Plugin> plugins = (List<Plugin>) pluginsField.get(context.getPlugins());
+        for (Plugin plugin : plugins) {
+            if (plugin instanceof PluginAdapter) {
+                Field propertiesField = PluginAdapter.class.getDeclaredField("properties");
+                propertiesField.setAccessible(true);
+                Properties properties = (Properties) propertiesField.get(plugin);
+                String origalValue = properties.getProperty(XML_TARGET_PROJECT);
+                String prefix = "";
+                if (StringUtils.isNotEmpty(origalValue)) {
+                    prefix = baseDir.getAbsolutePath();
+                }
+
+                properties.put(XML_TARGET_PROJECT, prefix + File.separator + origalValue);
+            }
+        }
+        return plugins;
+    }
+
+    private static MetaInfoHandler createMetaInfoHandler(String metaInfoHandlerClassName) {
+        if (StringUtils.isBlank(metaInfoHandlerClassName)) {
+            return null;
+        }
+        return (MetaInfoHandler) ObjectFactory.createInternalObject(metaInfoHandlerClassName.trim().strip());
+    }
 }
