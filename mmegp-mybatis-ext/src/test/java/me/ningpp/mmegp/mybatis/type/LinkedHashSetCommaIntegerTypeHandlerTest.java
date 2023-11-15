@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,7 +33,7 @@ class LinkedHashSetCommaIntegerTypeHandlerTest extends BaseTypeHandlerTest {
 
     @Test
     void setParameterTest() throws SQLException {
-        typeHandler.setParameter(ps, 1, new LinkedHashSet<>(Set.of(3, 1)), null);
+        typeHandler.setParameter(ps, 1, new LinkedHashSet<>(List.of(3, 1)), null);
         verify(ps).setString(1, "3,1");
     }
 
