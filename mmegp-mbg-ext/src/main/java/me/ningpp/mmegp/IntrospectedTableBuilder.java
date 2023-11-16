@@ -20,26 +20,9 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.config.Context;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 
-public class BuildIntrospectedTableCallable implements Callable<Pair<IntrospectedTable, File>> {
+public interface IntrospectedTableBuilder {
 
-    private final IntrospectedTableBuilder builder;
-    private final Context context;
-    private final File file;
-    private final MetaInfoHandler metaInfoHandler;
-
-    public BuildIntrospectedTableCallable(IntrospectedTableBuilder builder,
-                                          Context context, File file, MetaInfoHandler metaInfoHandler) {
-        this.builder = builder;
-        this.context = context;
-        this.file = file;
-        this.metaInfoHandler = metaInfoHandler;
-    }
-
-    @Override
-    public Pair<IntrospectedTable, File> call() {
-        return builder.buildFromSourceFile(context, file, metaInfoHandler);
-    }
+    Pair<IntrospectedTable, File> buildFromSourceFile(Context context, File file, MetaInfoHandler metaInfoHandler);
 
 }
