@@ -56,6 +56,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.GeneratedKey;
+import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.exception.XMLParserException;
@@ -64,6 +65,7 @@ import org.mybatis.generator.internal.ObjectFactory;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -145,13 +147,14 @@ public final class MyBatisGeneratorUtil {
         if (tableInfo == null || StringUtils.isEmpty(tableInfo.getName())) {
             return null;
         }
-        String domainObjectName = new FullyQualifiedJavaType(modelDeclaration.getFullyQualifiedName().get()).getShortName();
+        FullyQualifiedJavaType baseType = new FullyQualifiedJavaType(modelDeclaration.getFullyQualifiedName().get());
+        String domainObjectName = baseType.getShortName();
         IntrospectedTable introspectedTable = ObjectFactory.createIntrospectedTableForValidation(context);
         FullyQualifiedTable table = new FullyQualifiedTable(null, null, tableInfo.getName(), domainObjectName, null, false, null, null, null, false, null, context);
         introspectedTable.setFullyQualifiedTable(table);
         
         introspectedTable.setContext(context);
-        introspectedTable.setBaseRecordType(modelDeclaration.getFullyQualifiedName().get());
+        introspectedTable.setBaseRecordType(baseType.getFullyQualifiedName());
 
         TableConfiguration tableConfiguration = new TableConfiguration(context);
         tableConfiguration.setDomainObjectName(domainObjectName);
@@ -160,7 +163,12 @@ public final class MyBatisGeneratorUtil {
                 String.join(";", tableInfo.getCountGroupByColumns()));
         introspectedTable.setTableConfiguration(tableConfiguration);
 
-        introspectedTable.setExampleType(modelDeclaration.getFullyQualifiedName().get() + "Example");
+        JavaModelGeneratorConfiguration config = context.getJavaModelGeneratorConfiguration();
+        String exampleTargetPackage = config.getProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE);
+        if (!StringUtility.stringHasValue(exampleTargetPackage)) {
+            exampleTargetPackage = baseType.getPackageName();
+        }
+        introspectedTable.setExampleType(exampleTargetPackage + "." + domainObjectName + "Example");
         if (context.getJavaClientGeneratorConfiguration() != null) {
             introspectedTable.setMyBatis3JavaMapperType(
                 context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + domainObjectName + "Mapper");

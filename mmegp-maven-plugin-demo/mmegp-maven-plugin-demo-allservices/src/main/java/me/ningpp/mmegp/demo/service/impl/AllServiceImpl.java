@@ -32,7 +32,7 @@ import me.ningpp.mmegp.demo.mapper.SysRoleMenuMapper;
 import me.ningpp.mmegp.demo.mapper.SysUserDynamicSqlSupport;
 import me.ningpp.mmegp.demo.mapper.SysUserMapper;
 import me.ningpp.mmegp.demo.model.SysUserRole;
-import me.ningpp.mmegp.demo.model.SysUserRoleExample;
+import me.ningpp.mmegp.demo.modelexamples.SysUserRoleExample;
 import me.ningpp.mmegp.demo.service.AllService;
 
 @Service
