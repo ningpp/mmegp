@@ -32,7 +32,6 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
 import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
@@ -133,25 +132,6 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         ModelType modelType = modelDeclaration.isRecordDeclaration() ? ModelType.RECORD : ModelType.CLASS;
         introspectedTable.setAttribute(ModelType.class.getName(), modelType);
         introspectedTable.setTableConfiguration(buildTableConfiguration(context, modelType, domainObjectName, tableInfo));
-
-        String exampleTargetPackage = getPropertyValue(
-                context.getJavaModelGeneratorConfiguration(),
-                PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE,
-                baseType.getPackageName());
-        introspectedTable.setExampleType(exampleTargetPackage + "." + domainObjectName + "Example");
-
-        if (context.getJavaClientGeneratorConfiguration() != null) {
-            introspectedTable.setMyBatis3JavaMapperType(
-                    getMyBatis3JavaMapperType(introspectedTable));
-        }
-    }
-
-    public static String getMyBatis3JavaMapperType(IntrospectedTable introspectedTable) {
-        JavaClientGeneratorConfiguration cfg = introspectedTable.getContext()
-                .getJavaClientGeneratorConfiguration();
-        return cfg.getTargetPackage() + "."
-                + introspectedTable.getTableConfiguration().getDomainObjectName()
-                + getPropertyValue(cfg, "mapperNameSuffix", "Mapper");
     }
 
     private static String getPropertyValue(PropertyHolder propertyHolder, String key, String defaultValue) {
@@ -167,6 +147,12 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         TableConfiguration tableConfiguration = new TableConfiguration(context);
         tableConfiguration.setDomainObjectName(domainObjectName);
         tableConfiguration.setTableName(tableInfo.getName());
+        if (context.getJavaClientGeneratorConfiguration() != null) {
+            String mapperSuffix = getPropertyValue(
+                    context.getJavaClientGeneratorConfiguration(),
+                    "mapperNameSuffix", "Mapper");
+            tableConfiguration.setMapperName(domainObjectName + mapperSuffix);
+        }
         tableConfiguration.addProperty(JavaParserUtil.COUNT_GROUP_BY_COLUMNS_NAME,
                 String.join(";", tableInfo.getCountGroupByColumns()));
         tableConfiguration.getProperties()

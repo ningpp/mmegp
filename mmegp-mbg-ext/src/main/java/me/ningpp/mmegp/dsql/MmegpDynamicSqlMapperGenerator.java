@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import static me.ningpp.mmegp.DefaultIntrospectedTableBuilder.getMyBatis3JavaMapperType;
-
 /**
  * copy code from
  * @see org.mybatis.generator.runtime.dynamic.sql.DynamicSqlMapperGenerator
@@ -61,13 +59,6 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         this.generateSelectDistinctMethod = generateSelectDistinctMethod;
         this.selectPageMethodGenerator = selectPageMethodGenerator;
         this.properties = properties == null ? new Properties() : properties;
-    }
-
-    @Override
-    protected void preCalculate() {
-        super.preCalculate();
-        introspectedTable.setMyBatis3JavaMapperType(
-            getMyBatis3JavaMapperType(introspectedTable));
     }
 
     @Override
