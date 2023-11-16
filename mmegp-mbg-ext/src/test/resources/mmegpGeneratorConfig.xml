@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<generatorConfiguration>
+    <context id="ctx1" targetRuntime="me.ningpp.mmegp.codegen.DoNotGenerateDsqlModelIntrospectedTableImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+    </context>
+    <context id="ctx2" targetRuntime="me.ningpp.mmegp.codegen.DoNotGenerateModelIntrospectedTableImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+    </context>
+    <context id="ctx3" targetRuntime="me.ningpp.mmegp.codegen.DoNotGenerateSimpleModelIntrospectedTableImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+    </context>
+    <context id="ctx4" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.ctx4mapper" />
+    </context>
+    <context id="ctx5" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingMyBatis3IntrospectedTableImpl">
+        <plugin type="me.ningpp.mmegp.plugins.DoNotGenerateExamplePlugin">
+            <property name="targetProject" value="source-code" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.DoNotGenerateModelPlugin">
+            <property name="targetProject" value="source-code" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.AddMmegpAnnotationPlugin">
+            <property name="targetProject" value="source-code" />
+        </plugin>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <javaClientGenerator type="XMLMAPPER" targetPackage="me.ningpp.mmegp.ctx5mapper" />
+    </context>
+    <context id="ctx6" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <plugin type="me.ningpp.mmegp.plugins.ExampleGeneratorWrapperPlugin">
+            <property name="targetProject" value="source-code" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
+            <property name="targetProject" value="source-code" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
+            <property name="targetProject" value="source-code" />
+        </plugin>
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.ctx6mapper" />
+    </context>
+</generatorConfiguration>

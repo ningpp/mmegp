@@ -16,8 +16,9 @@
 package me.ningpp.mmegp;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -160,7 +161,10 @@ public final class MyBatisGeneratorUtil {
         introspectedTable.setTableConfiguration(tableConfiguration);
 
         introspectedTable.setExampleType(modelDeclaration.getFullyQualifiedName().get() + "Example");
-        introspectedTable.setMyBatis3JavaMapperType(context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + domainObjectName + "Mapper");
+        if (context.getJavaClientGeneratorConfiguration() != null) {
+            introspectedTable.setMyBatis3JavaMapperType(
+                context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + domainObjectName + "Mapper");
+        }
 
         Map<String, ImportDeclaration> importMappings = new HashMap<>();
         for (ImportDeclaration importDeclar : importDeclarations) {
@@ -258,10 +262,23 @@ public final class MyBatisGeneratorUtil {
                                 String metaInfoHandlerClassName,
                                 int nThreads,
                                 File baseDir) {
+        try (InputStream inputStream = new FileInputStream(configFile)) {
+            generate(inputStream, sourceRoots, outputDirectory, metaInfoHandlerClassName, nThreads, baseDir);
+        } catch (IOException e) {
+            throw new GenerateMyBatisExampleException(e.getMessage(), e);
+        }
+    }
+
+    public static void generate(InputStream configFile,
+                                List<String> sourceRoots,
+                                File outputDirectory,
+                                String metaInfoHandlerClassName,
+                                int nThreads,
+                                File baseDir) {
         MetaInfoHandler metaInfoHandler = createMetaInfoHandler(metaInfoHandlerClassName);
 
-        try ( FileReader cfgFileReader = new FileReader(configFile) ) {
-            List<Context> contexts = MmegpConfigurationParser.parseContexts(new InputSource(cfgFileReader));
+        try {
+            List<Context> contexts = MmegpConfigurationParser.parseContexts(new InputSource(configFile));
             for (Context context : contexts) {
                 resetContextTargetRuntime(context);
 
