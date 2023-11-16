@@ -20,12 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,7 +34,7 @@ class GenerateCodeTest {
     private static final String CFG_FILE = "/mmegpGeneratorConfig.xml";
 
     @Test
-    void generateTest() throws IOException {
+    void generateTest() {
         File dir = new File("target/mmegp-test-59951356a4f523a9ddc5d9388168c72262913b59/");
         boolean mkdirFlag = dir.mkdirs();
         LOGGER.info("mkdirs: {}, generate in dir : {}", mkdirFlag, dir.getAbsolutePath());

@@ -44,4 +44,40 @@
             <property name="mapperNameSuffix" value="AnnotherMapper" />
         </javaClientGenerator>
     </context>
+    <context id="ctx7" targetRuntime="org.mybatis.generator.runtime.dynamic.sql.IntrospectedTableMyBatis3DynamicSqlImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+    </context>
+    <context id="ctx8" targetRuntime="org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+    </context>
+    <context id="ctx9" targetRuntime="org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3SimpleImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+    </context>
+    <context id="ctx10" targetRuntime="org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <sqlMapGenerator targetPackage="me.ningpp.mmegp.demo.ctx10mapper" />
+        <javaClientGenerator type="XMLMAPPER" targetPackage="me.ningpp.mmegp.ctx10mapper" />
+    </context>
+    <context id="ctx11" targetRuntime="org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3SimpleImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <sqlMapGenerator targetPackage="me.ningpp.mmegp.demo.ctx11mapper" />
+        <javaClientGenerator type="XMLMAPPER" targetPackage="me.ningpp.mmegp.ctx11mapper" />
+    </context>
+    <context id="ctx12" targetRuntime="org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3SimpleImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="me.ningpp.mmegp.ctx12mapper" />
+    </context>
+    <context id="ctx13" targetRuntime="org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <sqlMapGenerator targetPackage="me.ningpp.mmegp.demo.ctx13mapper" />
+        <javaClientGenerator type="MIXEDMAPPER" targetPackage="me.ningpp.mmegp.ctx13mapper" />
+    </context>
+    <context id="ctx14" targetRuntime="org.mybatis.generator.codegen.mybatis3.IntrospectedTableMyBatis3Impl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="me.ningpp.mmegp.ctx14mapper" />
+    </context>
+    <context id="ctx15" targetRuntime="org.mybatis.generator.runtime.dynamic.sql.IntrospectedTableMyBatis3DynamicSqlImpl">
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.ctx15mapper" />
+    </context>
 </generatorConfiguration>
