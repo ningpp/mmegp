@@ -40,6 +40,8 @@
             <property name="suppressAllComments" value="true" />
         </commentGenerator>
         <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
-        <javaClientGenerator targetPackage="me.ningpp.mmegp.ctx6mapper" />
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.ctx6mapper">
+            <property name="mapperNameSuffix" value="AnnotherMapper" />
+        </javaClientGenerator>
     </context>
 </generatorConfiguration>

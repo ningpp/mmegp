@@ -32,7 +32,8 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
+import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
+import org.mybatis.generator.config.PropertyHolder;
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.config.TableConfiguration;
 import org.mybatis.generator.internal.ObjectFactory;
@@ -133,17 +134,32 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         introspectedTable.setAttribute(ModelType.class.getName(), modelType);
         introspectedTable.setTableConfiguration(buildTableConfiguration(context, modelType, domainObjectName, tableInfo));
 
-        JavaModelGeneratorConfiguration config = context.getJavaModelGeneratorConfiguration();
-        String exampleTargetPackage = config.getProperty(PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE);
-        if (!StringUtility.stringHasValue(exampleTargetPackage)) {
-            exampleTargetPackage = baseType.getPackageName();
-        }
+        String exampleTargetPackage = getPropertyValue(
+                context.getJavaModelGeneratorConfiguration(),
+                PropertyRegistry.MODEL_GENERATOR_EXAMPLE_PACKAGE,
+                baseType.getPackageName());
         introspectedTable.setExampleType(exampleTargetPackage + "." + domainObjectName + "Example");
 
         if (context.getJavaClientGeneratorConfiguration() != null) {
             introspectedTable.setMyBatis3JavaMapperType(
-                    context.getJavaClientGeneratorConfiguration().getTargetPackage() + "." + domainObjectName + "Mapper");
+                    getMyBatis3JavaMapperType(introspectedTable));
         }
+    }
+
+    public static String getMyBatis3JavaMapperType(IntrospectedTable introspectedTable) {
+        JavaClientGeneratorConfiguration cfg = introspectedTable.getContext()
+                .getJavaClientGeneratorConfiguration();
+        return cfg.getTargetPackage() + "."
+                + introspectedTable.getTableConfiguration().getDomainObjectName()
+                + getPropertyValue(cfg, "mapperNameSuffix", "Mapper");
+    }
+
+    private static String getPropertyValue(PropertyHolder propertyHolder, String key, String defaultValue) {
+        String keyValue = propertyHolder.getProperty(key);
+        if (StringUtility.stringHasValue(keyValue)) {
+            return keyValue;
+        }
+        return defaultValue;
     }
 
     private static TableConfiguration buildTableConfiguration(Context context, ModelType modelType,

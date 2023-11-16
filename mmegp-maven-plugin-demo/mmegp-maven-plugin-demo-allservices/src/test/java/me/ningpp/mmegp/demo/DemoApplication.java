@@ -8,7 +8,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "me.ningpp.mmegp.demo" })
-@MapperScan(basePackages = { "me.ningpp.mmegp.demo.mapper", "me.ningpp.mmegp.demo.dao" })
+@MapperScan(basePackages = {
+        "me.ningpp.mmegp.demo.annothermapper1", "me.ningpp.mmegp.demo.annothermapper2",
+        "me.ningpp.mmegp.demo.mapper", "me.ningpp.mmegp.demo.dao"
+})
 @EnableTransactionManagement
 public class DemoApplication {
     public static void main(String[] args) {

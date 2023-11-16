@@ -16,6 +16,7 @@
 package me.ningpp.mmegp;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,6 +40,9 @@ public class MmeTestCompileMojo extends AbstractMmeMojo {
     @Parameter(required = false, property = "testGeneratorConfigFilePath")
     private String testGeneratorConfigFilePath;
 
+    @Parameter(property = "customTestCompileSourceRoots")
+    private String[] customTestCompileSourceRoots;
+
     /**
      * This is the directory into which the {@code .java} will be created.
      */
@@ -56,7 +60,11 @@ public class MmeTestCompileMojo extends AbstractMmeMojo {
 
     @Override
     protected List<String> getSourceRoots() {
-        return project.getTestCompileSourceRoots();
+        List<String> sourceRoots = new ArrayList<>(project.getTestCompileSourceRoots());
+        if (customTestCompileSourceRoots != null){
+            Collections.addAll(sourceRoots, customTestCompileSourceRoots);
+        }
+        return sourceRoots;
     }
 
     @Override

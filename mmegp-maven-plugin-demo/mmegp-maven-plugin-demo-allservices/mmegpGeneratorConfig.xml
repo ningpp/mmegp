@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<generatorConfiguration>
+    <context id="annother1" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.entity" >
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="false" />
+        </javaModelGenerator>
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.demo.annothermapper1">
+            <property name="mapperNameSuffix" value="AnnotherMapper" />
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+    </context>
+    <context id="annother2" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.entity2" >
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="false" />
+        </javaModelGenerator>
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.demo.annothermapper2">
+            <property name="mapperNameSuffix" value="AnnotherMapper" />
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+    </context>
+</generatorConfiguration>

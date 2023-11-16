@@ -81,4 +81,30 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.ningpp</groupId>
+                <artifactId>mmegp-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <configuration>
+                    <generatorConfigFilePath>${basedir}/mmegpGeneratorConfig.xml</generatorConfigFilePath>
+                    <customCompileSourceRoots>
+                        <param>${basedir}/../mmegp-maven-plugin-demo-annotatedmapper/src/main/java</param>
+                        <param>${basedir}/../mmegp-maven-plugin-demo-dynamic-sql/src/main/java</param>
+                        <param>${basedir}/../mmegp-maven-plugin-demo-mixedmapper/src/main/java</param>
+                        <param>${basedir}/../mmegp-maven-plugin-demo-xmlmapper/src/main/java</param>
+                    </customCompileSourceRoots>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

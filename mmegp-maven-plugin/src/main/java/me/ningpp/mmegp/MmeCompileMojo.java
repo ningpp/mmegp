@@ -21,6 +21,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +38,9 @@ public class MmeCompileMojo extends AbstractMmeMojo {
      */
     @Parameter(required = false, property = "generatorConfigFilePath")
     private String generatorConfigFilePath;
+
+    @Parameter(property = "customCompileSourceRoots")
+    private String[] customCompileSourceRoots;
 
     /**
      * This is the directory into which the {@code .java} will be created.
@@ -55,7 +59,11 @@ public class MmeCompileMojo extends AbstractMmeMojo {
 
     @Override
     protected List<String> getSourceRoots() {
-        return project.getCompileSourceRoots();
+        List<String> sourceRoots = new ArrayList<>(project.getCompileSourceRoots());
+        if (customCompileSourceRoots != null){
+            Collections.addAll(sourceRoots, customCompileSourceRoots);
+        }
+        return sourceRoots;
     }
 
     @Override
