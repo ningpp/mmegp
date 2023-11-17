@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public interface PaginationModelRenderer {
 
     default Optional<FragmentAndParameters> render(LimitOffset limitOffset, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
-        if (limitOffset != null) {
+        if (limitOffset != null && limitOffset.limit() != null) {
             return Optional.ofNullable(
                     doRender(limitOffset.limit(), Optional.ofNullable(limitOffset.offset()), sequence, renderingStrategy)
             );
