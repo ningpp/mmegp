@@ -41,19 +41,19 @@ class GenerateCodeTest {
 
         MyBatisGeneratorUtil.generate(
                 GenerateCodeTest.class.getResourceAsStream(CFG_FILE),
-                List.of(), dir, null, 1, dir
+                List.of(), dir, null, 1
         );
 
         MyBatisGeneratorUtil.generate(
                 GenerateCodeTest.class.getResourceAsStream(CFG_FILE),
-                List.of(), dir, EmptyMetaInfoHandler.class.getName(), 1, dir
+                List.of(), dir, EmptyMetaInfoHandler.class.getName(), 1
         );
 
         File testEntityDir = new File("src/test/java/");
         MyBatisGeneratorUtil.generate(
                 GenerateCodeTest.class.getResourceAsStream(CFG_FILE),
                 List.of(testEntityDir.getAbsolutePath()),
-                dir, EmptyMetaInfoHandler.class.getName(), 1, dir
+                dir, EmptyMetaInfoHandler.class.getName(), 1
         );
 
         try (Stream<Path> walk = Files.walk(dir.toPath())) {

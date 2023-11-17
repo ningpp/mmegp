@@ -59,13 +59,16 @@ public abstract class AbstractMmeMojo extends AbstractMojo {
         // for stable, don't use system-dependent value.
         System.setProperty("line.separator", "\n");
 
+        getLog().info("generate code from config file : " + getConfigFile());
+        getLog().info("source root directories : " + String.join(", ", getSourceRoots()));
+        getLog().info("output directory : " + getOutputDirectory().getAbsolutePath());
+
         MyBatisGeneratorUtil.generate(
                 getConfigFile(),
                 getSourceRoots(),
                 getOutputDirectory(),
                 metaInfoHandlerClassName,
-                nThreads,
-                project.getBasedir()
+                nThreads
         );
 
         afterExecute();

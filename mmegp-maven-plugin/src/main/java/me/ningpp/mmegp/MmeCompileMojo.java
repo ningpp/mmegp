@@ -36,7 +36,7 @@ public class MmeCompileMojo extends AbstractMmeMojo {
     /**
      * This is the generator config xml file path (like mbg config file).
      */
-    @Parameter(required = false, property = "generatorConfigFilePath")
+    @Parameter(required = true, property = "generatorConfigFilePath")
     private String generatorConfigFilePath;
 
     @Parameter(property = "customCompileSourceRoots")

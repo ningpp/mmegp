@@ -37,7 +37,7 @@ public class MmeTestCompileMojo extends AbstractMmeMojo {
     /**
      * This is the generator config xml file path (like mbg config file).
      */
-    @Parameter(required = false, property = "testGeneratorConfigFilePath")
+    @Parameter(required = true, property = "testGeneratorConfigFilePath")
     private String testGeneratorConfigFilePath;
 
     @Parameter(property = "customTestCompileSourceRoots")

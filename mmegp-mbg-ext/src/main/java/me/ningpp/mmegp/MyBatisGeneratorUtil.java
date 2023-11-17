@@ -65,10 +65,9 @@ public final class MyBatisGeneratorUtil {
                                 List<String> sourceRoots,
                                 File outputDirectory,
                                 String metaInfoHandlerClassName,
-                                int nThreads,
-                                File baseDir) {
+                                int nThreads) {
         try (InputStream inputStream = new FileInputStream(configFile)) {
-            generate(inputStream, sourceRoots, outputDirectory, metaInfoHandlerClassName, nThreads, baseDir);
+            generate(inputStream, sourceRoots, outputDirectory, metaInfoHandlerClassName, nThreads);
         } catch (IOException e) {
             throw new GenerateMyBatisExampleException(e.getMessage(), e);
         }
@@ -78,8 +77,7 @@ public final class MyBatisGeneratorUtil {
                                 List<String> sourceRoots,
                                 File outputDirectory,
                                 String metaInfoHandlerClassName,
-                                int nThreads,
-                                File baseDir) {
+                                int nThreads) {
         MetaInfoHandler metaInfoHandler = createMetaInfoHandler(metaInfoHandlerClassName);
 
         try {
@@ -106,7 +104,7 @@ public final class MyBatisGeneratorUtil {
                         Collections.emptyList(), Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList());
 
-                List<Plugin> plugins = resetTargetProjectValue(context, baseDir);
+                List<Plugin> plugins = resetTargetProjectValue(context, outputDirectory);
 
                 generate(context, sourceRoots, metaInfoHandler, plugins, nThreads);
             }
@@ -138,7 +136,7 @@ public final class MyBatisGeneratorUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private static List<Plugin> resetTargetProjectValue(Context context, File baseDir) throws ReflectiveOperationException {
+    private static List<Plugin> resetTargetProjectValue(Context context, File outputDirectory) throws ReflectiveOperationException {
         //hack
         Field pluginsField = CompositePlugin.class.getDeclaredField("plugins");
         pluginsField.trySetAccessible();
@@ -148,13 +146,7 @@ public final class MyBatisGeneratorUtil {
                 Field propertiesField = PluginAdapter.class.getDeclaredField("properties");
                 propertiesField.trySetAccessible();
                 Properties properties = (Properties) propertiesField.get(plugin);
-                String origalValue = properties.getProperty(XML_TARGET_PROJECT);
-                String prefix = "";
-                if (StringUtils.isNotEmpty(origalValue)) {
-                    prefix = baseDir.getAbsolutePath();
-                }
-
-                properties.put(XML_TARGET_PROJECT, prefix + File.separator + origalValue);
+                properties.put(XML_TARGET_PROJECT, outputDirectory.getAbsolutePath());
             }
         }
         return plugins;
