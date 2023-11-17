@@ -32,8 +32,11 @@ public class WriteGeneratedFileCallable implements Callable<Void> {
             }
             File directory = shellCallback.getDirectory(gf.getTargetProject(), gf.getTargetPackage());
             File targetFile = new File(directory, gf.getFileName());
-            targetFile.getParentFile().mkdirs();
-            targetFile.delete();
+            boolean mkdirsFlag = targetFile.getParentFile().mkdirs();
+            boolean deleteFlag = targetFile.delete();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("mkdirs {}, delete file {}", mkdirsFlag, deleteFlag);
+            }
         } catch (Exception e) {
             throw new GenerateMyBatisExampleException(e.getMessage(), e);
         }

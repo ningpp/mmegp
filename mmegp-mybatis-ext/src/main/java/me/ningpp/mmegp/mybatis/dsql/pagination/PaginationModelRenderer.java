@@ -16,7 +16,6 @@
 package me.ningpp.mmegp.mybatis.dsql.pagination;
 
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.select.PagingModel;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 import java.util.Optional;
@@ -24,15 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public interface PaginationModelRenderer {
 
-    default Optional<FragmentAndParameters> render(Optional<PagingModel> pagingModel, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
-        if (pagingModel != null && pagingModel.isPresent()) {
-            if (pagingModel.get().fetchFirstRows().isPresent()) {
-                throw new IllegalArgumentException("can't set fetchFirstRows value, just use limit and offset parameter!");
-            }
-
-            if (pagingModel.get().limit().isPresent()) {
-                return Optional.ofNullable(doRender(pagingModel.get().limit().get(), pagingModel.get().offset(), sequence, renderingStrategy));
-            }
+    default Optional<FragmentAndParameters> render(LimitOffset limitOffset, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
+        if (limitOffset != null) {
+            return Optional.ofNullable(
+                    doRender(limitOffset.limit(), Optional.ofNullable(limitOffset.offset()), sequence, renderingStrategy)
+            );
         }
         return Optional.empty();
     }

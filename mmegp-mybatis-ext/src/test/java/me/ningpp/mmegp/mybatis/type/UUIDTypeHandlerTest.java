@@ -35,6 +35,7 @@ class UUIDTypeHandlerTest extends BaseTypeHandlerCase {
     void setParameterTest() throws SQLException {
         typeHandler.setParameter(ps, 1, UUIDTypeHandler.fromBytes(bytes), null);
         verify(ps).setBytes(1, bytes);
+        assertArrayEquals(new byte[0], UUIDTypeHandler.toBytes(null));
     }
 
     @Test

@@ -29,13 +29,13 @@ class PaginationSelectRendererTest {
     @Test
     void testRender2() {
         SqlTable table = SqlTable.of("article");
-        SelectModel selectModel = SqlBuilder.select(SqlColumn.of("*", table))
+        SelectDSL<SelectModel> selectDsl = SqlBuilder.select(SqlColumn.of("*", table))
                 .from(table)
                 .where().and(SqlColumn.of("category", table), SqlBuilder.isEqualTo("tech"))
                         .and(SqlColumn.of("author", table), SqlBuilder.isIn("zhangsan", "lisi"))
-                .orderBy(SqlBuilder.sortColumn("create_time").descending())
-                .limit(3).offset(7).build();
-        SelectStatementProvider provider = DynamicSqlUtil.renderSelect(selectModel,
+                .orderBy(SqlBuilder.sortColumn("create_time").descending());
+        SelectStatementProvider provider = DynamicSqlUtil.renderSelect(selectDsl,
+                LimitOffset.of(3L, 7L),
                 new MySqlPaginationModelRenderer());
 
         String expectedSql = "select * from article " +
@@ -56,7 +56,8 @@ class PaginationSelectRendererTest {
     @MethodSource("generateParamAndResults")
     void testRender(ParamAndResult par) {
         PaginationSelectRenderer selectRenderer = new PaginationSelectRenderer(
-                buildSelectModel(par.getLimit(), par.getOffset()),
+                buildSelectModel(),
+                LimitOffset.of(par.getLimit(), par.getOffset()),
                 par.getRender(),
                 RenderingStrategies.MYBATIS3, new AtomicInteger(par.getInitialSequenceValue()), null
         );
@@ -80,7 +81,7 @@ class PaginationSelectRendererTest {
     }
 
     public static List<ParamAndResult> paramAndResults4OffsetFetch(int initialSequenceValue) {
-        PaginationModelRenderer render =  new OffsetFetchPaginationModelRenderer();
+        PaginationModelRenderer render =  OffsetFetchPaginationModelRendererProvider.RENDERER;
         ParamAndResult par1 = ParamAndResult.of(initialSequenceValue, render, null, null, SQL_NO_PAGING, Map.of());
         ParamAndResult par2 = ParamAndResult.of(initialSequenceValue, render, 3L, null,
                 SQL_NO_PAGING + " FETCH FIRST #{parameters.p" + initialSequenceValue + "} ROWS ONLY", Map.of("p" + initialSequenceValue, 3L));
@@ -92,7 +93,7 @@ class PaginationSelectRendererTest {
     }
 
     public static List<ParamAndResult> paramAndResults4LimitOffset(int initialSequenceValue) {
-        PaginationModelRenderer render =  new LimitOffsetPaginationModelRenderer();
+        PaginationModelRenderer render =  LimitOffsetPaginationModelRendererProvider.RENDERER;
         ParamAndResult par1 = ParamAndResult.of(initialSequenceValue, render, null, null, SQL_NO_PAGING, Map.of());
         ParamAndResult par2 = ParamAndResult.of(initialSequenceValue, render, 3L, null,
                 SQL_NO_PAGING + " LIMIT #{parameters.p" + initialSequenceValue + "}", Map.of("p" + initialSequenceValue, 3L));
@@ -104,7 +105,7 @@ class PaginationSelectRendererTest {
     }
 
     public static List<ParamAndResult> paramAndResults4MySql(int initialSequenceValue) {
-        PaginationModelRenderer render =  new MySqlPaginationModelRenderer();
+        PaginationModelRenderer render =  MySqlPaginationModelRendererProvider.RENDERER;
         ParamAndResult par1 = ParamAndResult.of(initialSequenceValue, render, null, null, SQL_NO_PAGING, Map.of());
         ParamAndResult par2 = ParamAndResult.of(initialSequenceValue, render, 3L, null,
                 SQL_NO_PAGING + " LIMIT #{parameters.p" + initialSequenceValue + "}", Map.of("p" + initialSequenceValue, 3L));
@@ -116,7 +117,7 @@ class PaginationSelectRendererTest {
     }
 
     public static List<ParamAndResult> paramAndResults4SqlServer(int initialSequenceValue) {
-        PaginationModelRenderer render =  new SqlServerPaginationModelRenderer();
+        PaginationModelRenderer render =  SqlServerPaginationModelRendererProvider.RENDERER;
         ParamAndResult par1 = ParamAndResult.of(initialSequenceValue, render, null, null, SQL_NO_PAGING, Map.of());
         ParamAndResult par2 = ParamAndResult.of(initialSequenceValue, render, 3L, null,
                 SQL_NO_PAGING + " OFFSET 0 ROWS FETCH NEXT #{parameters.p" + initialSequenceValue + "} ROWS ONLY", Map.of("p" + initialSequenceValue, 3L));
@@ -127,17 +128,11 @@ class PaginationSelectRendererTest {
         return List.of(par1, par2, par3, par4);
     }
 
-    private SelectModel buildSelectModel(Long limit, Long offset) {
+    private SelectModel buildSelectModel() {
         SqlTable table = SqlTable.of("article");
         SelectDSL<SelectModel> dsl = SqlBuilder.select(SqlColumn.of("*", table))
                 .from(table)
                 .orderBy(SqlBuilder.sortColumn("create_time").descending());
-        if (limit != null) {
-            dsl.limit(limit);
-        }
-        if (offset != null) {
-            dsl.offset(offset);
-        }
         return dsl.build();
     }
 

@@ -46,15 +46,10 @@ public final class DynamicSqlUtil {
     private DynamicSqlUtil() {
     }
 
-    public static SelectStatementProvider renderSelect(SelectModel selectModel, PaginationModelRenderer paginationModelRender) {
-        Optional<PagingModel> pagingModel = selectModel.pagingModel();
-        if (pagingModel.isPresent() && (
-                pagingModel.get().limit().isPresent()
-                || pagingModel.get().offset().isPresent()
-            )) {
-            return new PaginationSelectRenderer(selectModel, paginationModelRender).render();
-        }
-        return selectModel.render(RenderingStrategies.MYBATIS3);
+    public static SelectStatementProvider renderSelect(SelectDSL<SelectModel> listDsl,
+                                                       LimitOffset limitOffset,
+                                                       PaginationModelRenderer paginationModelRender) {
+        return new PaginationSelectRenderer(listDsl, limitOffset, paginationModelRender).render();
     }
 
     public static <R> Page<R> selectPage(
@@ -77,16 +72,9 @@ public final class DynamicSqlUtil {
         long totalCount = countFrom(countMapper, listDsl);
         List<R> items;
         if (totalCount > 0L) {
-            if (limitOffset != null) {
-                if (limitOffset.limit() != null) {
-                    listDsl.limit(limitOffset.limit());
-                }
-                if (limitOffset.offset() != null) {
-                    listDsl.offset(limitOffset.offset());
-                }
-            }
             SelectStatementProvider selectStmtProvider = renderSelect(
-                    listDsl.build(),
+                    listDsl,
+                    limitOffset,
                     renderer
             );
             items  = listMapper.apply(selectStmtProvider);

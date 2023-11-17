@@ -21,6 +21,7 @@ import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.select.QueryExpressionModel;
+import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.DefaultSelectStatementProvider;
 import org.mybatis.dynamic.sql.select.render.QueryExpressionRenderer;
@@ -40,17 +41,19 @@ import java.util.stream.Collectors;
  */
 public class PaginationSelectRenderer {
     private final SelectModel selectModel;
+    private final LimitOffset limitOffset;
     private final PaginationModelRenderer paginationModelRender;
     private final RenderingStrategy renderingStrategy;
     private final AtomicInteger sequence;
     private final TableAliasCalculator parentTableAliasCalculator; // may be null
 
-    public PaginationSelectRenderer(SelectModel selectModel, PaginationModelRenderer paginationModelRender) {
-        this(selectModel, paginationModelRender, RenderingStrategies.MYBATIS3, null, null);
+    public PaginationSelectRenderer(SelectDSL<SelectModel> listDsl, LimitOffset limitOffset, PaginationModelRenderer paginationModelRender) {
+        this(listDsl.build(), limitOffset, paginationModelRender, RenderingStrategies.MYBATIS3, null, null);
     }
 
-    public PaginationSelectRenderer(SelectModel selectModel, PaginationModelRenderer paginationModelRender, RenderingStrategy renderingStrategy, AtomicInteger sequence, TableAliasCalculator parentTableAliasCalculator) {
+    public PaginationSelectRenderer(SelectModel selectModel, LimitOffset limitOffset, PaginationModelRenderer paginationModelRender, RenderingStrategy renderingStrategy, AtomicInteger sequence, TableAliasCalculator parentTableAliasCalculator) {
         this.selectModel = Objects.requireNonNull(selectModel);
+        this.limitOffset = limitOffset;
         this.paginationModelRender = Objects.requireNonNull(paginationModelRender);
         this.renderingStrategy = Objects.requireNonNull(renderingStrategy);
         if (sequence == null) {
@@ -106,7 +109,7 @@ public class PaginationSelectRenderer {
     }
 
     private Optional<FragmentAndParameters> renderPagingModel() {
-        return paginationModelRender.render(selectModel.pagingModel(), sequence, renderingStrategy);
+        return paginationModelRender.render(limitOffset, sequence, renderingStrategy);
     }
 
 }
