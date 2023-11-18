@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 import me.ningpp.mmegp.codegen.DoNotGenerateDsqlModelIntrospectedTableImpl;
 import me.ningpp.mmegp.codegen.DoNotGenerateModelIntrospectedTableImpl;
 import me.ningpp.mmegp.codegen.DoNotGenerateSimpleModelIntrospectedTableImpl;
+import me.ningpp.mmegp.meta.handler.DefaultMetaInfoHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.mybatis.generator.api.CompositePlugin;
@@ -154,7 +155,7 @@ public final class MyBatisGeneratorUtil {
 
     private static MetaInfoHandler createMetaInfoHandler(String metaInfoHandlerClassName) {
         if (StringUtils.isBlank(metaInfoHandlerClassName)) {
-            return null;
+            return new DefaultMetaInfoHandler();
         }
         return (MetaInfoHandler) ObjectFactory.createInternalObject(metaInfoHandlerClassName.trim().strip());
     }

@@ -15,6 +15,7 @@
  */
 package me.ningpp.mmegp;
 
+import me.ningpp.mmegp.meta.handler.DefaultMetaInfoHandler;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ class GenerateCodeTest {
         MyBatisGeneratorUtil.generate(
                 GenerateCodeTest.class.getResourceAsStream(CFG_FILE),
                 List.of(testEntityDir.getAbsolutePath()),
-                dir, EmptyMetaInfoHandler.class.getName(), 1
+                dir, DefaultMetaInfoHandler.class.getName(), 1
         );
 
         try (Stream<Path> walk = Files.walk(dir.toPath())) {

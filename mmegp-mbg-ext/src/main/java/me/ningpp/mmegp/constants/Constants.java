@@ -28,6 +28,10 @@ public final class Constants {
 
     public static final FullyQualifiedJavaType FQJT_ARRAYLIST = new FullyQualifiedJavaType("java.util.ArrayList");
 
+    public static final FullyQualifiedJavaType FQJT_LOCALDATETIME = new FullyQualifiedJavaType("java.time.LocalDateTime");
+
+    public static final FullyQualifiedJavaType FQJT_DATE = new FullyQualifiedJavaType("java.util.Date");
+
     public static final FullyQualifiedJavaType FQJT_PROPERTY_MAPPING = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.PropertyMapping");
 
     public static final FullyQualifiedJavaType FQJT_ABS_COLUMN_MAPPING = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.AbstractColumnMapping");

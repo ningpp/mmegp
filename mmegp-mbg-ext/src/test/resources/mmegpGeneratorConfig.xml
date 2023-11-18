@@ -80,4 +80,13 @@
         <javaModelGenerator targetPackage="me.ningpp.mmegp.entity" />
         <javaClientGenerator targetPackage="me.ningpp.mmegp.ctx15mapper" />
     </context>
+    <context id="ctx16" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin" />
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin" />
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.softdelete" />
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.ctx16mapper" />
+    </context>
 </generatorConfiguration>

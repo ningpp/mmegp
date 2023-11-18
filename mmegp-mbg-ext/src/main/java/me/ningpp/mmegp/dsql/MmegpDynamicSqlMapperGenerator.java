@@ -17,25 +17,34 @@ package me.ningpp.mmegp.dsql;
 
 import me.ningpp.mmegp.constants.Constants;
 import me.ningpp.mmegp.enums.ModelType;
+import me.ningpp.mmegp.enums.SoftDeleteStrategy;
+import me.ningpp.mmegp.meta.model.SoftDeleteModel;
+import me.ningpp.mmegp.mybatis.util.SoftDeleteUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
+import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.mybatis.generator.runtime.dynamic.sql.DynamicSqlMapperGenerator;
 import org.mybatis.generator.runtime.dynamic.sql.elements.AbstractMethodGenerator;
 import org.mybatis.generator.runtime.dynamic.sql.elements.MethodAndImports;
+import org.mybatis.generator.runtime.dynamic.sql.elements.MethodParts;
 import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * copy code from
@@ -80,8 +89,9 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         addBasicSelectOneMethod(interfaze, reuseResultMap);
 
         addGeneralCountMethod(interfaze);
-        addGeneralDeleteMethod(interfaze);
-        addDeleteByPrimaryKeyMethod(interfaze);
+
+        addDeleteMethods(interfaze);
+
         addInsertOneMethod(interfaze);
         addInsertMultipleMethod(interfaze);
         addInsertSelectiveMethod(interfaze);
@@ -116,9 +126,112 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         return List.of(interfaze);
     }
 
+    protected void addDeleteMethods(Interface interfaze) {
+        SoftDeleteModel model = (SoftDeleteModel) introspectedTable.getAttribute(SoftDeleteModel.class.getName());
+        if (model == null) {
+            super.addGeneralDeleteMethod(interfaze);
+            super.addDeleteByPrimaryKeyMethod(interfaze);
+        } else if (introspectedTable.hasPrimaryKeyColumns()) {
+            interfaze.addStaticImport("org.mybatis.dynamic.sql.SqlBuilder.isEqualTo");
+            interfaze.addImportedType(new FullyQualifiedJavaType(
+                    SoftDeleteUtil.class.getName()));
+
+            addSoftDeleteMethod(interfaze, model);
+            addCancelSoftDeleteMethod(interfaze, model);
+        }
+    }
+
+    private String getSoftDeleteColumnJavaType(IntrospectedColumn column) {
+        FullyQualifiedJavaType javaType = column.getFullyQualifiedJavaType();
+        String type;
+        if (javaType.isPrimitive()) {
+            type = javaType.getPrimitiveTypeWrapper().getShortName();
+        } else {
+            type = javaType.getShortName();
+        }
+        return type.substring(0, 1).toLowerCase(Locale.ROOT)
+                + type.substring(1);
+    }
+
+    private void addSoftDeleteMethod(Interface interfaze, SoftDeleteModel model) {
+        String deleted;
+        if (model.strategy() == SoftDeleteStrategy.FIXED_VALUE) {
+            deleted = convertValue4SoftDelete(model.column(), model.deletedValue());
+        } else {
+            if (LocalDateTime.class.getName().equals(
+                    model.column().getFullyQualifiedJavaType().getFullyQualifiedName())) {
+                deleted = "equalTo(LocalDateTime.now())";
+                interfaze.addImportedType(Constants.FQJT_LOCALDATETIME);
+            } else {
+                deleted = "equalTo(new Date())";
+                interfaze.addImportedType(Constants.FQJT_DATE);
+            }
+        }
+        addCommonSoftDeleteMethod(interfaze, model, "softDeleteByPrimaryKey", deleted);
+    }
+
+    private void addCancelSoftDeleteMethod(Interface interfaze, SoftDeleteModel model) {
+        String notDeleted;
+        if (model.strategy() == SoftDeleteStrategy.FIXED_VALUE) {
+            notDeleted = convertValue4SoftDelete(model.column(), model.notDeletedValue());
+        } else {
+            notDeleted = "equalToNull()";
+        }
+        addCommonSoftDeleteMethod(interfaze, model, "cancelSoftDeleteByPrimaryKey", notDeleted);
+    }
+
+    private String convertValue4SoftDelete(IntrospectedColumn column, String defaultValue) {
+        String columnJavaType = getSoftDeleteColumnJavaType(column);
+        return String.format(Locale.ROOT,
+                "equalTo(SoftDeleteUtil.%sValue(%s))",
+                columnJavaType,
+                String.format(Locale.ROOT,
+                        "\"%s\"", defaultValue));
+    }
+
+    private void addCommonSoftDeleteMethod(Interface interfaze,
+                                           SoftDeleteModel model,
+                                           String methodName,
+                                           String newColumnValue) {
+        Method method = new Method(methodName);
+        method.setDefault(true);
+
+        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
+
+        MethodParts methodParts = fragmentGenerator.getPrimaryKeyWhereClauseAndParameters();
+        for (Parameter parameter : methodParts.getParameters()) {
+            method.addParameter(parameter);
+        }
+
+        method.addBodyLine(String.format(Locale.ROOT,
+                "return update(dsl -> dsl.set(%s).%s",
+                model.column().getJavaProperty(), newColumnValue));
+        method.addBodyLines(getPrimaryKeyWhereClauseForDelete("    "));
+        method.addBodyLine(");");
+        interfaze.addMethod(method);
+    }
+
     @Override
     protected Interface createBasicInterface() {
-        Interface mapperInterface = super.createBasicInterface();
+        FullyQualifiedJavaType type = new FullyQualifiedJavaType(
+                introspectedTable.getMyBatis3JavaMapperType());
+        Interface mapperInterface = new Interface(type);
+        mapperInterface.setVisibility(JavaVisibility.PUBLIC);
+        mapperInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
+        mapperInterface.addAnnotation("@Mapper");
+
+        String rootInterface = introspectedTable
+                .getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
+        if (!stringHasValue(rootInterface)) {
+            rootInterface = context.getJavaClientGeneratorConfiguration()
+                    .getProperty(PropertyRegistry.ANY_ROOT_INTERFACE);
+        }
+
+        if (stringHasValue(rootInterface)) {
+            FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(rootInterface);
+            mapperInterface.addSuperInterface(fqjt);
+            mapperInterface.addImportedType(fqjt);
+        }
 
         MethodAndImports mi = genColumnMappingsMethod(introspectedTable);
         mapperInterface.addMethod(mi.getMethod());
@@ -300,20 +413,35 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
     }
 
     private List<String> getPrimaryKeyWhereClauseForUpdate(String prefix) {
+        return getPrimaryKeyWhereClause(prefix,
+                "%s.%s(%s, isEqualTo(row::%s))", true);
+    }
+
+    private List<String> getPrimaryKeyWhereClauseForDelete(String prefix) {
+        return getPrimaryKeyWhereClause(prefix,
+                "%s.%s(%s, isEqualTo(%s))", false);
+    }
+
+    private List<String> getPrimaryKeyWhereClause(String prefix, String format, boolean useRow) {
         List<String> lines = new ArrayList<>();
-        String format = "%s.%s(%s, isEqualTo(row::%s))";
         boolean modelIsRecord = isRecordModel(introspectedTable);
         boolean first = true;
         for (IntrospectedColumn column : introspectedTable.getPrimaryKeyColumns()) {
             String fieldName = AbstractMethodGenerator.calculateFieldName(tableFieldName, column);
+            String columnValue;
+            if (useRow) {
+                columnValue = getPropertyGetter(column, modelIsRecord);
+            } else {
+                columnValue = column.getJavaProperty() + "_";
+            }
             String propertyGetter = getPropertyGetter(column, modelIsRecord);
             if (first) {
                 lines.add(String.format(Locale.ROOT,
-                        format, prefix, "where", fieldName, propertyGetter));
+                        format, prefix, "where", fieldName, columnValue));
                 first = false;
             } else {
                 lines.add(String.format(Locale.ROOT,
-                        format, prefix, "and", fieldName, propertyGetter));
+                        format, prefix, "and", fieldName, columnValue));
             }
         }
         return lines;

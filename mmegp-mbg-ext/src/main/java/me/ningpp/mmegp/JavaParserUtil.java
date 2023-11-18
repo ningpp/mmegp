@@ -193,16 +193,23 @@ public final class JavaParserUtil {
     }
 
     private static JdbcType parseJdbcType(Map<String, List<MemberValuePair>> annotationMembers) {
-        return parse(annotationMembers, "jdbcType")
+        return parseEnumValue("jdbcType", JDBC_TYPES, annotationMembers, null);
+    }
+
+    public static <T> T parseEnumValue(String name,
+                                       Map<String, T> valueMap,
+                                       Map<String, List<MemberValuePair>> annotationMembers,
+                                       T defaultValue) {
+        return parse(annotationMembers, name)
                 .flatMap(memberValue -> {
-                    String jdbcTypeName = null;
+                    String typeName = null;
                     if (memberValue.isFieldAccessExpr()) {
-                        jdbcTypeName = memberValue.asFieldAccessExpr().getNameAsString();
+                        typeName = memberValue.asFieldAccessExpr().getNameAsString();
                     } else if (memberValue.isNameExpr()) {
-                        jdbcTypeName = memberValue.asNameExpr().getNameAsString();
+                        typeName = memberValue.asNameExpr().getNameAsString();
                     }
-                    return Optional.ofNullable(JDBC_TYPES.get(jdbcTypeName));
-                }).orElse(null);
+                    return Optional.ofNullable(valueMap.get(typeName));
+                }).orElse(defaultValue);
     }
 
     private static List<Expression> parseArray(Map<String, List<MemberValuePair>> annotationMembers, String name) {
@@ -224,7 +231,7 @@ public final class JavaParserUtil {
                 .toList();
     }
 
-    private static String parseString(Map<String, List<MemberValuePair>> annotationMembers, String name, String defaultValue) {
+    public static String parseString(Map<String, List<MemberValuePair>> annotationMembers, String name, String defaultValue) {
         return parse(annotationMembers, name)
                 .filter(Expression::isStringLiteralExpr)
                 .map(mv -> mv.asStringLiteralExpr().asString())

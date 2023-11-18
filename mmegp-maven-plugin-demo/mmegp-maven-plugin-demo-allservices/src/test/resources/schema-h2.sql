@@ -1,4 +1,15 @@
 
+create table sys_org (
+    id varchar(64) PRIMARY KEY,
+    name varchar(255) DEFAULT NULL,
+    deleted INTEGER DEFAULT NULL
+);
+create table sys_org2 (
+    id varchar(64) PRIMARY KEY,
+    name varchar(255) DEFAULT NULL,
+    delete_time TIMESTAMP DEFAULT NULL
+);
+
 create table sys_company (
     id varchar(64) PRIMARY KEY,
     name varchar(255) DEFAULT NULL,
