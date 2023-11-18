@@ -43,4 +43,13 @@
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
     </context>
+    <context id="DYNAMICSQL3" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <property name="forceGenerateInsertSelectiveMethod" value="true" />
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin"/>
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin" />
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator"/>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.entity3" />
+        <sqlMapGenerator targetPackage="me.ningpp.mmegp.demo.mapper" />
+        <javaClientGenerator type="MIXEDMAPPER" targetPackage="me.ningpp.mmegp.demo.mapper" />
+    </context>
 </generatorConfiguration>

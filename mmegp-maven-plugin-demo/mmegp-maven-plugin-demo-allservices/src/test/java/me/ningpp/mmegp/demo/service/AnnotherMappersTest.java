@@ -24,7 +24,6 @@ import me.ningpp.mmegp.demo.annothermapper1.SysRoleDynamicSqlSupport;
 import me.ningpp.mmegp.demo.annothermapper1.SysRoleAnnotherMapper;
 import me.ningpp.mmegp.demo.annothermapper1.SysRoleMenuDynamicSqlSupport;
 import me.ningpp.mmegp.demo.annothermapper1.SysRoleMenuAnnotherMapper;
-import me.ningpp.mmegp.demo.annothermapper2.SysCompanyAnnotherMapper;
 import me.ningpp.mmegp.demo.annothermapper2.SysUserDynamicSqlSupport;
 import me.ningpp.mmegp.demo.annothermapper2.SysUserAnnotherMapper;
 import org.junit.jupiter.api.Test;
@@ -50,9 +49,6 @@ class AnnotherMappersTest extends DemoApplicationStarter {
     SysRoleMenuAnnotherMapper sysRoleMenuAnnotherMapper;
 
     @Autowired
-    SysCompanyAnnotherMapper sysCompanyAnnotherMapper;
-
-    @Autowired
     SysUserAnnotherMapper sysUserAnnotherMapper;
 
     @Test
@@ -71,10 +67,6 @@ class AnnotherMappersTest extends DemoApplicationStarter {
 
         assertEquals(0, sysRoleMenuAnnotherMapper.count(dsl ->
                 dsl.where().and(SysRoleMenuDynamicSqlSupport.roleId,
-                        isEqualTo(UUID.randomUUID().toString()))));
-
-        assertEquals(0, sysCompanyAnnotherMapper.count(dsl ->
-                dsl.where().and(SysUserDynamicSqlSupport.id,
                         isEqualTo(UUID.randomUUID().toString()))));
 
         assertEquals(0, sysUserAnnotherMapper.count(dsl ->

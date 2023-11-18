@@ -25,7 +25,8 @@ create table sys_user (
 create table sys_auto_user (
     id identity PRIMARY KEY,
     first_name varchar(64),
-    last_name varchar(64)
+    last_name varchar(64),
+    deleted INTEGER DEFAULT NULL
 );
 
 create table sys_role (

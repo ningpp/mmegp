@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package me.ningpp.mmegp.demo.entity2;
+package me.ningpp.mmegp.demo.entity3;
 
 import me.ningpp.mmegp.annotations.Generated;
 import me.ningpp.mmegp.annotations.GeneratedColumn;

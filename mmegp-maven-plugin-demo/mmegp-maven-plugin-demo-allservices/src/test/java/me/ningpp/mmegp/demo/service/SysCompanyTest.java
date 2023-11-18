@@ -16,7 +16,7 @@
 package me.ningpp.mmegp.demo.service;
 
 import me.ningpp.mmegp.demo.DemoApplicationStarterHsqldb;
-import me.ningpp.mmegp.demo.entity2.SysCompany;
+import me.ningpp.mmegp.demo.entity3.SysCompany;
 import me.ningpp.mmegp.demo.mapper.SysCompanyMapper;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;

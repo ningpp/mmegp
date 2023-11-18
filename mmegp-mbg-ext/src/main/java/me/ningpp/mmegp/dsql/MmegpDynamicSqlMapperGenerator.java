@@ -96,7 +96,15 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
 
         addInsertOneMethod(interfaze);
         addInsertMultipleMethod(interfaze);
-        addInsertSelectiveMethod(interfaze);
+
+        if (Boolean.parseBoolean(context.getProperty("forceGenerateInsertSelectiveMethod"))) {
+            addInsertSelectiveMethod(interfaze);
+        }
+        if (!hasGeneratedKeys) {
+            // add common interface
+            addCommonInsertInterface(interfaze);
+        }
+
         addSelectListField(interfaze);
         addGeneralSelectMethod(interfaze);
 

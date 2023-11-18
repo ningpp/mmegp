@@ -27,6 +27,7 @@
         <javaClientGenerator type="XMLMAPPER" targetPackage="me.ningpp.mmegp.ctx5mapper" />
     </context>
     <context id="ctx6" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <property name="forceGenerateInsertSelectiveMethod" value="true" />
         <plugin type="me.ningpp.mmegp.plugins.ExampleGeneratorWrapperPlugin">
             <property name="targetProject" value="source-code" />
         </plugin>
