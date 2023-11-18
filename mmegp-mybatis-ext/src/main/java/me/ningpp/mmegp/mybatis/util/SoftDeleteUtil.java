@@ -51,4 +51,32 @@ public final class SoftDeleteUtil {
         return str;
     }
 
+    public static byte empty2ByteValue(Byte v, String defaultValue) {
+        return v == null ? byteValue(defaultValue) : v;
+    }
+
+    public static char empty2CharacterValue(Character v, String defaultValue) {
+        return v == null ? characterValue(defaultValue) : v;
+    }
+
+    public static boolean empty2BooleanValue(Boolean v, String defaultValue) {
+        return v == null ? booleanValue(defaultValue) : v;
+    }
+
+    public static short empty2ShortValue(Short v, String defaultValue) {
+        return v == null ? shortValue(defaultValue) : v;
+    }
+
+    public static int empty2IntegerValue(Integer v, String defaultValue) {
+        return v == null ? integerValue(defaultValue) : v;
+    }
+
+    public static long empty2LongValue(Long v, String defaultValue) {
+        return v == null ? longValue(defaultValue) : v;
+    }
+
+    public static String empty2StringValue(String v, String defaultValue) {
+        return v == null || v.isEmpty() ? stringValue(defaultValue) : v;
+    }
+
 }

@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,33 +43,63 @@ class SoftDeleteTest extends DemoApplicationStarter {
     SysOrg2Mapper sysOrg2Mapper;
 
     @Test
+    void fixedValueStrategy2Test() {
+        List<SysOrg> orgs = List.of(
+                new SysOrg(UUID.randomUUID().toString(), "name.a", null),
+                new SysOrg(UUID.randomUUID().toString(), "name.b", null)
+        );
+        sysOrgMapper.insertMultiple(orgs);
+        // auto convert null to not deleted value
+        assertEquals((byte) 0, orgs.get(0).getDeleted());
+        assertEquals((byte) 0, orgs.get(1).getDeleted());
+
+        long count = sysOrgMapper.count(dsl ->
+                dsl.where()
+                    .and(
+                        SysOrgDynamicSqlSupport.id,
+                        SqlBuilder.isIn(
+                                UUID.randomUUID().toString(),
+                                orgs.get(0).getId(),
+                                orgs.get(1).getId()
+                        ))
+                    .and(SysOrgDynamicSqlSupport.name,
+                            SqlBuilder.isLike("name.%"))
+                    .and(SysOrgDynamicSqlSupport.deleted,
+                            SqlBuilder.isEqualTo((byte)0))
+        );
+        assertEquals(2L, count);
+    }
+
+    @Test
     void fixedValueStrategyTest() {
         SysOrg org = new SysOrg(
                 UUID.randomUUID().toString(),
                 "name",
-                (byte)0
+                null
         );
         sysOrgMapper.insert(org);
+        // auto convert null to not deleted value
+        assertEquals((byte)0, org.getDeleted());
 
-        sysOrgMapper.softDeleteByPrimaryKey(org.id());
+        sysOrgMapper.softDeleteByPrimaryKey(org.getId());
         Optional<SysOrg> opOrg = sysOrgMapper.selectOne(dsl ->
                 dsl.where().and(
                         SysOrgDynamicSqlSupport.id,
-                        SqlBuilder.isEqualTo(org.id())
+                        SqlBuilder.isEqualTo(org.getId())
                 )
         );
         assertTrue(opOrg.isPresent());
-        assertEquals((byte)1, opOrg.get().deleted());
+        assertEquals((byte)1, opOrg.get().getDeleted());
 
-        sysOrgMapper.cancelSoftDeleteByPrimaryKey(org.id());
+        sysOrgMapper.cancelSoftDeleteByPrimaryKey(org.getId());
         opOrg = sysOrgMapper.selectOne(dsl ->
                 dsl.where().and(
                         SysOrgDynamicSqlSupport.id,
-                        SqlBuilder.isEqualTo(org.id())
+                        SqlBuilder.isEqualTo(org.getId())
                 )
         );
         assertTrue(opOrg.isPresent());
-        assertEquals((byte)0, opOrg.get().deleted());
+        assertEquals((byte)0, opOrg.get().getDeleted());
     }
 
     @Test

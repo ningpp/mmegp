@@ -22,14 +22,46 @@ import org.apache.ibatis.type.JdbcType;
 
 @Generated(table = "sys_org")
 @SoftDelete(column = "deleted")
-public record SysOrg(
-        @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
-        String id,
+public class SysOrg {
+    @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
+    private String id;
 
-        @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
-        String name,
+    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
+    private String name;
 
-        @GeneratedColumn(name = "deleted", jdbcType = JdbcType.TINYINT)
-        Byte deleted
-) {
+    @GeneratedColumn(name = "deleted", jdbcType = JdbcType.TINYINT)
+    private Byte deleted;
+
+    public SysOrg() {
+    }
+
+    public SysOrg(String id, String name, Byte deleted) {
+        this.id = id;
+        this.name = name;
+        this.deleted = deleted;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Byte getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Byte deleted) {
+        this.deleted = deleted;
+    }
 }

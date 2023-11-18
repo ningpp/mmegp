@@ -92,6 +92,8 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
 
         addDeleteMethods(interfaze);
 
+        addSetSoftDeleteValueMethod(interfaze);
+
         addInsertOneMethod(interfaze);
         addInsertMultipleMethod(interfaze);
         addInsertSelectiveMethod(interfaze);
@@ -141,7 +143,7 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         }
     }
 
-    private String getSoftDeleteColumnJavaType(IntrospectedColumn column) {
+    private String getSoftDeleteColumnJavaType(IntrospectedColumn column, boolean firstLower) {
         FullyQualifiedJavaType javaType = column.getFullyQualifiedJavaType();
         String type;
         if (javaType.isPrimitive()) {
@@ -149,8 +151,12 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         } else {
             type = javaType.getShortName();
         }
-        return type.substring(0, 1).toLowerCase(Locale.ROOT)
-                + type.substring(1);
+        if (firstLower) {
+            return type.substring(0, 1).toLowerCase(Locale.ROOT)
+                    + type.substring(1);
+        } else {
+            return type;
+        }
     }
 
     private void addSoftDeleteMethod(Interface interfaze, SoftDeleteModel model) {
@@ -181,7 +187,7 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
     }
 
     private String convertValue4SoftDelete(IntrospectedColumn column, String defaultValue) {
-        String columnJavaType = getSoftDeleteColumnJavaType(column);
+        String columnJavaType = getSoftDeleteColumnJavaType(column, true);
         return String.format(Locale.ROOT,
                 "equalTo(SoftDeleteUtil.%sValue(%s))",
                 columnJavaType,
@@ -267,12 +273,49 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
                 .build();
     }
 
+    protected void addSetSoftDeleteValueMethod(Interface interfaze) {
+        Method method = new Method("setSoftDeleteValue");
+        method.setDefault(true);
+        method.addParameter(new Parameter(recordType, "row"));
+
+        SoftDeleteModel model = (SoftDeleteModel) introspectedTable.getAttribute(SoftDeleteModel.class.getName());
+        if (needSetSoftDeleteValue(model)) {
+            String setterName = JavaBeansUtil.getSetterMethodName(model.column().getJavaProperty());
+            String getterName = JavaBeansUtil.getGetterMethodName(model.column().getJavaProperty(),
+                    model.column().getFullyQualifiedJavaType());
+            method.addBodyLine(String.format(Locale.ROOT,
+                    "row.%s(SoftDeleteUtil.empty2%sValue(row.%s(), \"%s\"));",
+                    setterName,
+                    getSoftDeleteColumnJavaType(model.column(), false),
+                    getterName,
+                    model.notDeletedValue()));
+
+            interfaze.addMethod(method);
+        }
+    }
+
+    private boolean needSetSoftDeleteValue(IntrospectedTable introspectedTable) {
+        return needSetSoftDeleteValue(
+                (SoftDeleteModel) introspectedTable.getAttribute(SoftDeleteModel.class.getName()));
+    }
+
+    private boolean needSetSoftDeleteValue(SoftDeleteModel model) {
+        return model != null && model.strategy() == SoftDeleteStrategy.FIXED_VALUE
+                && !isRecordModel(model.column().getIntrospectedTable());
+    }
+
+
     @Override
     protected void addInsertOneMethod(Interface interfaze) {
         Method method = new Method("insert");
         method.setDefault(true);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
         method.addParameter(new Parameter(recordType, "row"));
+
+        if (needSetSoftDeleteValue(introspectedTable)) {
+            method.addBodyLine("setSoftDeleteValue(row);");
+        }
+
         method.addBodyLine(String.format(Locale.ROOT,
             "return insert(DynamicSqlUtil.renderInsert(row, %s, columnMappings4Insert()));", tableFieldName));
         interfaze.addMethod(method);
@@ -286,6 +329,11 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(Constants.FQJT_COLLECTION.getShortName());
         parameterType.addTypeArgument(recordType);
         method.addParameter(new Parameter(parameterType, "records"));
+
+        if (needSetSoftDeleteValue(introspectedTable)) {
+            method.addBodyLine("records.forEach(this::setSoftDeleteValue);");
+        }
+
         if (hasGeneratedKeys) {
             interfaze.addImportedType(Constants.FQJT_MULTI_INSERT_PROVIDER);
             method.addBodyLine(String.format(Locale.ROOT,
