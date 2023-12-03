@@ -15,24 +15,23 @@
  */
 package me.ningpp.mmegp;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @Mojo(
         name = "generate-test",
         defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES,
         requiresDependencyResolution = ResolutionScope.TEST,
-        requiresProject = true, 
         threadSafe = true
 )
-public class MmeTestCompileMojo extends AbstractMmeMojo {
+public class MybatisGenerateTestCompileMojo extends AbstractMybatisGenerateMojo {
 
     /**
      * This is the generator config xml file path (like mbg config file).
@@ -74,13 +73,7 @@ public class MmeTestCompileMojo extends AbstractMmeMojo {
 
     @Override
     protected void afterExecute() {
-        if (!testOutputDirectory.exists()) {
-            testOutputDirectory.mkdirs();
-        }
-        projectHelper.addTestResource(project, getOutputDirectory().getAbsolutePath(),
-                List.of("**/*.xml"), Collections.emptyList());
-        project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
-        buildContext.refresh(testOutputDirectory);
+        super.addTestComileSource(testOutputDirectory);
     }
 
 }

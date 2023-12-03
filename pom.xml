@@ -78,6 +78,7 @@
         <hsqldb.version>2.7.2</hsqldb.version>
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
+        <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
         <javaparser.version>3.25.6</javaparser.version>
         <junit-jupiter.version>5.10.1</junit-jupiter.version>
         <mavenVersion>3.6.0</mavenVersion>
@@ -111,6 +112,7 @@
     </properties>
 
     <modules>
+        <module>mmegp-annotation-parser</module>
         <module>mmegp-annotations</module>
         <module>mmegp-maven-plugin</module>
         <module>mmegp-maven-plugin-demo</module>
@@ -134,6 +136,11 @@
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
                 <version>${jakarta-annotation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>${jakarta-persistence.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.javaparser</groupId>

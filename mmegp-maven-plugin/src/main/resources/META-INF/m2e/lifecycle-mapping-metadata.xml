@@ -6,6 +6,9 @@
                 <goals>
                     <goal>generate</goal>
                     <goal>generate-test</goal>
+
+                    <goal>generate-annotation-model</goal>
+                    <goal>generate-annotation-model-test</goal>
                 </goals>
             </pluginExecutionFilter>
             <action>

@@ -144,7 +144,7 @@ public class MmeCompileUtilTest {
     }
 
     private Context buildContext() throws InterruptedException {
-        String targetProject = System.getProperty("java.dir");
+        String targetProject = System.getProperty("java.io.tmpdir");
         String javaClientGeneratorConfigurationType = "XMLMAPPER";
         String modelPackageName = "me.ningpp.mmegp.entity";
         String mapperPackageName = "me.ningpp.mmegp.mapper";

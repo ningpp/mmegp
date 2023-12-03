@@ -25,16 +25,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 import java.io.File;
 import java.util.List;
 
-public abstract class AbstractMmeMojo extends AbstractMojo {
-
-    @Parameter(required = false, property = "nThreads", defaultValue = "1")
-    private int nThreads;
-
-    /**
-     * This is the MetaInfoHandler class name config.
-     */
-    @Parameter(required = false, property = "metaInfoHandlerClassName")
-    private String metaInfoHandlerClassName;
+public abstract class AbstractMmegpMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
@@ -45,34 +36,36 @@ public abstract class AbstractMmeMojo extends AbstractMojo {
     @Component
     protected MavenProjectHelper projectHelper;
 
-    protected abstract String getConfigFile();
-
-    protected abstract List<String> getSourceRoots();
-
-    protected abstract File getOutputDirectory();
-
-    protected abstract void afterExecute();
+    private static final List<String> INCLUDE_XML = List.of("**/*.xml");
 
     @Override
     public final void execute() {
-        // mbg use line.separator render file lines,
-        // for stable, don't use system-dependent value.
-        System.setProperty("line.separator", "\n");
-
-        getLog().info("generate code from config file : " + getConfigFile());
-        getLog().info("source root directories : " + String.join(", ", getSourceRoots()));
-        getLog().info("output directory : " + getOutputDirectory().getAbsolutePath());
-
-        MyBatisGeneratorUtil.generate(
-                getConfigFile(),
-                getSourceRoots(),
-                getOutputDirectory(),
-                metaInfoHandlerClassName,
-                nThreads
-        );
-
+        beforeExecute();
+        doExecute();
         afterExecute();
     }
 
+    protected void beforeExecute() {
+    }
+
+    protected void doExecute() {
+    }
+
+    protected void afterExecute() {
+    }
+
+    protected void addComileSource(File outputDirectory) {
+        projectHelper.addResource(project, outputDirectory.getAbsolutePath(),
+                INCLUDE_XML, List.of());
+        project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
+        buildContext.refresh(outputDirectory);
+    }
+
+    protected void addTestComileSource(File testOutputDirectory) {
+        projectHelper.addTestResource(project, testOutputDirectory.getAbsolutePath(),
+                INCLUDE_XML, List.of());
+        project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
+        buildContext.refresh(testOutputDirectory);
+    }
 
 }

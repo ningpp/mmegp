@@ -21,62 +21,44 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @Mojo(
-        name = "generate",
+        name = "generate-annotation-model",
         defaultPhase = LifecyclePhase.GENERATE_SOURCES,
         requiresDependencyResolution = ResolutionScope.COMPILE,
         threadSafe = true
 )
-public class MmeCompileMojo extends AbstractMmeMojo {
+public class AnnotationModelCompileMojo extends AbstractAnnotationModelMojo {
 
-    /**
-     * This is the generator config xml file path (like mbg config file).
-     */
-    @Parameter(required = true, property = "generatorConfigFilePath")
-    private String generatorConfigFilePath;
+    @Parameter(required = true, property = "annotationScanPackages")
+    private String[] annotationScanPackages;
 
-    @Parameter(property = "customCompileSourceRoots")
-    private String[] customCompileSourceRoots;
+    @Parameter(required = true, property = "annotationModelPackage")
+    private String annotationModelPackage;
 
-    /**
-     * This is the directory into which the {@code .java} will be created.
-     */
     @Parameter(
-            required = false,
-            property = "outputDirectory",
+            property = "annotationModelOutputDirectory",
             defaultValue = "${project.build.directory}/generated-sources/mme/java"
     )
-    private File outputDirectory;
+    private File annotationModelOutputDirectory;
 
     @Override
-    protected String getConfigFile() {
-        return generatorConfigFilePath;
+    protected String[] getScanPackages() {
+        return annotationScanPackages;
     }
 
     @Override
-    protected List<String> getSourceRoots() {
-        List<String> sourceRoots = new ArrayList<>(project.getCompileSourceRoots());
-        if (customCompileSourceRoots != null){
-            Collections.addAll(sourceRoots, customCompileSourceRoots);
-        }
-        return sourceRoots;
+    protected String getModelPackage() {
+        return annotationModelPackage;
     }
 
     @Override
     protected File getOutputDirectory() {
-        return outputDirectory;
+        return annotationModelOutputDirectory;
     }
 
     @Override
     protected void afterExecute() {
-        projectHelper.addResource(project, getOutputDirectory().getAbsolutePath(),
-                List.of("**/*.xml"), Collections.emptyList());
-        project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
-        buildContext.refresh(outputDirectory);
+        super.addComileSource(annotationModelOutputDirectory);
     }
-
 }

@@ -42,6 +42,11 @@
     <dependencies>
         <dependency>
             <groupId>io.github.ningpp</groupId>
+            <artifactId>mmegp-annotation-parser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.ningpp</groupId>
             <artifactId>mmegp-annotations</artifactId>
             <version>${project.version}</version>
         </dependency>
