@@ -73,42 +73,42 @@
         <sonar.organization>ningpp</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-        <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
-        <commons-lang3.version>3.13.0</commons-lang3.version>
+        <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
         <hsqldb.version>2.7.2</hsqldb.version>
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
         <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
-        <javaparser.version>3.25.6</javaparser.version>
+        <javaparser.version>3.25.8</javaparser.version>
         <junit-jupiter.version>5.10.1</junit-jupiter.version>
         <mavenVersion>3.6.0</mavenVersion>
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.6.2</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
         <maven-plugin-plugin.version>3.10.2</maven-plugin-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
-        <mockito.version>5.7.0</mockito.version>
-        <mybatis.version>3.5.14</mybatis.version>
+        <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
+        <mockito.version>5.8.0</mockito.version>
+        <mybatis.version>3.5.15</mybatis.version>
         <mybatis-dynamic-sql.version>1.5.0</mybatis-dynamic-sql.version>
         <mybatis-generator-core.version>1.4.2</mybatis-generator-core.version>
-        <mybatis-spring-boot.version>3.0.2</mybatis-spring-boot.version>
+        <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <plexus-build-api.version>0.0.7</plexus-build-api.version>
-        <plexusComponentVersion>2.1.1</plexusComponentVersion>
+        <plexusComponentVersion>2.2.0</plexusComponentVersion>
         <plexusUtilsVersion>4.0.0</plexusUtilsVersion>
         <pluginToolsVersion>3.10.2</pluginToolsVersion>
         <slf4j.version>2.0.9</slf4j.version>
-        <spring-boot.version>3.1.5</spring-boot.version>
-        <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
+        <spring-boot.version>3.2.1</spring-boot.version>
+        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
     </properties>
 
     <modules>

@@ -213,7 +213,7 @@ public class ModelBasedAnnotationParser {
                         .sorted(Comparator.comparing(Method::getName)).toList());
     }
 
-    private static Object convertAnnotationToModel(Object annotationValue,
+    public static Object convertAnnotationToModel(Object annotationValue,
                                                    Class<?> annotationClass,
                                                    Class<?> annotationModeClass,
                                                    String modelPackage) {
