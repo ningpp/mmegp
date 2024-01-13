@@ -91,11 +91,11 @@
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <maven-plugin-plugin.version>3.10.2</maven-plugin-plugin.version>
+        <maven-plugin-plugin.version>3.11.0</maven-plugin-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <mockito.version>5.8.0</mockito.version>
         <mybatis.version>3.5.15</mybatis.version>
         <mybatis-dynamic-sql.version>1.5.0</mybatis-dynamic-sql.version>
@@ -105,7 +105,7 @@
         <plexus-build-api.version>0.0.7</plexus-build-api.version>
         <plexusComponentVersion>2.2.0</plexusComponentVersion>
         <plexusUtilsVersion>4.0.0</plexusUtilsVersion>
-        <pluginToolsVersion>3.10.2</pluginToolsVersion>
+        <pluginToolsVersion>3.11.0</pluginToolsVersion>
         <slf4j.version>2.0.9</slf4j.version>
         <spring-boot.version>3.2.1</spring-boot.version>
         <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
