@@ -79,7 +79,7 @@
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
         <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
-        <javaparser.version>3.25.9</javaparser.version>
+        <javaparser.version>3.25.10</javaparser.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
         <mavenVersion>3.6.0</mavenVersion>
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
@@ -87,14 +87,14 @@
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-        <maven-gpg-plugin.version>3.2.2</maven-gpg-plugin.version>
+        <maven-gpg-plugin.version>3.2.3</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
         <maven-plugin-plugin.version>3.12.0</maven-plugin-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <mockito.version>5.11.0</mockito.version>
         <mybatis.version>3.5.16</mybatis.version>
