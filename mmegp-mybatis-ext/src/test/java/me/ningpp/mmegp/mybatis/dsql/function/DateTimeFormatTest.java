@@ -20,7 +20,10 @@ import me.ningpp.mmegp.sql.time.MySqlTimeFunction;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 
 import java.time.LocalDateTime;
@@ -40,17 +43,25 @@ class DateTimeFormatTest {
         TableAliasCalculator calculatorAlias = ExplicitTableAliasCalculator.of(table, "_article_");
         assertThrows(IllegalArgumentException.class,
                 () -> DateTimeFormat.of(createTime,
-                        "yyyy-MM-dd'T'HH:mm:ss", new H2TimeFunction()).renderWithTableAlias(calculator),
+                        "yyyy-MM-dd'T'HH:mm:ss", new H2TimeFunction()).render(buildRenderingContext(calculator)),
                 "SQL injection???, javaPattern = yyyy-MM-dd'T'HH:mm:ss");
         assertEquals("DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s')", DateTimeFormat.of(createTime,
-                "yyyy-MM-dd HH:mm:ss", new MySqlTimeFunction()).renderWithTableAlias(calculator));
+                "yyyy-MM-dd HH:mm:ss", new MySqlTimeFunction()).render(buildRenderingContext(calculator)).fragment());
         assertEquals("DATE_FORMAT(_article_.create_time, '%Y-%m-%d %H:%i:%s')", DateTimeFormat.of(createTime,
-                "yyyy-MM-dd HH:mm:ss", new MySqlTimeFunction()).renderWithTableAlias(calculatorAlias));
+                "yyyy-MM-dd HH:mm:ss", new MySqlTimeFunction()).render(buildRenderingContext(calculatorAlias)).fragment());
 
         DateTimeFormat<LocalDateTime> dtfFunction = DateTimeFormat.of(createTime, "yyyy-MM-dd HH:mm:ss", new H2TimeFunction());
         assertNotNull(dtfFunction.copy());
         assertTrue(dtfFunction.typeHandler().isEmpty());
         assertTrue(dtfFunction.jdbcType().isEmpty());
+    }
+
+    private static final StatementConfiguration STATEMENT_CONFIGURATION = new StatementConfiguration();
+
+    private RenderingContext buildRenderingContext(TableAliasCalculator calculator) {
+        return RenderingContext.withRenderingStrategy(RenderingStrategies.MYBATIS3)
+                .withStatementConfiguration(STATEMENT_CONFIGURATION)
+                .withTableAliasCalculator(calculator).build();
     }
 
 }

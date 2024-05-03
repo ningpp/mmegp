@@ -17,8 +17,9 @@ package me.ningpp.mmegp.mybatis.dsql.function;
 
 import me.ningpp.mmegp.sql.time.SqlTimeFunction;
 import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.function.AbstractUniTypeFunction;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 import java.sql.JDBCType;
 import java.util.Objects;
@@ -36,15 +37,13 @@ public class DateTimeFormat<T> extends AbstractUniTypeFunction<T, DateTimeFormat
     }
 
     @Override
-    public String renderWithTableAlias(TableAliasCalculator tableAliasCalculator) {
+    public FragmentAndParameters render(RenderingContext renderingContext) {
         String format = timeFunction.tranlateFormat(javaPattern);
         if (format.indexOf('\'') != -1) {
             throw new IllegalArgumentException("SQL injection???, javaPattern = " + javaPattern);
         }
-        return timeFunction.formatFunctionName()
-                + "("
-                + column.renderWithTableAlias(tableAliasCalculator)
-                + ", '" + format + "')";
+        return column.render(renderingContext).mapFragment(s -> timeFunction.formatFunctionName()
+                + "(" + s + ", '" + format + "')");
     }
 
     @Override

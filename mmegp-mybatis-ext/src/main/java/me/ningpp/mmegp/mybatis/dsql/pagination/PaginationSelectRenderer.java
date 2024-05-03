@@ -17,6 +17,8 @@ package me.ningpp.mmegp.mybatis.dsql.pagination;
 
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
@@ -32,7 +34,9 @@ import org.mybatis.dynamic.sql.util.FragmentCollector;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * render SelectModel with custom PaginationModelRender
@@ -40,6 +44,7 @@ import java.util.stream.Collectors;
  * @see org.mybatis.dynamic.sql.select.render.SelectRenderer
  */
 public class PaginationSelectRenderer {
+    private static final StatementConfiguration DEFAULT_STATEMENT_CONFIGURATION = new StatementConfiguration();
     private final SelectModel selectModel;
     private final LimitOffset limitOffset;
     private final PaginationModelRenderer paginationModelRender;
@@ -61,12 +66,16 @@ public class PaginationSelectRenderer {
         } else {
             this.sequence = sequence;
         }
-        this.parentTableAliasCalculator = parentTableAliasCalculator;
+        this.parentTableAliasCalculator = parentTableAliasCalculator == null
+            ? TableAliasCalculator.empty() : parentTableAliasCalculator;
+    }
+
+    private <R> Stream<R> mapQueryExpressions(Function<QueryExpressionModel, R> mapper) {
+        return selectModel.queryExpressions().map(mapper);
     }
 
     public SelectStatementProvider render() {
-        FragmentCollector fragmentCollector = selectModel
-                .mapQueryExpressions(this::renderQueryExpression)
+        FragmentCollector fragmentCollector = mapQueryExpressions(this::renderQueryExpression)
                 .collect(FragmentCollector.collect());
 
         Optional<FragmentAndParameters> orderByFragmentAndParam = renderOrderBy();
@@ -86,16 +95,21 @@ public class PaginationSelectRenderer {
 
     private SelectStatementProvider toSelectStatementProvider(FragmentCollector fragmentCollector) {
         return DefaultSelectStatementProvider
-                .withSelectStatement(fragmentCollector.fragments().collect(Collectors.joining(" ")))
+                .withSelectStatement(fragmentCollector.collectFragments(Collectors.joining(" ")))
                 .withParameters(fragmentCollector.parameters())
                 .build();
     }
 
     private FragmentAndParameters renderQueryExpression(QueryExpressionModel queryExpressionModel) {
         return QueryExpressionRenderer.withQueryExpression(queryExpressionModel)
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
-                .withParentTableAliasCalculator(parentTableAliasCalculator)
+                .withRenderingContext(
+                    RenderingContext
+                        .withRenderingStrategy(renderingStrategy)
+                        .withSequence(sequence)
+                        .withTableAliasCalculator(parentTableAliasCalculator)
+                        .withStatementConfiguration(DEFAULT_STATEMENT_CONFIGURATION)
+                    .build()
+                )
                 .build()
                 .render();
     }
