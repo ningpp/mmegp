@@ -73,6 +73,7 @@
         <sonar.organization>ningpp</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
+        <checkstyle.version>10.17.0</checkstyle.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <commons-lang3.version>3.14.0</commons-lang3.version>
         <hsqldb.version>2.7.3</hsqldb.version>
@@ -82,6 +83,7 @@
         <javaparser.version>3.26.0</javaparser.version>
         <junit-jupiter.version>5.11.0-M2</junit-jupiter.version>
         <mavenVersion>3.6.0</mavenVersion>
+        <maven-checkstyle-plugin.version>3.4.0</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
@@ -280,6 +282,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>${maven-clean-plugin.version}</version>
                 </plugin>
@@ -381,6 +388,34 @@
                             <goal>report-aggregate</goal>
                         </goals>
                         <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failOnViolation>false</failOnViolation>
+                    <includeResources>false</includeResources>
+                    <includeTestResources>false</includeTestResources>
+                    <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
