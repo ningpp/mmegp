@@ -31,19 +31,20 @@ public class CharAnnotationValueHandler implements AnnotationValueHandler {
 
     @Override
     public Object handle(Class<?> returnType, Expression expr, Map<String, String> importMap, String modelPackage) {
+        Character charValue = null;
         if (expr.isCastExpr()) {
             CastExpr castExpr = expr.asCastExpr();
             if (castExpr.getType().isPrimitiveType()
                     && castExpr.getType().asPrimitiveType().getType() == Primitive.CHAR
                     && castExpr.getExpression().isIntegerLiteralExpr()) {
-                return (char) castExpr.getExpression()
+                charValue = (char) castExpr.getExpression()
                         .asIntegerLiteralExpr().asNumber().intValue();
             }
         } else if (expr.isCharLiteralExpr()) {
-            return expr.asCharLiteralExpr().asChar();
+            charValue = expr.asCharLiteralExpr().asChar();
         } else if (expr.isIntegerLiteralExpr()) {
-            return (char) expr.asIntegerLiteralExpr().asNumber().intValue();
+            charValue = (char) expr.asIntegerLiteralExpr().asNumber().intValue();
         }
-        return null;
+        return charValue;
     }
 }

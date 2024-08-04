@@ -65,7 +65,7 @@ public interface SqlTimeFunction {
         String result = translator.translate(minWidth, maxWidth, signStyle, subsequentWidth);
         if (result == null || result.isEmpty()) {
             throw new IllegalArgumentException(String.format(Locale.ROOT,
-                    "not support temporalField = %s, minWidth = %d, maxWidth = %d, signStyle = %s, subsequentWidth = %d",
+                    "not support temporalField = %s, minWidth=%d, maxWidth=%d, signStyle = %s, subsequentWidth = %d",
                     temporalField.toString(), minWidth, maxWidth, signStyle.name(), subsequentWidth));
         }
         return result;

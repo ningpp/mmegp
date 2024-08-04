@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -65,14 +66,14 @@ public class AnnotationModelGenerator {
     }
 
     public void generate() {
-        Map<Class<?>, CompilationUnit> parsed = buildModels();
-        parsed.forEach((key, value) -> {
+        Set<Entry<Class<?>, CompilationUnit>> parsedEntry = buildModels().entrySet();
+        for (var entry : parsedEntry) {
             try {
                 String targetDir = outputDirectory.getAbsolutePath()
                         + File.separator
                         + modelPackage.replace(".", File.separator);
                 File targetFile = new File(targetDir,
-                        value.getTypes().get(0).getNameAsString() + ".java");
+                        entry.getValue().getTypes().get(0).getNameAsString() + ".java");
                 boolean mkdirsFlag = targetFile.getParentFile().mkdirs();
                 boolean deleteFlag = targetFile.delete();
                 if (LOGGER.isDebugEnabled()) {
@@ -80,14 +81,14 @@ public class AnnotationModelGenerator {
                 }
 
                 Files.writeString(targetFile.toPath(),
-                        value.toString(),
+                        entry.getValue().toString(),
                         StandardCharsets.UTF_8,
                         StandardOpenOption.CREATE_NEW);
 
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
-        });
+        }
     }
 
     private Map<Class<?>, CompilationUnit> buildModels() {

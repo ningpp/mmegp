@@ -87,7 +87,8 @@ public final class DynamicSqlUtil {
         return mapper.applyAsLong(selectCount.render(RenderingStrategies.MYBATIS3));
     }
 
-    public static <T> InsertStatementProvider<T> renderInsert(T row, SqlTable table, List<AbstractColumnMapping> columnMappings) {
+    public static <T> InsertStatementProvider<T> renderInsert(T row,SqlTable table,
+            List<AbstractColumnMapping> columnMappings) {
         return renderInsert(InsertModel.withRow(row).withTable(table).withColumnMappings(columnMappings).build());
     }
 
@@ -95,11 +96,18 @@ public final class DynamicSqlUtil {
         return insertModel.render(RenderingStrategies.MYBATIS3);
     }
 
-    public static <T> MultiRowInsertStatementProvider<T> renderMultiInsert(Collection<T> records, SqlTable table, List<AbstractColumnMapping> columnMappings) {
-        return renderMultiInsert(MultiRowInsertModel.withRecords(records).withTable(table).withColumnMappings(columnMappings).build());
+    public static <T> MultiRowInsertStatementProvider<T> renderMultiInsert(Collection<T> records,
+            SqlTable table, List<AbstractColumnMapping> columnMappings) {
+        return renderMultiInsert(
+                    MultiRowInsertModel
+                        .withRecords(records)
+                        .withTable(table)
+                        .withColumnMappings(columnMappings)
+                    .build());
     }
 
-    public static <T> MultiRowInsertStatementProvider<T> renderMultiInsert(MultiRowInsertModel<T> multiRowInsertModel) {
+    public static <T> MultiRowInsertStatementProvider<T> renderMultiInsert(
+            MultiRowInsertModel<T> multiRowInsertModel) {
         return multiRowInsertModel.render(RenderingStrategies.MYBATIS3);
     }
 

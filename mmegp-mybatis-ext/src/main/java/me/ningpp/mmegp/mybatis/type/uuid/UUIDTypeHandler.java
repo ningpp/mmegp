@@ -43,6 +43,7 @@ public class UUIDTypeHandler extends BaseTypeHandler<UUID> {
         return new UUID(toLong(bytes, 0 ), toLong(bytes, 8 ));
     }
 
+    @SuppressWarnings("checkstyle:BooleanExpressionComplexity")
     public static long toLong(byte[] readBuffer, int start) {
         return (((long) readBuffer[start] << 56) +
                 ((long) (readBuffer[start+1] & 255) << 48) +

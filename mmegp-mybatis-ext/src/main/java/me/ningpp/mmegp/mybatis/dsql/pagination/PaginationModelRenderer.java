@@ -23,16 +23,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public interface PaginationModelRenderer {
 
-    default Optional<FragmentAndParameters> render(LimitOffset limitOffset, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
+    default Optional<FragmentAndParameters> render(LimitOffset limitOffset, AtomicInteger sequence,
+            RenderingStrategy renderingStrategy) {
         if (limitOffset != null && limitOffset.limit() != null) {
             return Optional.ofNullable(
-                    doRender(limitOffset.limit(), Optional.ofNullable(limitOffset.offset()), sequence, renderingStrategy)
+                    doRender(
+                            limitOffset.limit(),
+                            Optional.ofNullable(limitOffset.offset()),
+                            sequence,
+                            renderingStrategy)
             );
         }
         return Optional.empty();
     }
 
-    default FragmentAndParameters doRender(Long limit, Optional<Long> offset, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
+    default FragmentAndParameters doRender(Long limit, Optional<Long> offset, AtomicInteger sequence,
+            RenderingStrategy renderingStrategy) {
         return null;
     }
 

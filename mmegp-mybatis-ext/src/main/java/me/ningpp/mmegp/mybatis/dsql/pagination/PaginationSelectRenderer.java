@@ -52,11 +52,15 @@ public class PaginationSelectRenderer {
     private final AtomicInteger sequence;
     private final TableAliasCalculator parentTableAliasCalculator; // may be null
 
-    public PaginationSelectRenderer(SelectDSL<SelectModel> listDsl, LimitOffset limitOffset, PaginationModelRenderer paginationModelRender) {
+    public PaginationSelectRenderer(SelectDSL<SelectModel> listDsl, LimitOffset limitOffset,
+            PaginationModelRenderer paginationModelRender) {
         this(listDsl.build(), limitOffset, paginationModelRender, RenderingStrategies.MYBATIS3, null, null);
     }
 
-    public PaginationSelectRenderer(SelectModel selectModel, LimitOffset limitOffset, PaginationModelRenderer paginationModelRender, RenderingStrategy renderingStrategy, AtomicInteger sequence, TableAliasCalculator parentTableAliasCalculator) {
+    public PaginationSelectRenderer(SelectModel selectModel, LimitOffset limitOffset,
+            PaginationModelRenderer paginationModelRender,
+            RenderingStrategy renderingStrategy,
+            AtomicInteger sequence, TableAliasCalculator parentTableAliasCalculator) {
         this.selectModel = Objects.requireNonNull(selectModel);
         this.limitOffset = limitOffset;
         this.paginationModelRender = Objects.requireNonNull(paginationModelRender);

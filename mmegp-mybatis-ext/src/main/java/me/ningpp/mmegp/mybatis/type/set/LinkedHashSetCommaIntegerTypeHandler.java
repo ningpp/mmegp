@@ -20,7 +20,8 @@ import me.ningpp.mmegp.mybatis.type.converter.StringToIntegerConverter;
 
 import java.util.LinkedHashSet;
 
-public class LinkedHashSetCommaIntegerTypeHandler extends CommaStringConverterTypeHandler<Integer, LinkedHashSet<Integer>> {
+public class LinkedHashSetCommaIntegerTypeHandler
+        extends CommaStringConverterTypeHandler<Integer, LinkedHashSet<Integer>> {
 
     public LinkedHashSetCommaIntegerTypeHandler() {
         super(StringToIntegerConverter.INSTANCE, LinkedHashSet::new);

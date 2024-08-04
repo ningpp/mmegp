@@ -39,17 +39,23 @@ public abstract class AbstractTimeFunction implements SqlTimeFunction {
         mappings.put(ChronoField.SECOND_OF_MINUTE, new SecondOfMinuteFieldTranslator());
     }
 
-    protected abstract String translateYear(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth);
+    protected abstract String translateYear(int minWidth, int maxWidth,
+            SignStyle signStyle, int subsequentWidth);
 
-    protected abstract String translateMonthOfYear(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth);
+    protected abstract String translateMonthOfYear(int minWidth, int maxWidth,
+            SignStyle signStyle, int subsequentWidth);
 
-    protected abstract String translateDayOfMonth(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth);
+    protected abstract String translateDayOfMonth(int minWidth, int maxWidth,
+            SignStyle signStyle, int subsequentWidth);
 
-    protected abstract String translateHourOfDay(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth);
+    protected abstract String translateHourOfDay(int minWidth, int maxWidth,
+            SignStyle signStyle, int subsequentWidth);
 
-    protected abstract String translateMinuteOfHour(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth);
+    protected abstract String translateMinuteOfHour(int minWidth, int maxWidth,
+            SignStyle signStyle, int subsequentWidth);
 
-    protected abstract String translateSecondOfMinute(int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth);
+    protected abstract String translateSecondOfMinute(int minWidth, int maxWidth,
+            SignStyle signStyle, int subsequentWidth);
 
     private class YearFieldTranslator implements TemporalFieldTranslator {
         @Override

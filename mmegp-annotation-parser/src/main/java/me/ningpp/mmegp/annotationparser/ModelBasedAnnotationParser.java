@@ -286,7 +286,8 @@ public class ModelBasedAnnotationParser {
         return val;
     }
 
-    private static Object parseMethodValue(Method method, MemberValuePair valuePair, Map<String, String> importMap, String modelPackage) {
+    private static Object parseMethodValue(Method method, MemberValuePair valuePair,
+                                           Map<String, String> importMap, String modelPackage) {
         Object val;
         if (valuePair == null) {
             Object defaultValue = getDefaultValue(method, modelPackage);
@@ -301,7 +302,8 @@ public class ModelBasedAnnotationParser {
         return val;
     }
 
-    private static Object parseValue(Method method, MemberValuePair valuePair, Map<String, String> importMap, String modelPackage) {
+    private static Object parseValue(Method method, MemberValuePair valuePair,
+                                     Map<String, String> importMap, String modelPackage) {
         if (method.getReturnType().isArray()) {
             return parseArrayValue(method, valuePair, importMap, modelPackage);
         } else {
@@ -309,7 +311,8 @@ public class ModelBasedAnnotationParser {
         }
     }
 
-    private static Object parseArrayValue(Method method, MemberValuePair valuePair, Map<String, String> importMap, String modelPackage) {
+    private static Object parseArrayValue(Method method, MemberValuePair valuePair,
+                                          Map<String, String> importMap, String modelPackage) {
         NodeList<Expression> exprs;
         if (valuePair.getValue().isArrayInitializerExpr()) {
             exprs = valuePair.getValue().asArrayInitializerExpr().getValues();
@@ -332,7 +335,8 @@ public class ModelBasedAnnotationParser {
         return array;
     }
 
-    private static Object parseSingleValue(Class<?> returnType, Expression expr, Map<String, String> importMap, String modelPackage) {
+    private static Object parseSingleValue(Class<?> returnType, Expression expr,
+                                           Map<String, String> importMap, String modelPackage) {
         Object val = null;
         for (AnnotationValueHandler handler : HANDLERS) {
             if (handler.support(returnType)) {

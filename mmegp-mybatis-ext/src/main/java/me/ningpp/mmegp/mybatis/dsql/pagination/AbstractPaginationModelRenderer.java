@@ -25,7 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractPaginationModelRenderer implements PaginationModelRenderer {
 
     @Override
-    public final FragmentAndParameters doRender(Long limit, Optional<Long> offset, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
+    public final FragmentAndParameters doRender(Long limit, Optional<Long> offset, AtomicInteger sequence,
+            RenderingStrategy renderingStrategy) {
         if (offset.isEmpty()) {
             return renderLimitOnly(limit, sequence, renderingStrategy);
         } else {
@@ -33,7 +34,8 @@ public abstract class AbstractPaginationModelRenderer implements PaginationModel
         }
     }
 
-    private FragmentAndParameters renderLimitOnly(Long limit, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
+    private FragmentAndParameters renderLimitOnly(Long limit, AtomicInteger sequence,
+            RenderingStrategy renderingStrategy) {
         String limitMapKey = renderingStrategy.formatParameterMapKey(sequence);
         return FragmentAndParameters.withFragment(String.format(Locale.ROOT,
                         limitOnlyPattern(),
@@ -42,7 +44,8 @@ public abstract class AbstractPaginationModelRenderer implements PaginationModel
                 .build();
     }
 
-    private FragmentAndParameters renderLimitAndOffset(Long limit, Long offset, AtomicInteger sequence, RenderingStrategy renderingStrategy) {
+    private FragmentAndParameters renderLimitAndOffset(Long limit, Long offset, AtomicInteger sequence,
+            RenderingStrategy renderingStrategy) {
         String limitMapKey = renderingStrategy.formatParameterMapKey(sequence);
         String offsetMapKey = renderingStrategy.formatParameterMapKey(sequence);
         String limitPlaceholder = renderPlaceholder(limitMapKey, renderingStrategy);
