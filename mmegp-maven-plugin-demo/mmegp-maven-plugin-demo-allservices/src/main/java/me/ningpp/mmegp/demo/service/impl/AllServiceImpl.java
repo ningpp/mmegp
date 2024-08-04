@@ -135,7 +135,11 @@ public class AllServiceImpl implements AllService {
     public List<SysUser> queryUser(String nameLike) {
         return sysUserMapper.selectMany(SqlBuilder.select(SysUserMapper.selectList)
                 .from(SysUserDynamicSqlSupport.sysUser)
-                .where().and(SysUserDynamicSqlSupport.name, IsLike.of(String.format(Locale.ENGLISH, "%%%s%%", nameLike)))
+                .where()
+                    .and(
+                        SysUserDynamicSqlSupport.name,
+                        IsLike.of(String.format(Locale.ENGLISH, "%%%s%%", nameLike))
+                    )
                 .build().render(RenderingStrategies.MYBATIS3));
     }
 

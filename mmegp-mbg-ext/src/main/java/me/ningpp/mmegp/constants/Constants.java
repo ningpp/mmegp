@@ -22,19 +22,28 @@ public final class Constants {
     private Constants() {
     }
 
-    public static final FullyQualifiedJavaType FQJT_DYNAMICSQL_UTIL = new FullyQualifiedJavaType("me.ningpp.mmegp.mybatis.dsql.DynamicSqlUtil");
+    public static final FullyQualifiedJavaType FQJT_DYNAMICSQL_UTIL = new FullyQualifiedJavaType(
+            "me.ningpp.mmegp.mybatis.dsql.DynamicSqlUtil");
 
-    public static final FullyQualifiedJavaType FQJT_COLLECTION = new FullyQualifiedJavaType("java.util.Collection");
+    public static final FullyQualifiedJavaType FQJT_COLLECTION = new FullyQualifiedJavaType(
+            "java.util.Collection");
 
-    public static final FullyQualifiedJavaType FQJT_ARRAYLIST = new FullyQualifiedJavaType("java.util.ArrayList");
+    public static final FullyQualifiedJavaType FQJT_ARRAYLIST = new FullyQualifiedJavaType(
+            "java.util.ArrayList");
 
-    public static final FullyQualifiedJavaType FQJT_LOCALDATETIME = new FullyQualifiedJavaType("java.time.LocalDateTime");
+    public static final FullyQualifiedJavaType FQJT_LOCALDATETIME = new FullyQualifiedJavaType(
+            "java.time.LocalDateTime");
 
-    public static final FullyQualifiedJavaType FQJT_DATE = new FullyQualifiedJavaType("java.util.Date");
+    public static final FullyQualifiedJavaType FQJT_DATE = new FullyQualifiedJavaType(
+            "java.util.Date");
 
-    public static final FullyQualifiedJavaType FQJT_PROPERTY_MAPPING = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.PropertyMapping");
+    public static final FullyQualifiedJavaType FQJT_PROPERTY_MAPPING = new FullyQualifiedJavaType(
+            "org.mybatis.dynamic.sql.util.PropertyMapping");
 
-    public static final FullyQualifiedJavaType FQJT_ABS_COLUMN_MAPPING = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.AbstractColumnMapping");
+    public static final FullyQualifiedJavaType FQJT_ABS_COLUMN_MAPPING = new FullyQualifiedJavaType(
+            "org.mybatis.dynamic.sql.util.AbstractColumnMapping");
 
-    public static final FullyQualifiedJavaType FQJT_MULTI_INSERT_PROVIDER = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider");
+    public static final FullyQualifiedJavaType FQJT_MULTI_INSERT_PROVIDER = new FullyQualifiedJavaType(
+            "org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider");
+
 }

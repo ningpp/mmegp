@@ -137,7 +137,8 @@ public final class MyBatisGeneratorUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private static List<Plugin> resetTargetProjectValue(Context context, File outputDirectory) throws ReflectiveOperationException {
+    private static List<Plugin> resetTargetProjectValue(Context context,
+            File outputDirectory) throws ReflectiveOperationException {
         //hack
         Field pluginsField = CompositePlugin.class.getDeclaredField("plugins");
         pluginsField.trySetAccessible();
@@ -227,9 +228,8 @@ public final class MyBatisGeneratorUtil {
     }
 
     private static List<Pair<IntrospectedTable, File>> buildIntrospectedTables(List<String> compileSourceRoots,
-                                                                               Context context,
-                                                                               MetaInfoHandler metaInfoHandler,
-                                                                               int nThreads) throws InterruptedException, ExecutionException {
+            Context context, MetaInfoHandler metaInfoHandler,
+            int nThreads) throws InterruptedException, ExecutionException {
         List<File> sourceFiles = getSourceFiles(compileSourceRoots, context);
         List<Pair<IntrospectedTable, File>> pairs = new ArrayList<>();
         ExecutorService pool = Executors.newFixedThreadPool(nThreads);

@@ -30,11 +30,13 @@ import java.util.Set;
 
 public abstract class AbstractSelectPageMethodGenerator implements SelectPageMethodGenerator {
 
-    protected Set<FullyQualifiedJavaType> getSuperInterfaces(IntrospectedTable introspectedTable, Properties pluginProperties) {
+    protected Set<FullyQualifiedJavaType> getSuperInterfaces(IntrospectedTable introspectedTable,
+            Properties pluginProperties) {
         return Set.of();
     }
 
-    protected Set<FullyQualifiedJavaType> getImportedTypes(IntrospectedTable introspectedTable, Properties pluginProperties) {
+    protected Set<FullyQualifiedJavaType> getImportedTypes(IntrospectedTable introspectedTable,
+            Properties pluginProperties) {
         return Set.of();
     }
 
@@ -45,7 +47,8 @@ public abstract class AbstractSelectPageMethodGenerator implements SelectPageMet
     protected abstract List<String> getBodyLines(IntrospectedTable introspectedTable, Properties pluginProperties);
 
     @Override
-    public final void generate(IntrospectedTable introspectedTable, Interface mapperInterface, Properties pluginProperties) {
+    public final void generate(IntrospectedTable introspectedTable, Interface mapperInterface,
+            Properties pluginProperties) {
         Set<FullyQualifiedJavaType> superInterfaces = getSuperInterfaces(introspectedTable, pluginProperties);
         if (superInterfaces != null) {
             superInterfaces.forEach(mapperInterface::addSuperInterface);

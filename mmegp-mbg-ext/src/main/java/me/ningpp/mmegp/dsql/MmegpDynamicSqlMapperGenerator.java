@@ -52,9 +52,14 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
  */
 public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
 
-    private static final FullyQualifiedJavaType FQJT_UPDATE_DSL = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.update.UpdateDSL");
-    private static final FullyQualifiedJavaType FQJT_UPDATE_MODEL = new FullyQualifiedJavaType("org.mybatis.dynamic.sql.update.UpdateModel");
-    private static final FullyQualifiedJavaType FQJT_UPDATE_DSL_MODEL = new FullyQualifiedJavaType("UpdateDSL<UpdateModel>");
+    private static final FullyQualifiedJavaType FQJT_UPDATE_DSL = new FullyQualifiedJavaType(
+            "org.mybatis.dynamic.sql.update.UpdateDSL");
+
+    private static final FullyQualifiedJavaType FQJT_UPDATE_MODEL = new FullyQualifiedJavaType(
+            "org.mybatis.dynamic.sql.update.UpdateModel");
+
+    private static final FullyQualifiedJavaType FQJT_UPDATE_DSL_MODEL = new FullyQualifiedJavaType(
+            "UpdateDSL<UpdateModel>");
 
     private final boolean generateSelectDistinctMethod;
     private final SelectPageMethodGenerator selectPageMethodGenerator;
@@ -345,12 +350,14 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         if (hasGeneratedKeys) {
             interfaze.addImportedType(Constants.FQJT_MULTI_INSERT_PROVIDER);
             method.addBodyLine(String.format(Locale.ROOT,
-                    "MultiRowInsertStatementProvider<%s> provider = DynamicSqlUtil.renderMultiInsert(records, %s, columnMappings4Insert());",
+                    "MultiRowInsertStatementProvider<%s> provider = " +
+                            "DynamicSqlUtil.renderMultiInsert(records, %s, columnMappings4Insert());",
                     recordType.getShortName(), tableFieldName));
             method.addBodyLine("return insertMultiple(provider.getInsertStatement(), provider.getRecords());");
         } else {
             method.addBodyLine(String.format(Locale.ROOT,
-                    "return insertMultiple(DynamicSqlUtil.renderMultiInsert(records, %s, columnMappings4Insert()));", tableFieldName));
+                    "return insertMultiple(DynamicSqlUtil.renderMultiInsert(records, %s, columnMappings4Insert()));",
+                    tableFieldName));
         }
         interfaze.addMethod(method);
     }

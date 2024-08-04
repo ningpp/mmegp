@@ -37,7 +37,8 @@ public interface MetaInfoHandler {
         } else if (typeDeclaration.isAnnotationDeclaration()) {
             handle(table, typeDeclaration.asAnnotationDeclaration());
         } else {
-            throw new GenerateMyBatisExampleException("unknown TypeDeclaration: " + typeDeclaration.getClass().getName());
+            throw new GenerateMyBatisExampleException(
+                    "unknown TypeDeclaration: " + typeDeclaration.getClass().getName());
         }
     }
 

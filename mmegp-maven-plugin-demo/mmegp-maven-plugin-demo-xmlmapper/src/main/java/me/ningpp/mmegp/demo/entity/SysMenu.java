@@ -48,23 +48,52 @@ public class SysMenu {
     @GeneratedColumn(name = "parent_id", jdbcType = JdbcType.VARCHAR)
     private String parentId;
 
-    @GeneratedColumn(name = "integer_list", jdbcType = JdbcType.VARCHAR, typeHandler = ListCommaIntegerTypeHandler.class)
+    @GeneratedColumn(name = "integer_list", jdbcType = JdbcType.VARCHAR,
+            typeHandler = ListCommaIntegerTypeHandler.class
+    )
     private List<Integer> integerList;
-    @GeneratedColumn(name = "long_list", jdbcType = JdbcType.VARCHAR, typeHandler = ListCommaLongTypeHandler.class)
+
+    @GeneratedColumn(name = "long_list", jdbcType = JdbcType.VARCHAR,
+            typeHandler = ListCommaLongTypeHandler.class
+    )
     private List<Long> longList;
-    @GeneratedColumn(name = "string_list", jdbcType = JdbcType.VARCHAR, typeHandler = ListCommaStringTypeHandler.class)
+
+    @GeneratedColumn(name = "string_list", jdbcType = JdbcType.VARCHAR,
+            typeHandler = ListCommaStringTypeHandler.class
+    )
     private List<String> stringList;
-    @GeneratedColumn(name = "integer_set", jdbcType = JdbcType.VARCHAR, typeHandler = SetCommaIntegerTypeHandler.class)
+
+    @GeneratedColumn(name = "integer_set", jdbcType = JdbcType.VARCHAR,
+            typeHandler = SetCommaIntegerTypeHandler.class
+    )
     private Set<Integer> integerSet;
-    @GeneratedColumn(name = "long_set", jdbcType = JdbcType.VARCHAR, typeHandler = SetCommaLongTypeHandler.class)
+
+    @GeneratedColumn(name = "long_set", jdbcType = JdbcType.VARCHAR,
+            typeHandler = SetCommaLongTypeHandler.class
+    )
     private Set<Long> longSet;
-    @GeneratedColumn(name = "string_set", jdbcType = JdbcType.VARCHAR, typeHandler = SetCommaStringTypeHandler.class)
+
+    @GeneratedColumn(name = "string_set", jdbcType = JdbcType.VARCHAR,
+            typeHandler = SetCommaStringTypeHandler.class
+    )
     private Set<String> stringSet;
-    @GeneratedColumn(name = "integer_linkedhashset", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaIntegerTypeHandler.class)
+
+    @GeneratedColumn(
+            name = "integer_linkedhashset", jdbcType = JdbcType.VARCHAR,
+            typeHandler = LinkedHashSetCommaIntegerTypeHandler.class
+    )
     private LinkedHashSet<Integer> integerLinkedhashset;
-    @GeneratedColumn(name = "long_linkedhashset", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaLongTypeHandler.class)
+
+    @GeneratedColumn(
+            name = "long_linkedhashset", jdbcType = JdbcType.VARCHAR,
+            typeHandler = LinkedHashSetCommaLongTypeHandler.class
+    )
     private HashSet<Long> longLinkedhashset;
-    @GeneratedColumn(name = "string_linkedhashset", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaStringTypeHandler.class)
+
+    @GeneratedColumn(
+            name = "string_linkedhashset", jdbcType = JdbcType.VARCHAR,
+            typeHandler = LinkedHashSetCommaStringTypeHandler.class
+    )
     private Set<String> stringLinkedhashset;
 
     @GeneratedColumn(name = "bytes1", jdbcType = JdbcType.BINARY)
@@ -72,11 +101,22 @@ public class SysMenu {
     @GeneratedColumn(name = "bytes2", jdbcType = JdbcType.BINARY)
     private Byte[] bytes2;
 
-    @GeneratedColumn(name = "uuid", jdbcType = JdbcType.BINARY, typeHandler = UUIDTypeHandler.class)
+    @GeneratedColumn(
+            name = "uuid", jdbcType = JdbcType.BINARY,
+            typeHandler = UUIDTypeHandler.class
+    )
     private UUID uuid;
-    @GeneratedColumn(name = "with_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = UUIDStringTypeHandler.class)
+
+    @GeneratedColumn(
+            name = "with_dash_uuid", jdbcType = JdbcType.VARCHAR,
+            typeHandler = UUIDStringTypeHandler.class
+    )
     private UUID withDashUUID;
-    @GeneratedColumn(name = "no_dash_uuid", jdbcType = JdbcType.VARCHAR, typeHandler = UUIDNoDashStringTypeHandler.class)
+
+    @GeneratedColumn(
+            name = "no_dash_uuid", jdbcType = JdbcType.VARCHAR,
+            typeHandler = UUIDNoDashStringTypeHandler.class
+    )
     private UUID noDashUUID;
 
     public String getId() {

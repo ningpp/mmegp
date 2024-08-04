@@ -50,7 +50,8 @@ import java.util.Optional;
 public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder {
 
     @Override
-    public Pair<IntrospectedTable, File> buildFromSourceFile(Context context, File file, MetaInfoHandler metaInfoHandler) {
+    public Pair<IntrospectedTable, File> buildFromSourceFile(Context context, File file,
+            MetaInfoHandler metaInfoHandler) {
         try {
             String fileContent = Files.readString(file.toPath(), StandardCharsets.UTF_8);
             ParseResult<CompilationUnit> parseResult = JavaParserUtil.newParser().parse(fileContent);
@@ -94,9 +95,6 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                                                             TypeDeclaration<?> modelDeclaration,
                                                             NodeList<ImportDeclaration> importDeclarations,
                                                             MetaInfoHandler metaInfoHandler) {
-        if (modelDeclaration == null || modelDeclaration.getFullyQualifiedName().isEmpty()) {
-            return null;
-        }
         GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration);
         if (tableInfo == null || StringUtils.isEmpty(tableInfo.getName())) {
             return null;
@@ -131,7 +129,8 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
 
         ModelType modelType = modelDeclaration.isRecordDeclaration() ? ModelType.RECORD : ModelType.CLASS;
         introspectedTable.setAttribute(ModelType.class.getName(), modelType);
-        introspectedTable.setTableConfiguration(buildTableConfiguration(context, modelType, domainObjectName, tableInfo));
+        introspectedTable.setTableConfiguration(
+                buildTableConfiguration(context, modelType, domainObjectName, tableInfo));
     }
 
     private static String getPropertyValue(PropertyHolder propertyHolder, String key, String defaultValue) {

@@ -30,7 +30,8 @@ public class CommonSelectPageMethodGenerator extends AbstractSelectPageMethodGen
             "renderer");
 
     @Override
-    protected Set<FullyQualifiedJavaType> getImportedTypes(IntrospectedTable introspectedTable, Properties pluginProperties) {
+    protected Set<FullyQualifiedJavaType> getImportedTypes(IntrospectedTable introspectedTable,
+            Properties pluginProperties) {
         return Set.of(RARAM_RENDERER.getType());
     }
 
@@ -41,7 +42,8 @@ public class CommonSelectPageMethodGenerator extends AbstractSelectPageMethodGen
 
     @Override
     protected List<String> getBodyLines(IntrospectedTable introspectedTable, Properties pluginProperties) {
-        return List.of("return DynamicSqlUtil.selectPage(this::count, this::selectMany, listDsl, limitOffset, renderer);");
+        return List.of(
+                "return DynamicSqlUtil.selectPage(this::count, this::selectMany, listDsl, limitOffset, renderer);");
     }
 
 }

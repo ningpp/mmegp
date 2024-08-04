@@ -85,8 +85,11 @@ public final class JavaParserUtil {
         return new JavaParser(jpc);
     }
 
-    public static GeneratedTableInfo getTableValue(NodeWithAnnotations<?> annotationNode) {
-        Map<String, List<MemberValuePair>> annotationMembers = getNormalAnnotationMembers(annotationNode, Generated.class);
+    public static GeneratedTableInfo getTableValue(TypeDeclaration<?> annotationNode) {
+        if (annotationNode == null || annotationNode.getFullyQualifiedName().isEmpty()) {
+            return null;
+        }
+        var annotationMembers = getNormalAnnotationMembers(annotationNode, Generated.class);
         if (annotationMembers.isEmpty()) {
             return null;
         }
@@ -118,8 +121,8 @@ public final class JavaParserUtil {
                 field, field.getVariable(0), field.getVariable(0));
     }
 
-    private static Map<String, List<MemberValuePair>> getNormalAnnotationMembers(NodeWithAnnotations<?> annotationNode,
-                                                                                 Class<? extends Annotation> annotationClass) {
+    private static Map<String, List<MemberValuePair>> getNormalAnnotationMembers(
+            NodeWithAnnotations<?> annotationNode, Class<? extends Annotation> annotationClass) {
         Optional<AnnotationExpr> optionalColumnAnno = annotationNode.getAnnotationByClass(annotationClass);
         if (optionalColumnAnno.isEmpty()
                 || !optionalColumnAnno.get().isNormalAnnotationExpr()) {
@@ -137,7 +140,7 @@ public final class JavaParserUtil {
             NodeWithAnnotations<N1> annotationNode,
             NodeWithType<N2, Type> typeNode,
             NodeWithSimpleName<N2> nameNode) {
-        Map<String, List<MemberValuePair>> annotationMembers = getNormalAnnotationMembers(annotationNode, GeneratedColumn.class);
+        var annotationMembers = getNormalAnnotationMembers(annotationNode, GeneratedColumn.class);
         if (annotationMembers.isEmpty()) {
             return null;
         }
@@ -201,15 +204,18 @@ public final class JavaParserUtil {
                                        Map<String, List<MemberValuePair>> annotationMembers,
                                        T defaultValue) {
         return parse(annotationMembers, name)
-                .flatMap(memberValue -> {
-                    String typeName = null;
-                    if (memberValue.isFieldAccessExpr()) {
-                        typeName = memberValue.asFieldAccessExpr().getNameAsString();
-                    } else if (memberValue.isNameExpr()) {
-                        typeName = memberValue.asNameExpr().getNameAsString();
-                    }
-                    return Optional.ofNullable(valueMap.get(typeName));
-                }).orElse(defaultValue);
+                .flatMap(memberValue -> Optional.ofNullable(valueMap.get(getEnumTypeName(memberValue))))
+                .orElse(defaultValue);
+    }
+
+    private static String getEnumTypeName(Expression memberValue) {
+        String typeName = null;
+        if (memberValue.isFieldAccessExpr()) {
+            typeName = memberValue.asFieldAccessExpr().getNameAsString();
+        } else if (memberValue.isNameExpr()) {
+            typeName = memberValue.asNameExpr().getNameAsString();
+        }
+        return typeName;
     }
 
     private static List<Expression> parseArray(Map<String, List<MemberValuePair>> annotationMembers, String name) {
@@ -231,14 +237,16 @@ public final class JavaParserUtil {
                 .toList();
     }
 
-    public static String parseString(Map<String, List<MemberValuePair>> annotationMembers, String name, String defaultValue) {
+    public static String parseString(Map<String, List<MemberValuePair>> annotationMembers, String name,
+            String defaultValue) {
         return parse(annotationMembers, name)
                 .filter(Expression::isStringLiteralExpr)
                 .map(mv -> mv.asStringLiteralExpr().asString())
                 .orElse(defaultValue);
     }
 
-    private static boolean parseBoolean(Map<String, List<MemberValuePair>> annotationMembers, String name, boolean defaultValue) {
+    private static boolean parseBoolean(Map<String, List<MemberValuePair>> annotationMembers, String name,
+            boolean defaultValue) {
         return parse(annotationMembers, name)
                 .filter(Expression::isBooleanLiteralExpr)
                 .map(mv -> mv.asBooleanLiteralExpr().getValue())

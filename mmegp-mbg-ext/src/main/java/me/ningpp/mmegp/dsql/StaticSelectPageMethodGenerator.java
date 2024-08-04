@@ -49,13 +49,15 @@ public class StaticSelectPageMethodGenerator extends AbstractSelectPageMethodGen
     }
 
     @Override
-    protected Set<FullyQualifiedJavaType> getSuperInterfaces(IntrospectedTable introspectedTable, Properties pluginProperties) {
+    protected Set<FullyQualifiedJavaType> getSuperInterfaces(IntrospectedTable introspectedTable,
+            Properties pluginProperties) {
         return Set.of(new FullyQualifiedJavaType(getPaginationModelRendererProviderType(pluginProperties)));
     }
 
     @Override
     protected List<String> getBodyLines(IntrospectedTable introspectedTable, Properties pluginProperties) {
-        return List.of("return DynamicSqlUtil.selectPage(this::count, this::selectMany, listDsl, limitOffset, RENDERER);");
+        return List.of(
+                "return DynamicSqlUtil.selectPage(this::count, this::selectMany, listDsl, limitOffset, RENDERER);");
     }
 
 }
