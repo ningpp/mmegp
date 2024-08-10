@@ -42,7 +42,7 @@ public @interface GeneratedColumn {
     /**
      * jdbc type
      */
-    JdbcType jdbcType();
+    JdbcType jdbcType() default JdbcType.UNDEFINED;
 
     /**
      * type handler

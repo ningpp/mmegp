@@ -68,6 +68,7 @@ public final class JavaParserUtil {
     private JavaParserUtil() {
     }
 
+    private static final Map<String, JdbcType> PREDEFINED_TYPES;
     private static final Map<String, JdbcType> JDBC_TYPES = new HashMap<>();
     public static final String COUNT_GROUP_BY_COLUMNS_NAME = "countGroupByColumns";
     public static final String AGGREGATES_NAME = "aggregates";
@@ -76,6 +77,42 @@ public final class JavaParserUtil {
         for (JdbcType jdbcType : JdbcType.values()) {
             JDBC_TYPES.put(jdbcType.name(), jdbcType);
         }
+    }
+
+    static {
+        Map<String, JdbcType> predefinedTypes = new HashMap<>();
+        predefinedTypes.put(boolean.class.getName(), JdbcType.BOOLEAN);
+        predefinedTypes.put(Boolean.class.getName(), JdbcType.BOOLEAN);
+        predefinedTypes.put(char.class.getName(), JdbcType.CHAR);
+        predefinedTypes.put(Character.class.getName(), JdbcType.CHAR);
+        predefinedTypes.put(byte.class.getName(), JdbcType.TINYINT);
+        predefinedTypes.put(Byte.class.getName(), JdbcType.TINYINT);
+        predefinedTypes.put(short.class.getName(), JdbcType.SMALLINT);
+        predefinedTypes.put(Short.class.getName(), JdbcType.SMALLINT);
+        predefinedTypes.put(int.class.getName(), JdbcType.INTEGER);
+        predefinedTypes.put(Integer.class.getName(), JdbcType.INTEGER);
+        predefinedTypes.put(long.class.getName(), JdbcType.BIGINT);
+        predefinedTypes.put(Long.class.getName(), JdbcType.BIGINT);
+        predefinedTypes.put(float.class.getName(), JdbcType.FLOAT);
+        predefinedTypes.put(Float.class.getName(), JdbcType.FLOAT);
+        predefinedTypes.put(double.class.getName(), JdbcType.DOUBLE);
+        predefinedTypes.put(Double.class.getName(), JdbcType.DOUBLE);
+
+        predefinedTypes.put(String.class.getName(), JdbcType.VARCHAR);
+
+        predefinedTypes.put(java.math.BigDecimal.class.getName(), JdbcType.DECIMAL);
+        predefinedTypes.put(java.math.BigInteger.class.getName(), JdbcType.BIGINT);
+
+        predefinedTypes.put(java.sql.Date.class.getName(), JdbcType.DATE);
+        predefinedTypes.put(java.util.Date.class.getName(), JdbcType.TIMESTAMP);
+        predefinedTypes.put(java.sql.Timestamp.class.getName(), JdbcType.TIMESTAMP);
+
+        predefinedTypes.put(java.time.LocalDate.class.getName(), JdbcType.DATE);
+        predefinedTypes.put(java.time.LocalDateTime.class.getName(), JdbcType.TIMESTAMP);
+        predefinedTypes.put(java.time.LocalTime.class.getName(), JdbcType.TIME);
+        predefinedTypes.put(java.time.Year.class.getName(), JdbcType.INTEGER);
+
+        PREDEFINED_TYPES = Map.copyOf(predefinedTypes);
     }
 
     public static JavaParser newParser() {
@@ -145,19 +182,19 @@ public final class JavaParserUtil {
             return null;
         }
 
-        String name = parseString(annotationMembers, "name", null);
-        JdbcType jdbcType = parseJdbcType(annotationMembers);
-        if (StringUtils.isEmpty(name) || jdbcType == null) {
+        String typeClassName = getClassByType(declarMappings, typeNode.getType());
+        if (StringUtils.isEmpty(typeClassName)) {
             throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
-                    "can't get column name or jdbcType, field = %s, type = %s, FullyQualifiedName = %s",
+                    "not supported Java Type, field = %s, type = %s, FullyQualifiedName = %s",
                     nameNode.getNameAsString(), typeNode.getType().toString(),
                     modelDeclaration.getFullyQualifiedName().orElse(null)));
         }
 
-        String className = getClassByType(declarMappings, typeNode.getType());
-        if (StringUtils.isEmpty(className)) {
+        String name = parseString(annotationMembers, "name", null);
+        JdbcType jdbcType = parseJdbcType(typeClassName, annotationMembers);
+        if (StringUtils.isEmpty(name) || jdbcType == null) {
             throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
-                    "not supported Java Type, field = %s, type = %s, FullyQualifiedName = %s",
+                    "can't get column name or jdbcType, field = %s, type = %s, FullyQualifiedName = %s",
                     nameNode.getNameAsString(), typeNode.getType().toString(),
                     modelDeclaration.getFullyQualifiedName().orElse(null)));
         }
@@ -176,7 +213,7 @@ public final class JavaParserUtil {
 
         column.setJdbcType(jdbcType.TYPE_CODE);
         column.setJdbcTypeName(jdbcType.name());
-        column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(className));
+        column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(typeClassName));
         column.setTypeHandler(parseTypeHandler(annotationMembers, declarMappings));
 
         column.getProperties().put(AGGREGATES_NAME,
@@ -195,8 +232,14 @@ public final class JavaParserUtil {
                 .orElse(null);
     }
 
-    private static JdbcType parseJdbcType(Map<String, List<MemberValuePair>> annotationMembers) {
-        return parseEnumValue("jdbcType", JDBC_TYPES, annotationMembers, null);
+    private static JdbcType parseJdbcType(String typeClassName,
+            Map<String, List<MemberValuePair>> annotationMembers) {
+        var declarJdbcType = parseEnumValue("jdbcType", JDBC_TYPES, annotationMembers, JdbcType.UNDEFINED);
+        if (declarJdbcType == JdbcType.UNDEFINED) {
+            return PREDEFINED_TYPES.get(typeClassName);
+        } else {
+            return declarJdbcType;
+        }
     }
 
     public static <T> T parseEnumValue(String name,

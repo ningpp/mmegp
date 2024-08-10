@@ -35,63 +35,63 @@ import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
 @Generated(table = "big_entity")
 public class BigEntity {
-    @GeneratedColumn(name = "id", jdbcType = VARCHAR, id = true)
+    @GeneratedColumn(name = "id", id = true)
     private String id;
-    @GeneratedColumn(name = "f_boolean", jdbcType = JdbcType.BOOLEAN)
+    @GeneratedColumn(name = "f_boolean")
     private boolean fboolean;
-    @GeneratedColumn(name = "f_byte", jdbcType = JdbcType.TINYINT)
+    @GeneratedColumn(name = "f_byte")
     private byte fbyte;
     @GeneratedColumn(name = "f_bytes", jdbcType = JdbcType.BINARY)
     private byte[] fbytes;
     @GeneratedColumn(name = "field_bytes", jdbcType = JdbcType.BLOB, blob = true)
     private Byte[] fieldBytes;
-    @GeneratedColumn(name = "f_char", jdbcType = JdbcType.CHAR)
+    @GeneratedColumn(name = "f_char")
     private char fchar;
-    @GeneratedColumn(name = "f_character", jdbcType = JdbcType.CHAR)
+    @GeneratedColumn(name = "f_character")
     private Character fcharacter;
-    @GeneratedColumn(name = "f_short", jdbcType = JdbcType.SMALLINT)
+    @GeneratedColumn(name = "f_short")
     private short fshort;
-    @GeneratedColumn(name = "field_short", jdbcType = JdbcType.SMALLINT)
+    @GeneratedColumn(name = "field_short")
     private Short fieldShort;
-    @GeneratedColumn(name = "f_int", jdbcType = JdbcType.INTEGER)
+    @GeneratedColumn(name = "f_int")
     private int fint;
-    @GeneratedColumn(name = "field_integer", jdbcType = JdbcType.INTEGER)
+    @GeneratedColumn(name = "field_integer")
     private Integer fieldInteger;
     @GeneratedColumn(name = "f_int2", jdbcType = JdbcType.TINYINT)
     private int fint2;
     @GeneratedColumn(name = "field_integer2", jdbcType = JdbcType.TINYINT)
     private Integer fieldInteger2;
-    @GeneratedColumn(name = "f_long", jdbcType = JdbcType.BIGINT)
+    @GeneratedColumn(name = "f_long")
     private long flong;
-    @GeneratedColumn(name = "field_long", jdbcType = JdbcType.BIGINT)
+    @GeneratedColumn(name = "field_long")
     private Long fieldLong;
-    @GeneratedColumn(name = "f_float", jdbcType = JdbcType.FLOAT)
+    @GeneratedColumn(name = "f_float")
     private float ffloat;
-    @GeneratedColumn(name = "field_float", jdbcType = JdbcType.FLOAT)
+    @GeneratedColumn(name = "field_float")
     private Float fieldFloat;
-    @GeneratedColumn(name = "f_double", jdbcType = JdbcType.DOUBLE)
+    @GeneratedColumn(name = "f_double")
     private double fdouble;
-    @GeneratedColumn(name = "field_double", jdbcType = JdbcType.DOUBLE)
+    @GeneratedColumn(name = "field_double")
     private Double fieldDouble;
-    @GeneratedColumn(name = "f_bigint", jdbcType = JdbcType.BIGINT)
+    @GeneratedColumn(name = "f_bigint")
     private BigInteger fbigint;
-    @GeneratedColumn(name = "f_bigdecimal", jdbcType = JdbcType.DECIMAL)
+    @GeneratedColumn(name = "f_bigdecimal")
     private BigDecimal fbigdecimal;
-    @GeneratedColumn(name = "f_date", jdbcType = JdbcType.TIMESTAMP)
+    @GeneratedColumn(name = "f_date")
     private Date fdate;
-    @GeneratedColumn(name = "f_sqldate", jdbcType = JdbcType.DATE)
+    @GeneratedColumn(name = "f_sqldate")
     private java.sql.Date fsqldate;
-    @GeneratedColumn(name = "f_timestamp", jdbcType = JdbcType.TIMESTAMP)
+    @GeneratedColumn(name = "f_timestamp")
     private Timestamp ftimestamp;
-    @GeneratedColumn(name = "f_year", jdbcType = JdbcType.INTEGER)
+    @GeneratedColumn(name = "f_year")
     private Year fyear;
     @GeneratedColumn(name = "f_yearmonth", jdbcType = VARCHAR)
     private YearMonth fyearmonth;
-    @GeneratedColumn(name = "f_localdate", jdbcType = JdbcType.DATE)
+    @GeneratedColumn(name = "f_localdate")
     private LocalDate flocaldate;
-    @GeneratedColumn(name = "f_localtime", jdbcType = JdbcType.TIME)
+    @GeneratedColumn(name = "f_localtime")
     private LocalTime flocaltime;
-    @GeneratedColumn(name = "f_localdatetime", jdbcType = JdbcType.TIMESTAMP)
+    @GeneratedColumn(name = "f_localdatetime")
     private LocalDateTime flocaldatetime;
     @GeneratedColumn(name = "f_uuid", jdbcType = VARCHAR, typeHandler = UUIDStringTypeHandler.class)
     private UUID fuuid;
