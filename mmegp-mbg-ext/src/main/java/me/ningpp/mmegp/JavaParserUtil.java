@@ -43,6 +43,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
+import org.mybatis.generator.internal.ObjectFactory;
 
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
@@ -178,9 +179,6 @@ public final class JavaParserUtil {
             NodeWithType<N2, Type> typeNode,
             NodeWithSimpleName<N2> nameNode) {
         var annotationMembers = getNormalAnnotationMembers(annotationNode, GeneratedColumn.class);
-        if (annotationMembers.isEmpty()) {
-            return null;
-        }
 
         String typeClassName = getClassByType(declarMappings, typeNode.getType());
         if (StringUtils.isEmpty(typeClassName)) {
@@ -190,19 +188,20 @@ public final class JavaParserUtil {
                     modelDeclaration.getFullyQualifiedName().orElse(null)));
         }
 
-        String name = parseString(annotationMembers, "name", null);
+        String javaProperty = nameNode.getNameAsString();
+        String name = parseColumnName(annotationMembers, javaProperty, context);
         JdbcType jdbcType = parseJdbcType(typeClassName, annotationMembers);
         if (StringUtils.isEmpty(name) || jdbcType == null) {
             throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
                     "can't get column name or jdbcType, field = %s, type = %s, FullyQualifiedName = %s",
-                    nameNode.getNameAsString(), typeNode.getType().toString(),
+                    javaProperty, typeNode.getType().toString(),
                     modelDeclaration.getFullyQualifiedName().orElse(null)));
         }
 
         IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
         column.setContext(context);
         column.setActualColumnName(name);
-        column.setJavaProperty(nameNode.getNameAsString());
+        column.setJavaProperty(javaProperty);
 
         column.setBlobColumn(parseBoolean(annotationMembers, "blob", false));
 
@@ -222,6 +221,23 @@ public final class JavaParserUtil {
                         .collect(Collectors.joining(",")));
 
         return Pair.of(column, id);
+    }
+
+    private static String parseColumnName(Map<String, List<MemberValuePair>> annotationMembers,
+            String javaProperty, Context context) {
+        String name = parseString(annotationMembers, "name", "");
+        if (StringUtils.isEmpty(name)) {
+            String instanceKey = "columnNamingStrategyInstance";
+            NamingStrategy strategy = (NamingStrategy) context.getProperties().get(instanceKey);
+            if (strategy == null) {
+                String strategyClassName = (String) context.getProperties()
+                        .getOrDefault("columnNamingStrategy", SnakeCaseStrategy.class.getName());
+                strategy = (NamingStrategy) ObjectFactory.createExternalObject(strategyClassName);
+                context.getProperties().put(instanceKey, strategy);
+            }
+            name = strategy.translate(javaProperty);
+        }
+        return name;
     }
 
     private static String parseTypeHandler(Map<String, List<MemberValuePair>> annotationMembers,

@@ -45,7 +45,9 @@ public class SoftDeleteMetaInfoHandler extends AbstractAnnotationMetaInfoHandler
         String columnName = JavaParserUtil.parseString(memberMap, "column", null);
         Optional<IntrospectedColumn> optionalColumn = table.getColumn(columnName);
         if (optionalColumn.isEmpty()) {
-            throw new IllegalArgumentException("invalid column name for soft delete, column not found!");
+            throw new IllegalArgumentException("invalid column name for soft delete, column not found!"
+                + " table name = " + table.getTableConfiguration().getTableName()
+                + " soft delete column = " + columnName);
         }
 
         SoftDeleteStrategy strategy = JavaParserUtil

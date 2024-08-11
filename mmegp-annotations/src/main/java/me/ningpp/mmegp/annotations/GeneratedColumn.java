@@ -37,7 +37,7 @@ public @interface GeneratedColumn {
     /**
      * column name
      */
-    String name();
+    String name() default "";
 
     /**
      * jdbc type

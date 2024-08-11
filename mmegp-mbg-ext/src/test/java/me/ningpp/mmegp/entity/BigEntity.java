@@ -35,7 +35,7 @@ import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
 @Generated(table = "big_entity")
 public class BigEntity {
-    @GeneratedColumn(name = "id", id = true)
+    @GeneratedColumn(id = true)
     private String id;
     @GeneratedColumn(name = "f_boolean")
     private boolean fboolean;
@@ -51,11 +51,11 @@ public class BigEntity {
     private Character fcharacter;
     @GeneratedColumn(name = "f_short")
     private short fshort;
-    @GeneratedColumn(name = "field_short")
+    @GeneratedColumn
     private Short fieldShort;
     @GeneratedColumn(name = "f_int")
     private int fint;
-    @GeneratedColumn(name = "field_integer")
+    @GeneratedColumn
     private Integer fieldInteger;
     @GeneratedColumn(name = "f_int2", jdbcType = JdbcType.TINYINT)
     private int fint2;
@@ -63,15 +63,15 @@ public class BigEntity {
     private Integer fieldInteger2;
     @GeneratedColumn(name = "f_long")
     private long flong;
-    @GeneratedColumn(name = "field_long")
+    @GeneratedColumn
     private Long fieldLong;
     @GeneratedColumn(name = "f_float")
     private float ffloat;
-    @GeneratedColumn(name = "field_float")
+    @GeneratedColumn
     private Float fieldFloat;
     @GeneratedColumn(name = "f_double")
     private double fdouble;
-    @GeneratedColumn(name = "field_double")
+    @GeneratedColumn
     private Double fieldDouble;
     @GeneratedColumn(name = "f_bigint")
     private BigInteger fbigint;

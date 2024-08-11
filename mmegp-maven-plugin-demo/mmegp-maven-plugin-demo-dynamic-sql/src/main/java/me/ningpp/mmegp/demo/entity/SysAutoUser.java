@@ -3,18 +3,17 @@ package me.ningpp.mmegp.demo.entity;
 import me.ningpp.mmegp.annotations.Generated;
 import me.ningpp.mmegp.annotations.GeneratedColumn;
 import me.ningpp.mmegp.annotations.SoftDelete;
-import org.apache.ibatis.type.JdbcType;
 
 @Generated(table = "sys_auto_user")
 @SoftDelete(column = "deleted")
 public class SysAutoUser {
-    @GeneratedColumn(name = "id", jdbcType = JdbcType.INTEGER, id = true, generatedValue = true)
+    @GeneratedColumn(id = true, generatedValue = true)
     private Integer id;
-    @GeneratedColumn(name = "first_name", jdbcType = JdbcType.VARCHAR)
+    @GeneratedColumn
     private String firstName;
-    @GeneratedColumn(name = "last_name", jdbcType = JdbcType.VARCHAR)
+    @GeneratedColumn
     private String lastName;
-    @GeneratedColumn(name = "deleted", jdbcType = JdbcType.TINYINT)
+    @GeneratedColumn
     private Byte deleted;
 
     public Integer getId() {
