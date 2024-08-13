@@ -33,7 +33,7 @@ import java.util.UUID;
 
 import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
-@Generated(table = "big_entity")
+@Generated
 public class BigEntity {
     @GeneratedColumn(id = true)
     private String id;

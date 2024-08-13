@@ -95,7 +95,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                                                             TypeDeclaration<?> modelDeclaration,
                                                             NodeList<ImportDeclaration> importDeclarations,
                                                             MetaInfoHandler metaInfoHandler) {
-        GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration);
+        GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration, context);
         if (tableInfo == null || StringUtils.isEmpty(tableInfo.getName())) {
             return null;
         }

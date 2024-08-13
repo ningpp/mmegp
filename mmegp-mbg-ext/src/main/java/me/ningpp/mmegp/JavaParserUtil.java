@@ -123,18 +123,27 @@ public final class JavaParserUtil {
         return new JavaParser(jpc);
     }
 
-    public static GeneratedTableInfo getTableValue(TypeDeclaration<?> annotationNode) {
-        if (annotationNode == null || annotationNode.getFullyQualifiedName().isEmpty()) {
+    public static GeneratedTableInfo getTableValue(TypeDeclaration<?> typeDeclar, Context context) {
+        if (typeDeclar == null || typeDeclar.getFullyQualifiedName().isEmpty()) {
             return null;
         }
-        var annotationMembers = getNormalAnnotationMembers(annotationNode, Generated.class);
-        if (annotationMembers.isEmpty()) {
-            return null;
-        }
+        var annotationMembers = getNormalAnnotationMembers(typeDeclar, Generated.class);
 
-        String tableName = parseString(annotationMembers, "table", null);
+        String tableName = parseTableName(annotationMembers, typeDeclar.getNameAsString(), context);
         List<String> countGroupByColumns = parseArrayString(annotationMembers, COUNT_GROUP_BY_COLUMNS_NAME);
         return new GeneratedTableInfo(tableName, countGroupByColumns);
+    }
+
+    private static String parseTableName(Map<String, List<MemberValuePair>> annotationMembers,
+            String entityName, Context context) {
+        return parseNamingByStrategy(annotationMembers, "table", entityName,
+                "tableNamingStrategyInstance", "tableNamingStrategy", context);
+    }
+
+    private static String parseColumnName(Map<String, List<MemberValuePair>> annotationMembers,
+            String javaProperty, Context context) {
+        return parseNamingByStrategy(annotationMembers, "name", javaProperty,
+                "columnNamingStrategyInstance", "columnNamingStrategy", context);
     }
 
     public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
@@ -223,19 +232,20 @@ public final class JavaParserUtil {
         return Pair.of(column, id);
     }
 
-    private static String parseColumnName(Map<String, List<MemberValuePair>> annotationMembers,
-            String javaProperty, Context context) {
-        String name = parseString(annotationMembers, "name", "");
+    private static String parseNamingByStrategy(Map<String, List<MemberValuePair>> annotationMembers,
+            String annotationMethod, String srcName,
+            String instanceKey, String propertyKey,
+            Context context) {
+        String name = parseString(annotationMembers, annotationMethod, "");
         if (StringUtils.isEmpty(name)) {
-            String instanceKey = "columnNamingStrategyInstance";
             NamingStrategy strategy = (NamingStrategy) context.getProperties().get(instanceKey);
             if (strategy == null) {
                 String strategyClassName = (String) context.getProperties()
-                        .getOrDefault("columnNamingStrategy", SnakeCaseStrategy.class.getName());
+                        .getOrDefault(propertyKey, SnakeCaseStrategy.class.getName());
                 strategy = (NamingStrategy) ObjectFactory.createExternalObject(strategyClassName);
                 context.getProperties().put(instanceKey, strategy);
             }
-            name = strategy.translate(javaProperty);
+            name = strategy.translate(srcName);
         }
         return name;
     }

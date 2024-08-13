@@ -21,7 +21,7 @@ import org.apache.ibatis.type.JdbcType;
 
 import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
-@Generated(table = "big_record_entity")
+@Generated
 public record BigRecordEntity(
         @GeneratedColumn(name = "id", jdbcType = VARCHAR, id = true)
         String id,

@@ -31,7 +31,7 @@ public @interface Generated {
     /**
      * table name
      */
-    String table();
+    String table() default "";
 
     /**
      * seperate multi columns by seperator=, 

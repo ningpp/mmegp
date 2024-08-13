@@ -4,7 +4,7 @@ import me.ningpp.mmegp.annotations.Generated;
 import me.ningpp.mmegp.annotations.GeneratedColumn;
 import me.ningpp.mmegp.annotations.SoftDelete;
 
-@Generated(table = "sys_auto_user")
+@Generated
 @SoftDelete(column = "deleted")
 public class SysAutoUser {
     @GeneratedColumn(id = true, generatedValue = true)
