@@ -19,11 +19,19 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ParserConfiguration.LanguageLevel;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.expr.TextBlockLiteralExpr;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
+import static me.ningpp.mmegp.annotationparser.ModelBasedAnnotationParser.parseSingleValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ModelBasedAnnotationParserTest {
 
@@ -134,8 +142,7 @@ class ModelBasedAnnotationParserTest {
         ParserDemoAnnotationModel model = ModelBasedAnnotationParser.parse(ParserDemoAnnotation.class,
                 ParserDemoAnnotationModel.class,
                 compilationUnit.getType(0),
-                compilationUnit.getImports(),
-                ParserDemoAnnotationModel.class.getPackageName());
+                compilationUnit.getImports());
         assertNotNull(model);
         ParserDemoAnnotationsModel multiModel = ModelBasedAnnotationParser.parse(ParserDemoAnnotations.class,
                 ParserDemoAnnotationsModel.class,
@@ -143,6 +150,20 @@ class ModelBasedAnnotationParserTest {
                 compilationUnit.getImports(),
                 ParserDemoAnnotationModel.class.getPackageName());
         assertNotNull(multiModel);
+    }
+
+    @Test
+    void parseSingleValueTest() {
+        Expression exp = new StringLiteralExpr("mmegp");
+        Object parsed = parseSingleValue(String.class, exp, Map.of(), "me.ningpp");
+        assertEquals("mmegp", parsed);
+
+        exp = new TextBlockLiteralExpr("mmegp");
+        parsed = parseSingleValue(String.class, exp, Map.of(), "me.ningpp");
+        assertEquals("mmegp", parsed);
+
+        assertThrows(IllegalArgumentException.class, () -> parseSingleValue(
+                String.class, new IntegerLiteralExpr("1"), Map.of(), "me.ningpp"));
     }
 
     private static JavaParser newParser() {

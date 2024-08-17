@@ -35,6 +35,7 @@ import me.ningpp.mmegp.annotationparser.handler.FloatAnnotationValueHandler;
 import me.ningpp.mmegp.annotationparser.handler.IntAnnotationValueHandler;
 import me.ningpp.mmegp.annotationparser.handler.LongAnnotationValueHandler;
 import me.ningpp.mmegp.annotationparser.handler.ShortAnnotationValueHandler;
+import me.ningpp.mmegp.annotationparser.handler.StringAnnotationValueHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -43,6 +44,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +59,15 @@ public class ModelBasedAnnotationParser {
 
     public static final char DOT = '.';
 
+    public static <M, N extends Node> M parse(Class<? extends Annotation> annotationClass, Class<M> clazz,
+            NodeWithAnnotations<N> node, Collection<ImportDeclaration> importDeclars) {
+        return parse(annotationClass, clazz, node, importDeclars, clazz.getPackageName());
+    }
+
     public static <M, N extends Node> M parse(Class<? extends Annotation> annotationClass,
                                               Class<M> clazz,
                                               NodeWithAnnotations<N> node,
-                                              NodeList<ImportDeclaration> importDeclars,
+                                              Collection<ImportDeclaration> importDeclars,
                                               String modelPackage) {
         Optional<AnnotationExpr> optionalColumnAnno = node.getAnnotationByClass(annotationClass);
         Map<String, String> importMap = importDeclars.stream()
@@ -93,13 +100,17 @@ public class ModelBasedAnnotationParser {
             throw new IllegalArgumentException("Model don't match Annotation, they have different fields.");
         }
 
-        Map<String, MemberValuePair> memberValuePairs = getMemberValuePairs(optionalColumnAnno);
-        Object[] args = initargs(annotationClass, memberValuePairs, importMap, modelPackage);
-        try {
-            return (M) constructor.newInstance(args);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+        M result = null;
+        if (optionalColumnAnno.isPresent()) {
+            Map<String, MemberValuePair> memberValuePairs = getMemberValuePairs(optionalColumnAnno);
+            Object[] args = initargs(annotationClass, memberValuePairs, importMap, modelPackage);
+            try {
+                result = (M) constructor.newInstance(args);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
         }
+        return result;
     }
 
     private static Map<String, MemberValuePair> getMemberValuePairs(Optional<AnnotationExpr> optionalExpr) {
@@ -335,7 +346,7 @@ public class ModelBasedAnnotationParser {
         return array;
     }
 
-    private static Object parseSingleValue(Class<?> returnType, Expression expr,
+    public static Object parseSingleValue(Class<?> returnType, Expression expr,
                                            Map<String, String> importMap, String modelPackage) {
         Object val = null;
         for (AnnotationValueHandler handler : HANDLERS) {
@@ -353,6 +364,7 @@ public class ModelBasedAnnotationParser {
     private static final List<AnnotationValueHandler> HANDLERS;
     static {
         List<AnnotationValueHandler> handlers = new ArrayList<>();
+        handlers.add(new StringAnnotationValueHandler());
         handlers.add(new BooleanAnnotationValueHandler());
         handlers.add(new ByteAnnotationValueHandler());
         handlers.add(new CharAnnotationValueHandler());
