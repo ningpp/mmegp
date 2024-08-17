@@ -38,4 +38,20 @@
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
     </context>
+    <context id="mybatis_plus_demo" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
+        <property name="introspectedTableBuilder" value="me.ningpp.mmegp.mybatisplus.generator.MyBatisPlusIntrospectedTableBuilder" />
+        <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
+            <property name="targetProject" value="target/generated-sources/mme/java" />
+        </plugin>
+        <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.mybatisplus" >
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="false" />
+        </javaModelGenerator>
+        <javaClientGenerator type="MIXEDMAPPER" targetPackage="me.ningpp.mmegp.demo.mybatisplusmapper">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+    </context>
 </generatorConfiguration>

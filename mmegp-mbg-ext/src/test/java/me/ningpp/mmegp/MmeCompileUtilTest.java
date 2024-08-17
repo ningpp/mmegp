@@ -242,7 +242,7 @@ public class MmeCompileUtilTest {
         ParseResult<CompilationUnit> parseResult = JavaParserUtil.newParser().parse(fileContent);
         Optional<CompilationUnit> cuOptional = parseResult.getResult();
         if (parseResult.isSuccessful() && cuOptional.isPresent()) {
-            return DefaultIntrospectedTableBuilder.buildIntrospectedTable(
+            return new DefaultIntrospectedTableBuilder().buildIntrospectedTable(
                             context,
                             cuOptional.get(),
                             metaInfoHandler

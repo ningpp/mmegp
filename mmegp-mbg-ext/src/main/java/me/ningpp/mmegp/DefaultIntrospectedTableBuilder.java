@@ -19,13 +19,26 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
+import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
+import com.github.javaparser.ast.nodeTypes.NodeWithType;
+import com.github.javaparser.ast.type.Type;
+import me.ningpp.mmegp.annotations.Generated;
+import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.enums.AggregateFunction;
 import me.ningpp.mmegp.enums.ModelType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.ibatis.type.JdbcType;
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -39,15 +52,42 @@ import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static me.ningpp.mmegp.JavaParserUtil.AGGREGATES_NAME;
+import static me.ningpp.mmegp.JavaParserUtil.COUNT_GROUP_BY_COLUMNS_NAME;
+import static me.ningpp.mmegp.JavaParserUtil.getClassByType;
+import static me.ningpp.mmegp.JavaParserUtil.parseArray;
+import static me.ningpp.mmegp.JavaParserUtil.parseArrayString;
+import static me.ningpp.mmegp.JavaParserUtil.parseBoolean;
+import static me.ningpp.mmegp.JavaParserUtil.parseColumnName;
+import static me.ningpp.mmegp.JavaParserUtil.parseJdbcType;
+import static me.ningpp.mmegp.JavaParserUtil.parseTableName;
+import static me.ningpp.mmegp.JavaParserUtil.parseTypeHandler;
 
 public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder {
+
+    protected GeneratedTableInfo buildGeneratedTable(Context context,
+            TypeDeclaration<?> modelDeclaration, NodeList<ImportDeclaration> importDeclarations) {
+        if (modelDeclaration == null || modelDeclaration.getFullyQualifiedName().isEmpty()) {
+            return null;
+        }
+        var annotationMembers = getNormalAnnotationMembers(modelDeclaration, Generated.class);
+
+        String tableName = parseTableName(annotationMembers, modelDeclaration.getNameAsString(), context);
+        List<String> countGroupByColumns = parseArrayString(annotationMembers, COUNT_GROUP_BY_COLUMNS_NAME);
+        return new GeneratedTableInfo(tableName, countGroupByColumns);
+    }
 
     @Override
     public Pair<IntrospectedTable, File> buildFromSourceFile(Context context, File file,
@@ -71,9 +111,8 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         return Pair.of(null, file);
     }
 
-    public static IntrospectedTable buildIntrospectedTable(Context context,
-                                                           CompilationUnit compilationUnit,
-                                                           MetaInfoHandler metaInfoHandler) {
+    public IntrospectedTable buildIntrospectedTable(Context context,
+               CompilationUnit compilationUnit, MetaInfoHandler metaInfoHandler) {
         TypeDeclaration<?> typeDeclaration = compilationUnit.getTypes().stream()
                 .filter(typeDeclar -> typeDeclar.hasModifier(Modifier.Keyword.PUBLIC))
                 .findFirst().orElse(null);
@@ -91,11 +130,11 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         return null;
     }
 
-    private static IntrospectedTable buildIntrospectedTable(Context context,
+    private IntrospectedTable buildIntrospectedTable(Context context,
                                                             TypeDeclaration<?> modelDeclaration,
                                                             NodeList<ImportDeclaration> importDeclarations,
                                                             MetaInfoHandler metaInfoHandler) {
-        GeneratedTableInfo tableInfo = JavaParserUtil.getTableValue(modelDeclaration, context);
+        GeneratedTableInfo tableInfo = buildGeneratedTable(context, modelDeclaration, importDeclarations);
         if (tableInfo == null || StringUtils.isEmpty(tableInfo.getName())) {
             return null;
         }
@@ -152,7 +191,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                     "mapperNameSuffix", "Mapper");
             tableConfiguration.setMapperName(domainObjectName + mapperSuffix);
         }
-        tableConfiguration.addProperty(JavaParserUtil.COUNT_GROUP_BY_COLUMNS_NAME,
+        tableConfiguration.addProperty(COUNT_GROUP_BY_COLUMNS_NAME,
                 String.join(";", tableInfo.getCountGroupByColumns()));
         tableConfiguration.getProperties()
                 .setProperty(
@@ -161,29 +200,137 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         return tableConfiguration;
     }
 
-    private static List<Pair<IntrospectedColumn, Boolean>> buildColumns(TypeDeclaration<?> modelDeclaration,
-                                                                        Map<String, ImportDeclaration> importMappings,
-                                                                        Context context) {
+    private List<Pair<IntrospectedColumn, Boolean>> buildColumns(TypeDeclaration<?> modelDeclaration,
+                Map<String, ImportDeclaration> importMappings, Context context) {
         List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
         if (modelDeclaration.isRecordDeclaration()) {
             NodeList<Parameter> parameters = modelDeclaration.asRecordDeclaration().getParameters();
             if (parameters != null) {
                 for (Parameter param : parameters) {
-                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, importMappings, param, context));
+                    pairs.add(buildColumn(modelDeclaration, importMappings, param, context));
                 }
             }
         } else {
             List<FieldDeclaration> fields = modelDeclaration.getFields();
             if (fields != null) {
                 for (FieldDeclaration field : fields) {
-                    pairs.add(JavaParserUtil.buildColumn(modelDeclaration, importMappings, field, context));
+                    pairs.add(buildColumn(modelDeclaration, importMappings, field, context));
                 }
             }
         }
-        return pairs;
+        return pairs.stream().filter(Objects::nonNull).toList();
     }
 
-    private static void addTableColumns(IntrospectedTable introspectedTable,
+    private Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
+            Map<String, ImportDeclaration> declarMappings,
+            Parameter param,
+            Context context) {
+        return buildColumn(modelDeclaration, declarMappings, context, param, param, param);
+    }
+
+    private Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
+            Map<String, ImportDeclaration> declarMappings,
+            FieldDeclaration field,
+            Context context) {
+        if (field.getVariables().size() > 1) {
+            throw new GenerateMyBatisExampleException("can't use multi variables declaration! Model="
+                    + modelDeclaration.getFullyQualifiedName().orElse(null)
+                    + ", field = " + field.getVariables().stream()
+                    .map(VariableDeclarator::getNameAsString)
+                    .collect(Collectors.joining(", ")));
+        }
+        return buildColumn(modelDeclaration, declarMappings, context,
+                field, field.getVariable(0), field.getVariable(0));
+    }
+
+    protected Map<String, List<MemberValuePair>> getNormalAnnotationMembers(
+                Optional<AnnotationExpr> optionalColumnAnno) {
+        if (optionalColumnAnno.isEmpty()
+                || !optionalColumnAnno.get().isNormalAnnotationExpr()) {
+            return Map.of();
+        }
+        return optionalColumnAnno.get().asNormalAnnotationExpr()
+                .getPairs().stream().collect(
+                        Collectors.groupingBy(MemberValuePair::getNameAsString));
+    }
+
+    private Map<String, List<MemberValuePair>> getNormalAnnotationMembers(
+            NodeWithAnnotations<?> annotationNode, Class<? extends Annotation> annotationClass) {
+        Optional<AnnotationExpr> optionalColumnAnno = annotationNode.getAnnotationByClass(annotationClass);
+        return getNormalAnnotationMembers(optionalColumnAnno);
+    }
+
+    protected <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
+            TypeDeclaration<?> modelDeclaration,
+            Map<String, ImportDeclaration> declarMappings,
+            Context context,
+            NodeWithAnnotations<N1> annotationNode,
+            NodeWithType<N2, Type> typeNode,
+            NodeWithSimpleName<N2> nameNode) {
+        Optional<AnnotationExpr> annoOptional = annotationNode.getAnnotationByClass(GeneratedColumn.class);
+        if (annoOptional.isEmpty()) {
+            return null;
+        }
+        var annotationMembers = getNormalAnnotationMembers(annoOptional);
+
+        String typeClassName = getClassByType(declarMappings, typeNode.getType());
+        if (StringUtils.isEmpty(typeClassName)) {
+            throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
+                    "not supported Java Type, field = %s, type = %s, FullyQualifiedName = %s",
+                    nameNode.getNameAsString(), typeNode.getType().toString(),
+                    modelDeclaration.getFullyQualifiedName().orElse(null)));
+        }
+
+        String javaProperty = nameNode.getNameAsString();
+        String name = parseColumnName(annotationMembers, javaProperty, context);
+        JdbcType jdbcType = parseJdbcType(typeClassName, annotationMembers);
+        if (StringUtils.isEmpty(name) || jdbcType == null) {
+            throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
+                    "can't get column name or jdbcType, field = %s, type = %s, FullyQualifiedName = %s",
+                    javaProperty, typeNode.getType().toString(),
+                    modelDeclaration.getFullyQualifiedName().orElse(null)));
+        }
+
+        IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
+        column.setContext(context);
+        column.setActualColumnName(name);
+        column.setJavaProperty(javaProperty);
+
+        column.setBlobColumn(parseBoolean(annotationMembers, "blob", false));
+
+        boolean id = parseBoolean(annotationMembers, "id", false);
+        boolean generatedValue = parseBoolean(annotationMembers, "generatedValue", false);
+        column.setIdentity(id && generatedValue);
+        column.setAutoIncrement(generatedValue);
+
+        column.setJdbcType(jdbcType.TYPE_CODE);
+        column.setJdbcTypeName(jdbcType.name());
+        column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(typeClassName));
+        column.setTypeHandler(parseTypeHandler(annotationMembers, declarMappings));
+
+        column.getProperties().put(AGGREGATES_NAME,
+                parseAggregates(annotationMembers).stream()
+                        .map(AggregateFunction::name)
+                        .collect(Collectors.joining(",")));
+
+        return Pair.of(column, id);
+    }
+
+    private List<AggregateFunction> parseAggregates(Map<String, List<MemberValuePair>> annotationMembers) {
+        return parseArray(annotationMembers, AGGREGATES_NAME)
+                .stream().map(this::parseAggregate)
+                .filter(Objects::nonNull).toList();
+    }
+
+    private AggregateFunction parseAggregate(Expression exp) {
+        String value = null;
+        if (exp != null && exp.isFieldAccessExpr()) {
+            value = exp.asFieldAccessExpr().getNameAsString();
+        }
+        return AggregateFunction.parse(value);
+    }
+
+    private void addTableColumns(IntrospectedTable introspectedTable,
                                         TypeDeclaration<?> modelDeclaration,
                                         NodeList<ImportDeclaration> importDeclarations,
                                         Context context) {

@@ -19,33 +19,17 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ParserConfiguration.LanguageLevel;
 import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MemberValuePair;
-import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
-import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
-import com.github.javaparser.ast.nodeTypes.NodeWithType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
-import me.ningpp.mmegp.enums.AggregateFunction;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.ObjectFactory;
 
-import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -60,14 +44,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class JavaParserUtil {
     private JavaParserUtil() {
     }
+
+    private static final String TABLE_NAMING_STRATEGY_INSTANCE_KEY = "tableNamingStrategyInstance";
+    private static final String TABLE_NAMING_STRATEGY_KEY = "tableNamingStrategy";
+
+    private static final String COLUMN_NAMING_STRATEGY_INSTANCE_KEY = "columnNamingStrategyInstance";
+    private static final String COLUMN_NAMING_STRATEGY_KEY = "columnNamingStrategy";
 
     private static final Map<String, JdbcType> PREDEFINED_TYPES;
     private static final Map<String, JdbcType> JDBC_TYPES = new HashMap<>();
@@ -123,120 +111,38 @@ public final class JavaParserUtil {
         return new JavaParser(jpc);
     }
 
-    public static GeneratedTableInfo getTableValue(TypeDeclaration<?> typeDeclar, Context context) {
-        if (typeDeclar == null || typeDeclar.getFullyQualifiedName().isEmpty()) {
-            return null;
-        }
-        var annotationMembers = getNormalAnnotationMembers(typeDeclar, Generated.class);
-
-        String tableName = parseTableName(annotationMembers, typeDeclar.getNameAsString(), context);
-        List<String> countGroupByColumns = parseArrayString(annotationMembers, COUNT_GROUP_BY_COLUMNS_NAME);
-        return new GeneratedTableInfo(tableName, countGroupByColumns);
+    public static String parseTableName(String name, String entityName, Context context) {
+        return parseNamingByStrategy(name, entityName,
+                TABLE_NAMING_STRATEGY_INSTANCE_KEY, TABLE_NAMING_STRATEGY_KEY, context);
     }
 
-    private static String parseTableName(Map<String, List<MemberValuePair>> annotationMembers,
+    public static String parseTableName(Map<String, List<MemberValuePair>> annotationMembers,
             String entityName, Context context) {
         return parseNamingByStrategy(annotationMembers, "table", entityName,
-                "tableNamingStrategyInstance", "tableNamingStrategy", context);
+                TABLE_NAMING_STRATEGY_INSTANCE_KEY, TABLE_NAMING_STRATEGY_KEY, context);
     }
 
-    private static String parseColumnName(Map<String, List<MemberValuePair>> annotationMembers,
+    public static String parseColumnName(String name, String javaProperty, Context context) {
+        return parseNamingByStrategy(name, javaProperty,
+                COLUMN_NAMING_STRATEGY_INSTANCE_KEY, COLUMN_NAMING_STRATEGY_KEY, context);
+    }
+
+    public static String parseColumnName(Map<String, List<MemberValuePair>> annotationMembers,
             String javaProperty, Context context) {
         return parseNamingByStrategy(annotationMembers, "name", javaProperty,
-                "columnNamingStrategyInstance", "columnNamingStrategy", context);
-    }
-
-    public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
-                                                                Map<String, ImportDeclaration> declarMappings,
-                                                                Parameter param,
-                                                                Context context) {
-        return buildColumn(modelDeclaration, declarMappings, context, param, param, param);
-    }
-
-    public static Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
-                                                                Map<String, ImportDeclaration> declarMappings,
-                                                                FieldDeclaration field,
-                                                                Context context) {
-        if (field.getVariables().size() > 1) {
-            throw new GenerateMyBatisExampleException("can't use multi variables declaration! Model="
-                    + modelDeclaration.getFullyQualifiedName().orElse(null)
-                    + ", field = " + field.getVariables().stream()
-                                        .map(VariableDeclarator::getNameAsString)
-                                        .collect(Collectors.joining(", ")));
-        }
-        return buildColumn(modelDeclaration, declarMappings, context,
-                field, field.getVariable(0), field.getVariable(0));
-    }
-
-    private static Map<String, List<MemberValuePair>> getNormalAnnotationMembers(
-            NodeWithAnnotations<?> annotationNode, Class<? extends Annotation> annotationClass) {
-        Optional<AnnotationExpr> optionalColumnAnno = annotationNode.getAnnotationByClass(annotationClass);
-        if (optionalColumnAnno.isEmpty()
-                || !optionalColumnAnno.get().isNormalAnnotationExpr()) {
-            return Map.of();
-        }
-        return optionalColumnAnno.get().asNormalAnnotationExpr()
-                .getPairs().stream().collect(
-                        Collectors.groupingBy(MemberValuePair::getNameAsString));
-    }
-
-    private static <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
-            TypeDeclaration<?> modelDeclaration,
-            Map<String, ImportDeclaration> declarMappings,
-            Context context,
-            NodeWithAnnotations<N1> annotationNode,
-            NodeWithType<N2, Type> typeNode,
-            NodeWithSimpleName<N2> nameNode) {
-        var annotationMembers = getNormalAnnotationMembers(annotationNode, GeneratedColumn.class);
-
-        String typeClassName = getClassByType(declarMappings, typeNode.getType());
-        if (StringUtils.isEmpty(typeClassName)) {
-            throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
-                    "not supported Java Type, field = %s, type = %s, FullyQualifiedName = %s",
-                    nameNode.getNameAsString(), typeNode.getType().toString(),
-                    modelDeclaration.getFullyQualifiedName().orElse(null)));
-        }
-
-        String javaProperty = nameNode.getNameAsString();
-        String name = parseColumnName(annotationMembers, javaProperty, context);
-        JdbcType jdbcType = parseJdbcType(typeClassName, annotationMembers);
-        if (StringUtils.isEmpty(name) || jdbcType == null) {
-            throw new GenerateMyBatisExampleException(String.format(Locale.ROOT,
-                    "can't get column name or jdbcType, field = %s, type = %s, FullyQualifiedName = %s",
-                    javaProperty, typeNode.getType().toString(),
-                    modelDeclaration.getFullyQualifiedName().orElse(null)));
-        }
-
-        IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
-        column.setContext(context);
-        column.setActualColumnName(name);
-        column.setJavaProperty(javaProperty);
-
-        column.setBlobColumn(parseBoolean(annotationMembers, "blob", false));
-
-        boolean id = parseBoolean(annotationMembers, "id", false);
-        boolean generatedValue = parseBoolean(annotationMembers, "generatedValue", false);
-        column.setIdentity(id && generatedValue);
-        column.setAutoIncrement(generatedValue);
-
-        column.setJdbcType(jdbcType.TYPE_CODE);
-        column.setJdbcTypeName(jdbcType.name());
-        column.setFullyQualifiedJavaType(new FullyQualifiedJavaType(typeClassName));
-        column.setTypeHandler(parseTypeHandler(annotationMembers, declarMappings));
-
-        column.getProperties().put(AGGREGATES_NAME,
-                parseAggregates(annotationMembers).stream()
-                        .map(AggregateFunction::name)
-                        .collect(Collectors.joining(",")));
-
-        return Pair.of(column, id);
+                COLUMN_NAMING_STRATEGY_INSTANCE_KEY, COLUMN_NAMING_STRATEGY_KEY, context);
     }
 
     private static String parseNamingByStrategy(Map<String, List<MemberValuePair>> annotationMembers,
             String annotationMethod, String srcName,
             String instanceKey, String propertyKey,
             Context context) {
-        String name = parseString(annotationMembers, annotationMethod, "");
+        return parseNamingByStrategy(parseString(annotationMembers, annotationMethod, ""),
+                srcName, instanceKey, propertyKey, context);
+    }
+
+    private static String parseNamingByStrategy(String name, String srcName,
+            String instanceKey, String propertyKey, Context context) {
         if (StringUtils.isEmpty(name)) {
             NamingStrategy strategy = (NamingStrategy) context.getProperties().get(instanceKey);
             if (strategy == null) {
@@ -250,7 +156,7 @@ public final class JavaParserUtil {
         return name;
     }
 
-    private static String parseTypeHandler(Map<String, List<MemberValuePair>> annotationMembers,
+    public static String parseTypeHandler(Map<String, List<MemberValuePair>> annotationMembers,
                                            Map<String, ImportDeclaration> declarMappings) {
         return parse(annotationMembers, "typeHandler")
                 .filter(Expression::isClassExpr)
@@ -258,7 +164,7 @@ public final class JavaParserUtil {
                 .orElse(null);
     }
 
-    private static JdbcType parseJdbcType(String typeClassName,
+    public static JdbcType parseJdbcType(String typeClassName,
             Map<String, List<MemberValuePair>> annotationMembers) {
         var declarJdbcType = parseEnumValue("jdbcType", JDBC_TYPES, annotationMembers, JdbcType.UNDEFINED);
         if (declarJdbcType == JdbcType.UNDEFINED) {
@@ -287,7 +193,7 @@ public final class JavaParserUtil {
         return typeName;
     }
 
-    private static List<Expression> parseArray(Map<String, List<MemberValuePair>> annotationMembers, String name) {
+    public static List<Expression> parseArray(Map<String, List<MemberValuePair>> annotationMembers, String name) {
         Optional<ArrayInitializerExpr> arrayInitExpr = parse(annotationMembers, name)
                 .filter(Expression::isArrayInitializerExpr)
                 .map(Expression::asArrayInitializerExpr);
@@ -299,7 +205,7 @@ public final class JavaParserUtil {
         }
     }
 
-    private static List<String> parseArrayString(Map<String, List<MemberValuePair>> annotationMembers, String name) {
+    public static List<String> parseArrayString(Map<String, List<MemberValuePair>> annotationMembers, String name) {
         return parseArray(annotationMembers, name)
                 .stream().filter(Expression::isStringLiteralExpr)
                 .map(expr -> expr.asStringLiteralExpr().asString())
@@ -314,7 +220,7 @@ public final class JavaParserUtil {
                 .orElse(defaultValue);
     }
 
-    private static boolean parseBoolean(Map<String, List<MemberValuePair>> annotationMembers, String name,
+    public static boolean parseBoolean(Map<String, List<MemberValuePair>> annotationMembers, String name,
             boolean defaultValue) {
         return parse(annotationMembers, name)
                 .filter(Expression::isBooleanLiteralExpr)
@@ -328,20 +234,6 @@ public final class JavaParserUtil {
             return Optional.ofNullable(pairs.get(0).getValue());
         }
         return Optional.empty();
-    }
-
-    private static List<AggregateFunction> parseAggregates(Map<String, List<MemberValuePair>> annotationMembers) {
-        return parseArray(annotationMembers, AGGREGATES_NAME)
-                .stream().map(JavaParserUtil::parseAggregate)
-                .filter(Objects::nonNull).toList();
-    }
-
-    private static AggregateFunction parseAggregate(Expression exp) {
-        String value = null;
-        if (exp != null && exp.isFieldAccessExpr()) {
-            value = exp.asFieldAccessExpr().getNameAsString();
-        }
-        return AggregateFunction.parse(value);
     }
 
     private static final Set<Class<?>> PRIMITIVES_AND_BOXED_TYPES;
@@ -397,7 +289,7 @@ public final class JavaParserUtil {
         MAPPING_TYPES = Map.copyOf(mappings);
     }
 
-    private static String getClassByType(Map<String, ImportDeclaration> declarMappings, Type type) {
+    public static String getClassByType(Map<String, ImportDeclaration> declarMappings, Type type) {
         Class<?> clazz = MAPPING_TYPES.get(type.asString());
         if (clazz != null) {
             if (clazz.isArray()) {

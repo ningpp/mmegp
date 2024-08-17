@@ -31,6 +31,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-annotation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
         </dependency>
@@ -88,6 +92,13 @@
                 <groupId>io.github.ningpp</groupId>
                 <artifactId>mmegp-maven-plugin</artifactId>
                 <version>${project.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.github.ningpp</groupId>
+                        <artifactId>mmegp-mybatis-plus</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <generatorConfigFilePath>${basedir}/mmegpGeneratorConfig.xml</generatorConfigFilePath>
                     <customCompileSourceRoots>
