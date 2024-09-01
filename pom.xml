@@ -81,7 +81,7 @@
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
         <jakarta-persistence.version>3.2.0</jakarta-persistence.version>
         <javaparser.version>3.26.1</javaparser.version>
-        <junit-jupiter.version>5.11.0-RC1</junit-jupiter.version>
+        <junit-jupiter.version>5.11.0</junit-jupiter.version>
         <mavenVersion>3.6.0</mavenVersion>
         <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
@@ -98,7 +98,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
-        <mockito.version>5.12.0</mockito.version>
+        <mockito.version>5.13.0</mockito.version>
         <mybatis.version>3.5.16</mybatis.version>
         <mybatis-dynamic-sql.version>1.5.2</mybatis-dynamic-sql.version>
         <mybatis-generator-core.version>1.4.2</mybatis-generator-core.version>
