@@ -75,7 +75,7 @@
 
         <checkstyle.version>10.18.1</checkstyle.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
-        <commons-lang3.version>3.16.0</commons-lang3.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
         <hsqldb.version>2.7.3</hsqldb.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
