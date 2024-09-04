@@ -62,7 +62,7 @@ public class AddMmegpAnnotationPlugin extends PluginAdapter {
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
                                                  IntrospectedTable introspectedTable) {
-        topLevelClass.addImportedType("me.ningpp.mmegp.annotations.Generated");
+        topLevelClass.addImportedType("me.ningpp.mmegp.annotations.Table");
         List<String> infos = new ArrayList<>();
         infos.add(String.format(Locale.ROOT,
                 "table = \"%s\"",
@@ -80,10 +80,10 @@ public class AddMmegpAnnotationPlugin extends PluginAdapter {
         }
 
         topLevelClass.addAnnotation(String.format(Locale.ROOT,
-                "@Generated(%s)",
+                "@Table(%s)",
                 String.join(DELIMITER, infos)));
 
-        topLevelClass.addImportedType("me.ningpp.mmegp.annotations.GeneratedColumn");
+        topLevelClass.addImportedType("me.ningpp.mmegp.annotations.Column");
         topLevelClass.addImportedType("org.apache.ibatis.type.JdbcType");
 
         return true;
@@ -143,7 +143,7 @@ public class AddMmegpAnnotationPlugin extends PluginAdapter {
         }
 
         field.addAnnotation(String.format(Locale.ROOT,
-                "@GeneratedColumn(name = \"%s\", jdbcType = JdbcType.%s%s)",
+                "@Column(name = \"%s\", jdbcType = JdbcType.%s%s)",
                 introspectedColumn.getActualColumnName(),
                 introspectedColumn.getJdbcTypeName(),
                 otherInfos.isEmpty()

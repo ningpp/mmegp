@@ -32,7 +32,7 @@ import me.ningpp.mmegp.enums.AggregateFunction;
 @Inherited
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GeneratedColumn {
+public @interface Column {
 
     /**
      * column name

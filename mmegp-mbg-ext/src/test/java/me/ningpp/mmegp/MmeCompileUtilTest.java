@@ -37,27 +37,27 @@ public class MmeCompileUtilTest {
 
     private static final String JAVA_SOURCE_FILE_CONTENT = "    package me.ningpp.mmegp.entity;\r\n"
             + "\r\n"
-            + "    import me.ningpp.mmegp.annotations.Generated;\r\n"
-            + "    import me.ningpp.mmegp.annotations.GeneratedColumn;\r\n"
+            + "    import me.ningpp.mmegp.annotations.Table;\r\n"
+            + "    import me.ningpp.mmegp.annotations.Column;\r\n"
             + "    import me.ningpp.mmegp.enums.AggregateFunction;\r\n"
             + "    import org.apache.ibatis.type.JdbcType;\r\n"
             + "\r\n"
-            + "    @Generated(table = \"test_entity\"%s)\r\n"
+            + "    @Table(table = \"test_entity\"%s)\r\n"
             + "    public class TestEntity {\r\n"
-            + "        @GeneratedColumn(name = \"ID\", jdbcType = JdbcType.VARCHAR, id = true, blob = false, generatedValue = false, aggregates = {})\r\n"
+            + "        @Column(name = \"ID\", jdbcType = JdbcType.VARCHAR, id = true, blob = false, generatedValue = false, aggregates = {})\r\n"
             + "        private String id;\r\n"
-            + "        @GeneratedColumn(name = \"DIC_ID\", jdbcType = JdbcType.VARCHAR, aggregates = AggregateFunction.MIN)\r\n"
+            + "        @Column(name = \"DIC_ID\", jdbcType = JdbcType.VARCHAR, aggregates = AggregateFunction.MIN)\r\n"
             + "        private Integer dicId;\r\n"
-            + "        @GeneratedColumn(name = \"OF_YEAR\", jdbcType = JdbcType.INTEGER, aggregates = { AggregateFunction.MIN, AggregateFunction.MAX} )\r\n"
+            + "        @Column(name = \"OF_YEAR\", jdbcType = JdbcType.INTEGER, aggregates = { AggregateFunction.MIN, AggregateFunction.MAX} )\r\n"
             + "        private Integer ofYear;\r\n"
             + "\r\n"
-            + "        @GeneratedColumn(name = \"IMAGE_DATA\", jdbcType = JdbcType.LONGVARBINARY, id = false, blob = true, generatedValue = false)\r\n"
+            + "        @Column(name = \"IMAGE_DATA\", jdbcType = JdbcType.LONGVARBINARY, id = false, blob = true, generatedValue = false)\r\n"
             + "        private byte[] imageData;\r\n"
             + "\r\n"
-            + "        @GeneratedColumn(name = \"IMAGE_DATA2\", jdbcType = JdbcType.LONGVARBINARY, id = false, blob = true, generatedValue = false)\r\n"
+            + "        @Column(name = \"IMAGE_DATA2\", jdbcType = JdbcType.LONGVARBINARY, id = false, blob = true, generatedValue = false)\r\n"
             + "        private Byte[] imageData;\r\n"
             + "\r\n"
-            + "        @GeneratedColumn(name = \"serial_number\", jdbcType = JdbcType.INTEGER, id = true, generatedValue = %s)\r\n"
+            + "        @Column(name = \"serial_number\", jdbcType = JdbcType.INTEGER, id = true, generatedValue = %s)\r\n"
             + "        private Integer serialNumber;\r\n"
             + "\r\n"
             + "        public Integer getSerialNumber() {\r\n"
@@ -113,16 +113,16 @@ public class MmeCompileUtilTest {
 
     @Test
     void parseRecordTest() throws InterruptedException {
-        String code = "import me.ningpp.mmegp.annotations.Generated;\n" +
-                "import me.ningpp.mmegp.annotations.GeneratedColumn;\n" +
+        String code = "import me.ningpp.mmegp.annotations.Table;\n" +
+                "import me.ningpp.mmegp.annotations.Column;\n" +
                 "import org.apache.ibatis.type.JdbcType;\n" +
                 "import org.apache.ibatis.type.StringTypeHandler;\n" +
                 "import static org.apache.ibatis.type.JdbcType.VARCHAR;\n" +
-                "@Generated(table = \"sys_person\")\n" +
+                "@Table(table = \"sys_person\")\n" +
                 "public record SysPerson(\n" +
-                "        @GeneratedColumn(name = \"id\", jdbcType = VARCHAR, id = true, typeHandler = StringTypeHandler.class)\n" +
+                "        @Column(name = \"id\", jdbcType = VARCHAR, id = true, typeHandler = StringTypeHandler.class)\n" +
                 "        String id,\n" +
-                "        @GeneratedColumn(name = \"name\", jdbcType = JdbcType.VARCHAR, typeHandler = org.apache.ibatis.type.StringTypeHandler.class)\n" +
+                "        @Column(name = \"name\", jdbcType = JdbcType.VARCHAR, typeHandler = org.apache.ibatis.type.StringTypeHandler.class)\n" +
                 "        String name\n" +
                 ") {\n" +
                 "}";

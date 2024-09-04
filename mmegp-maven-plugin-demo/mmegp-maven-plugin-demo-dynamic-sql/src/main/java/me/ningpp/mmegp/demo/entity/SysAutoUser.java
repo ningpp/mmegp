@@ -1,19 +1,19 @@
 package me.ningpp.mmegp.demo.entity;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import me.ningpp.mmegp.annotations.SoftDelete;
 
-@Generated
+@Table
 @SoftDelete(column = "deleted")
 public class SysAutoUser {
-    @GeneratedColumn(id = true, generatedValue = true)
+    @Column(id = true, generatedValue = true)
     private Integer id;
-    @GeneratedColumn
+    @Column
     private String firstName;
-    @GeneratedColumn
+    @Column
     private String lastName;
-    @GeneratedColumn
+    @Column
     private Byte deleted;
 
     public Integer getId() {

@@ -15,18 +15,18 @@
  */
 package me.ningpp.mmegp.entity;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import org.apache.ibatis.type.JdbcType;
 
 import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
-@Generated
+@Table
 public record BigRecordEntity(
-        @GeneratedColumn(name = "id", jdbcType = VARCHAR, id = true)
+        @Column(name = "id", jdbcType = VARCHAR, id = true)
         String id,
 
-        @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
+        @Column(name = "name", jdbcType = JdbcType.VARCHAR)
         String name
 ) {
 }

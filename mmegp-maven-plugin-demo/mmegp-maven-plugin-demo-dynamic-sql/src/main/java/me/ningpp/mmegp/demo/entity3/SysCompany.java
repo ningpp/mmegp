@@ -15,26 +15,26 @@
  */
 package me.ningpp.mmegp.demo.entity3;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import org.apache.ibatis.type.JdbcType;
 
 import java.time.LocalDate;
 
 import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
-@Generated(table = "sys_company")
+@Table(table = "sys_company")
 public record SysCompany(
-        @GeneratedColumn(name = "id", jdbcType = VARCHAR, id = true)
+        @Column(name = "id", jdbcType = VARCHAR, id = true)
         String id,
 
-        @GeneratedColumn(name = "name", jdbcType = VARCHAR)
+        @Column(name = "name", jdbcType = VARCHAR)
         String name,
 
-        @GeneratedColumn(name = "start_date", jdbcType = JdbcType.DATE)
+        @Column(name = "start_date", jdbcType = JdbcType.DATE)
         LocalDate startDate,
 
-        @GeneratedColumn(name = "unified_code", jdbcType = VARCHAR)
+        @Column(name = "unified_code", jdbcType = VARCHAR)
         String unifiedCode
 ) {
 }

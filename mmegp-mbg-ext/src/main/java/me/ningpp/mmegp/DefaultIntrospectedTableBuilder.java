@@ -32,8 +32,8 @@ import com.github.javaparser.ast.nodeTypes.NodeWithAnnotations;
 import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import com.github.javaparser.ast.nodeTypes.NodeWithType;
 import com.github.javaparser.ast.type.Type;
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import me.ningpp.mmegp.enums.AggregateFunction;
 import me.ningpp.mmegp.enums.ModelType;
 import org.apache.commons.lang3.StringUtils;
@@ -82,7 +82,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         if (modelDeclaration == null || modelDeclaration.getFullyQualifiedName().isEmpty()) {
             return null;
         }
-        var annotationMembers = getNormalAnnotationMembers(modelDeclaration, Generated.class);
+        var annotationMembers = getNormalAnnotationMembers(modelDeclaration, Table.class);
 
         String tableName = parseTableName(annotationMembers, modelDeclaration.getNameAsString(), context);
         List<String> countGroupByColumns = parseArrayString(annotationMembers, COUNT_GROUP_BY_COLUMNS_NAME);
@@ -267,7 +267,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
             NodeWithAnnotations<N1> annotationNode,
             NodeWithType<N2, Type> typeNode,
             NodeWithSimpleName<N2> nameNode) {
-        Optional<AnnotationExpr> annoOptional = annotationNode.getAnnotationByClass(GeneratedColumn.class);
+        Optional<AnnotationExpr> annoOptional = annotationNode.getAnnotationByClass(Column.class);
         if (annoOptional.isEmpty()) {
             return null;
         }

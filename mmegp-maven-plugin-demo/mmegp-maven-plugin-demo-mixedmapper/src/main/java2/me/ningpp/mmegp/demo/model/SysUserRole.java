@@ -17,16 +17,16 @@ package me.ningpp.mmegp.demo.model;
 
 import org.apache.ibatis.type.JdbcType;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 
-@Generated(table = "sys_user_role")
+@Table(table = "sys_user_role")
 public class SysUserRole {
-    @GeneratedColumn(name = "id", jdbcType = JdbcType.BIGINT, id = true, generatedValue = true)
+    @Column(name = "id", jdbcType = JdbcType.BIGINT, id = true, generatedValue = true)
     private Long id;
-    @GeneratedColumn(name = "user_id", jdbcType = JdbcType.VARCHAR)
+    @Column(name = "user_id", jdbcType = JdbcType.VARCHAR)
     private String userId;
-    @GeneratedColumn(name = "role_id", jdbcType = JdbcType.VARCHAR, id = false)
+    @Column(name = "role_id", jdbcType = JdbcType.VARCHAR, id = false)
     private String roleId;
     public Long getId() {
         return id;

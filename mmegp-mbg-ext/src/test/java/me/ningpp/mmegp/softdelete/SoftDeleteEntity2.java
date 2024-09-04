@@ -15,19 +15,19 @@
  */
 package me.ningpp.mmegp.softdelete;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import me.ningpp.mmegp.annotations.SoftDelete;
 import org.apache.ibatis.type.JdbcType;
 
-@Generated(table = "SoftDeleteEntity2")
+@Table(table = "SoftDeleteEntity2")
 @SoftDelete(column = "not_deleted", notDeletedValue = "1", deletedValue = "0")
 public record SoftDeleteEntity2(
-    @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
+    @Column(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
     String id,
-    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
+    @Column(name = "name", jdbcType = JdbcType.VARCHAR)
     String name,
-    @GeneratedColumn(name = "not_deleted", jdbcType = JdbcType.TINYINT)
+    @Column(name = "not_deleted", jdbcType = JdbcType.TINYINT)
     Integer notDeleted
 ) {
 }

@@ -15,21 +15,21 @@
  */
 package me.ningpp.mmegp.demo.entity2;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import me.ningpp.mmegp.annotations.SoftDelete;
 import org.apache.ibatis.type.JdbcType;
 
-@Generated(table = "sys_org")
+@Table(table = "sys_org")
 @SoftDelete(column = "deleted")
 public class SysOrg {
-    @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
+    @Column(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
     private String id;
 
-    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
+    @Column(name = "name", jdbcType = JdbcType.VARCHAR)
     private String name;
 
-    @GeneratedColumn(name = "deleted", jdbcType = JdbcType.TINYINT)
+    @Column(name = "deleted", jdbcType = JdbcType.TINYINT)
     private Byte deleted;
 
     public SysOrg() {

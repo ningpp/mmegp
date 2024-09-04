@@ -15,8 +15,8 @@
  */
 package me.ningpp.mmegp.demo.entity;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import me.ningpp.mmegp.mybatis.type.list.ListCommaIntegerTypeHandler;
 import me.ningpp.mmegp.mybatis.type.list.ListCommaLongTypeHandler;
 import me.ningpp.mmegp.mybatis.type.list.ListCommaStringTypeHandler;
@@ -37,83 +37,83 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-@Generated(table = "sys_menu")
+@Table(table = "sys_menu")
 public class SysMenu {
-    @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
+    @Column(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
     private String id;
 
-    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
+    @Column(name = "name", jdbcType = JdbcType.VARCHAR)
     private String name;
 
-    @GeneratedColumn(name = "parent_id", jdbcType = JdbcType.VARCHAR)
+    @Column(name = "parent_id", jdbcType = JdbcType.VARCHAR)
     private String parentId;
 
-    @GeneratedColumn(name = "integer_list", jdbcType = JdbcType.VARCHAR,
+    @Column(name = "integer_list", jdbcType = JdbcType.VARCHAR,
             typeHandler = ListCommaIntegerTypeHandler.class
     )
     private List<Integer> integerList;
 
-    @GeneratedColumn(name = "long_list", jdbcType = JdbcType.VARCHAR,
+    @Column(name = "long_list", jdbcType = JdbcType.VARCHAR,
             typeHandler = ListCommaLongTypeHandler.class
     )
     private List<Long> longList;
 
-    @GeneratedColumn(name = "string_list", jdbcType = JdbcType.VARCHAR,
+    @Column(name = "string_list", jdbcType = JdbcType.VARCHAR,
             typeHandler = ListCommaStringTypeHandler.class
     )
     private List<String> stringList;
 
-    @GeneratedColumn(name = "integer_set", jdbcType = JdbcType.VARCHAR,
+    @Column(name = "integer_set", jdbcType = JdbcType.VARCHAR,
             typeHandler = SetCommaIntegerTypeHandler.class
     )
     private Set<Integer> integerSet;
 
-    @GeneratedColumn(name = "long_set", jdbcType = JdbcType.VARCHAR,
+    @Column(name = "long_set", jdbcType = JdbcType.VARCHAR,
             typeHandler = SetCommaLongTypeHandler.class
     )
     private Set<Long> longSet;
 
-    @GeneratedColumn(name = "string_set", jdbcType = JdbcType.VARCHAR,
+    @Column(name = "string_set", jdbcType = JdbcType.VARCHAR,
             typeHandler = SetCommaStringTypeHandler.class
     )
     private Set<String> stringSet;
 
-    @GeneratedColumn(
+    @Column(
             name = "integer_linkedhashset", jdbcType = JdbcType.VARCHAR,
             typeHandler = LinkedHashSetCommaIntegerTypeHandler.class
     )
     private LinkedHashSet<Integer> integerLinkedhashset;
 
-    @GeneratedColumn(
+    @Column(
             name = "long_linkedhashset", jdbcType = JdbcType.VARCHAR,
             typeHandler = LinkedHashSetCommaLongTypeHandler.class
     )
     private HashSet<Long> longLinkedhashset;
 
-    @GeneratedColumn(
+    @Column(
             name = "string_linkedhashset", jdbcType = JdbcType.VARCHAR,
             typeHandler = LinkedHashSetCommaStringTypeHandler.class
     )
     private Set<String> stringLinkedhashset;
 
-    @GeneratedColumn(name = "bytes1", jdbcType = JdbcType.BINARY)
+    @Column(name = "bytes1", jdbcType = JdbcType.BINARY)
     private byte[] bytes1;
-    @GeneratedColumn(name = "bytes2", jdbcType = JdbcType.BINARY)
+    @Column(name = "bytes2", jdbcType = JdbcType.BINARY)
     private Byte[] bytes2;
 
-    @GeneratedColumn(
+    @Column(
             name = "uuid", jdbcType = JdbcType.BINARY,
             typeHandler = UUIDTypeHandler.class
     )
     private UUID uuid;
 
-    @GeneratedColumn(
+    @Column(
             name = "with_dash_uuid", jdbcType = JdbcType.VARCHAR,
             typeHandler = UUIDStringTypeHandler.class
     )
     private UUID withDashUUID;
 
-    @GeneratedColumn(
+    @Column(
             name = "no_dash_uuid", jdbcType = JdbcType.VARCHAR,
             typeHandler = UUIDNoDashStringTypeHandler.class
     )

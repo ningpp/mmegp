@@ -38,11 +38,11 @@ class JavaParserUtilTest {
                 "import me.ningpp.mmegp.mybatis.type.set.LinkedHashSetCommaStringTypeHandler;" +
                 "import java.util.Set;\n" +
                 "\n" +
-                "@Generated(table = \"sys_menu\")\n" +
+                "@Table(table = \"sys_menu\")\n" +
                 "public class SysMenu {\n" +
-                "    @GeneratedColumn(name = \"string_linkedhashset\", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaStringTypeHandler.class)\n" +
+                "    @Column(name = \"string_linkedhashset\", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaStringTypeHandler.class)\n" +
                 "    private Set<String> stringLinkedhashset;\n" +
-                "    @GeneratedColumn(name = \"string_linkedhashset2\", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaStringTypeHandler.class)\n" +
+                "    @Column(name = \"string_linkedhashset2\", jdbcType = JdbcType.VARCHAR, typeHandler = LinkedHashSetCommaStringTypeHandler.class)\n" +
                 "    private java.util.HashSet<String> stringLinkedhashset2;\n" +
                 "}";
 

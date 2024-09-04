@@ -17,17 +17,17 @@ package me.ningpp.mmegp.demo.entity2;
 
 import org.apache.ibatis.type.JdbcType;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import org.apache.ibatis.type.StringTypeHandler;
 
 import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
-@Generated(table = "sys_user")
+@Table(table = "sys_user")
 public class SysUser {
-    @GeneratedColumn(name = "id", jdbcType = VARCHAR, id = true, typeHandler = StringTypeHandler.class)
+    @Column(name = "id", jdbcType = VARCHAR, id = true, typeHandler = StringTypeHandler.class)
     private String id;
-    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
+    @Column(name = "name", jdbcType = JdbcType.VARCHAR)
     private String name;
     public String getId() {
         return id;

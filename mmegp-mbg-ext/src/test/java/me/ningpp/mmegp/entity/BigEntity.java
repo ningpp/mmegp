@@ -15,8 +15,8 @@
  */
 package me.ningpp.mmegp.entity;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import me.ningpp.mmegp.mybatis.type.uuid.UUIDStringTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -33,69 +33,69 @@ import java.util.UUID;
 
 import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
-@Generated
+@Table
 public class BigEntity {
-    @GeneratedColumn(id = true)
+    @Column(id = true)
     private String id;
-    @GeneratedColumn(name = "f_boolean")
+    @Column(name = "f_boolean")
     private boolean fboolean;
-    @GeneratedColumn(name = "f_byte")
+    @Column(name = "f_byte")
     private byte fbyte;
-    @GeneratedColumn(name = "f_bytes", jdbcType = JdbcType.BINARY)
+    @Column(name = "f_bytes", jdbcType = JdbcType.BINARY)
     private byte[] fbytes;
-    @GeneratedColumn(name = "field_bytes", jdbcType = JdbcType.BLOB, blob = true)
+    @Column(name = "field_bytes", jdbcType = JdbcType.BLOB, blob = true)
     private Byte[] fieldBytes;
-    @GeneratedColumn(name = "f_char")
+    @Column(name = "f_char")
     private char fchar;
-    @GeneratedColumn(name = "f_character")
+    @Column(name = "f_character")
     private Character fcharacter;
-    @GeneratedColumn(name = "f_short")
+    @Column(name = "f_short")
     private short fshort;
-    @GeneratedColumn
+    @Column
     private Short fieldShort;
-    @GeneratedColumn(name = "f_int")
+    @Column(name = "f_int")
     private int fint;
-    @GeneratedColumn
+    @Column
     private Integer fieldInteger;
-    @GeneratedColumn(name = "f_int2", jdbcType = JdbcType.TINYINT)
+    @Column(name = "f_int2", jdbcType = JdbcType.TINYINT)
     private int fint2;
-    @GeneratedColumn(name = "field_integer2", jdbcType = JdbcType.TINYINT)
+    @Column(name = "field_integer2", jdbcType = JdbcType.TINYINT)
     private Integer fieldInteger2;
-    @GeneratedColumn(name = "f_long")
+    @Column(name = "f_long")
     private long flong;
-    @GeneratedColumn
+    @Column
     private Long fieldLong;
-    @GeneratedColumn(name = "f_float")
+    @Column(name = "f_float")
     private float ffloat;
-    @GeneratedColumn
+    @Column
     private Float fieldFloat;
-    @GeneratedColumn(name = "f_double")
+    @Column(name = "f_double")
     private double fdouble;
-    @GeneratedColumn
+    @Column
     private Double fieldDouble;
-    @GeneratedColumn(name = "f_bigint")
+    @Column(name = "f_bigint")
     private BigInteger fbigint;
-    @GeneratedColumn(name = "f_bigdecimal")
+    @Column(name = "f_bigdecimal")
     private BigDecimal fbigdecimal;
-    @GeneratedColumn(name = "f_date")
+    @Column(name = "f_date")
     private Date fdate;
-    @GeneratedColumn(name = "f_sqldate")
+    @Column(name = "f_sqldate")
     private java.sql.Date fsqldate;
-    @GeneratedColumn(name = "f_timestamp")
+    @Column(name = "f_timestamp")
     private Timestamp ftimestamp;
-    @GeneratedColumn(name = "f_year")
+    @Column(name = "f_year")
     private Year fyear;
-    @GeneratedColumn(name = "f_yearmonth", jdbcType = VARCHAR)
+    @Column(name = "f_yearmonth", jdbcType = VARCHAR)
     private YearMonth fyearmonth;
-    @GeneratedColumn(name = "f_localdate")
+    @Column(name = "f_localdate")
     private LocalDate flocaldate;
-    @GeneratedColumn(name = "f_localtime")
+    @Column(name = "f_localtime")
     private LocalTime flocaltime;
-    @GeneratedColumn(name = "f_localdatetime")
+    @Column(name = "f_localdatetime")
     private LocalDateTime flocaldatetime;
-    @GeneratedColumn(name = "f_uuid", jdbcType = VARCHAR, typeHandler = UUIDStringTypeHandler.class)
+    @Column(name = "f_uuid", jdbcType = VARCHAR, typeHandler = UUIDStringTypeHandler.class)
     private UUID fuuid;
-    @GeneratedColumn(name = "f_content", jdbcType = JdbcType.VARCHAR, blob = true)
+    @Column(name = "f_content", jdbcType = JdbcType.VARCHAR, blob = true)
     private String fcontent;
 
     public String getId() {

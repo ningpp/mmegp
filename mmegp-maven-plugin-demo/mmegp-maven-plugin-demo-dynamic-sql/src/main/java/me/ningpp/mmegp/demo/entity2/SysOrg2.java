@@ -15,24 +15,24 @@
  */
 package me.ningpp.mmegp.demo.entity2;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 import me.ningpp.mmegp.annotations.SoftDelete;
 import me.ningpp.mmegp.enums.SoftDeleteStrategy;
 import org.apache.ibatis.type.JdbcType;
 
 import java.time.LocalDateTime;
 
-@Generated(table = "sys_org2")
+@Table(table = "sys_org2")
 @SoftDelete(column = "delete_time", strategy = SoftDeleteStrategy.DELETED_AT)
 public record SysOrg2(
-        @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
+        @Column(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
         String id,
 
-        @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR)
+        @Column(name = "name", jdbcType = JdbcType.VARCHAR)
         String name,
 
-        @GeneratedColumn(name = "delete_time", jdbcType = JdbcType.TIMESTAMP)
+        @Column(name = "delete_time", jdbcType = JdbcType.TIMESTAMP)
         LocalDateTime deleteTime
 ) {
 }

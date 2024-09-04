@@ -17,14 +17,14 @@ package me.ningpp.mmegp.demo.entity;
 
 import org.apache.ibatis.type.JdbcType;
 
-import me.ningpp.mmegp.annotations.Generated;
-import me.ningpp.mmegp.annotations.GeneratedColumn;
+import me.ningpp.mmegp.annotations.Table;
+import me.ningpp.mmegp.annotations.Column;
 
-@Generated(table = "sys_role")
+@Table(table = "sys_role")
 public class SysRole {
-    @GeneratedColumn(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
+    @Column(name = "id", jdbcType = JdbcType.VARCHAR, id = true)
     private String id;
-    @GeneratedColumn(name = "name", jdbcType = JdbcType.VARCHAR, id = false)
+    @Column(name = "name", jdbcType = JdbcType.VARCHAR, id = false)
     private String name;
     public String getId() {
         return id;
