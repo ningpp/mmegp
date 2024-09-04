@@ -80,7 +80,7 @@
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
         <jakarta-persistence.version>3.2.0</jakarta-persistence.version>
-        <javaparser.version>3.26.1</javaparser.version>
+        <javaparser.version>3.26.2</javaparser.version>
         <junit-jupiter.version>5.11.0</junit-jupiter.version>
         <mavenVersion>3.6.0</mavenVersion>
         <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
