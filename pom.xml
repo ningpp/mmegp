@@ -89,7 +89,7 @@
         <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
         <maven-dependency-plugin.version>3.8.0</maven-dependency-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-        <maven-gpg-plugin.version>3.2.6</maven-gpg-plugin.version>
+        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.2</maven-install-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
@@ -107,7 +107,7 @@
         <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
         <plexus-build-api.version>0.0.7</plexus-build-api.version>
         <plexusComponentVersion>2.2.0</plexusComponentVersion>
-        <plexusUtilsVersion>4.0.1</plexusUtilsVersion>
+        <plexusUtilsVersion>4.0.2</plexusUtilsVersion>
         <pluginToolsVersion>3.13.1</pluginToolsVersion>
         <slf4j.version>2.0.16</slf4j.version>
         <spring-boot.version>3.3.4</spring-boot.version>
