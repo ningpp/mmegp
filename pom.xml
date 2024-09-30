@@ -73,7 +73,7 @@
         <sonar.organization>ningpp</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-        <checkstyle.version>10.18.1</checkstyle.version>
+        <checkstyle.version>10.18.2</checkstyle.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <hsqldb.version>2.7.3</hsqldb.version>
