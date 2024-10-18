@@ -97,8 +97,8 @@
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
-        <mockito.version>5.14.1</mockito.version>
+        <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
+        <mockito.version>5.14.2</mockito.version>
         <mybatis.version>3.5.16</mybatis.version>
         <mybatis-dynamic-sql.version>1.5.2</mybatis-dynamic-sql.version>
         <mybatis-generator-core.version>1.4.2</mybatis-generator-core.version>
