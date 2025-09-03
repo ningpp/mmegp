@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>mmegp-mbg-ext</artifactId>
+    <name>mmegp mbg ext</name>
 
     <dependencies>
         <dependency>

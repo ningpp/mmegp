@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>mmegp-mybatis-ext</artifactId>
+    <name>mmegp mybatis ext</name>
 
     <dependencies>
         <dependency>

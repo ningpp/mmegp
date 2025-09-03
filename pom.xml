@@ -497,6 +497,7 @@
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
                     <waitUntil>published</waitUntil>
+                    <checksums>all</checksums>
                 </configuration>
             </plugin>
             <!-- mvn versions:display-plugin-updates -->

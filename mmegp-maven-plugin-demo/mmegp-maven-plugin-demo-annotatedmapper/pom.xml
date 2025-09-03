@@ -10,6 +10,7 @@
         <version>2.0.0-M1</version>
     </parent>
     <artifactId>mmegp-maven-plugin-demo-annotatedmapper</artifactId>
+    <name>mmegp-maven-plugin demo annotatedmapper</name>
 
     <dependencies>
         <dependency>

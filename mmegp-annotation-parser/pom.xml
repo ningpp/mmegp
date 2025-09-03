@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>mmegp-annotation-parser</artifactId>
+    <name>mmegp annotation parser</name>
 
     <dependencies>
         <dependency>
