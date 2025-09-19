@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        java: [17, 21, 23]
+        java: [17, 21, 25]
         distribution: ['temurin']
       max-parallel: 4
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
