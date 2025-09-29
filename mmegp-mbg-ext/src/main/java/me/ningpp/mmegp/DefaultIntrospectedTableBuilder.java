@@ -243,6 +243,9 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                     .map(VariableDeclarator::getNameAsString)
                     .collect(Collectors.joining(", ")));
         }
+        if (field.hasModifier(Modifier.Keyword.STATIC)) {
+            return null;
+        }
         return buildColumn(introspectedTable, modelDeclaration, declarMappings, context,
                 field, field.getVariable(0), field.getVariable(0));
     }
