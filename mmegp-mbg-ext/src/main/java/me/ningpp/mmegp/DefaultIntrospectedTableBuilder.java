@@ -200,38 +200,42 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         return tableConfiguration;
     }
 
-    private List<Pair<IntrospectedColumn, Boolean>> buildColumns(TypeDeclaration<?> modelDeclaration,
-                Map<String, ImportDeclaration> importMappings, Context context) {
+    private List<Pair<IntrospectedColumn, Boolean>> buildColumns(IntrospectedTable introspectedTable,
+                                                                 TypeDeclaration<?> modelDeclaration,
+                                                                 Map<String, ImportDeclaration> importMappings,
+                                                                 Context context) {
         List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
         if (modelDeclaration.isRecordDeclaration()) {
             NodeList<Parameter> parameters = modelDeclaration.asRecordDeclaration().getParameters();
             if (parameters != null) {
                 for (Parameter param : parameters) {
-                    pairs.add(buildColumn(modelDeclaration, importMappings, param, context));
+                    pairs.add(buildColumn(introspectedTable, modelDeclaration, importMappings, param, context));
                 }
             }
         } else {
             List<FieldDeclaration> fields = modelDeclaration.getFields();
             if (fields != null) {
                 for (FieldDeclaration field : fields) {
-                    pairs.add(buildColumn(modelDeclaration, importMappings, field, context));
+                    pairs.add(buildColumn(introspectedTable, modelDeclaration, importMappings, field, context));
                 }
             }
         }
         return pairs.stream().filter(Objects::nonNull).toList();
     }
 
-    private Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
-            Map<String, ImportDeclaration> declarMappings,
-            Parameter param,
-            Context context) {
-        return buildColumn(modelDeclaration, declarMappings, context, param, param, param);
+    private Pair<IntrospectedColumn, Boolean> buildColumn(IntrospectedTable introspectedTable,
+                                                          TypeDeclaration<?> modelDeclaration,
+                                                          Map<String, ImportDeclaration> declarMappings,
+                                                          Parameter param,
+                                                          Context context) {
+        return buildColumn(introspectedTable, modelDeclaration, declarMappings, context, param, param, param);
     }
 
-    private Pair<IntrospectedColumn, Boolean> buildColumn(TypeDeclaration<?> modelDeclaration,
-            Map<String, ImportDeclaration> declarMappings,
-            FieldDeclaration field,
-            Context context) {
+    private Pair<IntrospectedColumn, Boolean> buildColumn(IntrospectedTable introspectedTable,
+                                                          TypeDeclaration<?> modelDeclaration,
+                                                          Map<String, ImportDeclaration> declarMappings,
+                                                          FieldDeclaration field,
+                                                          Context context) {
         if (field.getVariables().size() > 1) {
             throw new GenerateMyBatisExampleException("can't use multi variables declaration! Model="
                     + modelDeclaration.getFullyQualifiedName().orElse(null)
@@ -239,7 +243,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                     .map(VariableDeclarator::getNameAsString)
                     .collect(Collectors.joining(", ")));
         }
-        return buildColumn(modelDeclaration, declarMappings, context,
+        return buildColumn(introspectedTable, modelDeclaration, declarMappings, context,
                 field, field.getVariable(0), field.getVariable(0));
     }
 
@@ -261,6 +265,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
     }
 
     protected <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
+            IntrospectedTable introspectedTable,
             TypeDeclaration<?> modelDeclaration,
             Map<String, ImportDeclaration> declarMappings,
             Context context,
@@ -292,6 +297,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         }
 
         IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
+        column.setIntrospectedTable(introspectedTable);
         column.setContext(context);
         column.setActualColumnName(name);
         column.setJavaProperty(javaProperty);
@@ -340,7 +346,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         }
 
         List<Pair<IntrospectedColumn, Boolean>> pairs = buildColumns(
-                modelDeclaration, importMappings, context
+                introspectedTable, modelDeclaration, importMappings, context
         );
 
         for (Pair<IntrospectedColumn, Boolean> pair : pairs) {

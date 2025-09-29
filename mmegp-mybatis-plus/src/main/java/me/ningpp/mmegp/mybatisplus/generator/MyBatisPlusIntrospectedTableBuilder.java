@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.type.JdbcType;
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 
@@ -78,6 +79,7 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
 
     @Override
     protected <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
+            IntrospectedTable introspectedTable,
             TypeDeclaration<?> modelDeclaration,
             Map<String, ImportDeclaration> declarMappings,
             Context context,
@@ -108,6 +110,7 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
         JdbcType jdbcType = parseJdbcType(typeClassName, annotationMembers);
 
         IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
+        column.setIntrospectedTable(introspectedTable);
         column.setContext(context);
         column.setActualColumnName(name);
         column.setJavaProperty(javaProperty);
