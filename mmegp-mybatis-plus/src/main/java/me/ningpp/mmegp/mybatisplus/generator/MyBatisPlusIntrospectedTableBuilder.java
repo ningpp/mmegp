@@ -108,6 +108,10 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
             name = parseColumnName(name, javaProperty, context);
         }
         JdbcType jdbcType = parseJdbcType(typeClassName, annotationMembers);
+        if (jdbcType == null) {
+            throw new IllegalStateException("not support type for : "
+                    + introspectedTable.getBaseRecordType() + "#" + javaProperty);
+        }
 
         IntrospectedColumnMmegpImpl column = new IntrospectedColumnMmegpImpl();
         column.setIntrospectedTable(introspectedTable);
