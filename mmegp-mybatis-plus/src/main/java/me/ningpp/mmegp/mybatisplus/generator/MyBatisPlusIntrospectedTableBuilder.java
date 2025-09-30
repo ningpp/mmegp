@@ -47,6 +47,7 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.config.Context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +166,35 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
         column.getIntrospectedTable().setAttribute(SoftDeleteModel.class.getName(),
                 new SoftDeleteModel(column, SoftDeleteStrategy.FIXED_VALUE,
                         notDeletedValue, deletedValue));
+    }
+
+    protected List<Pair<IntrospectedColumn, Boolean>> afterBuildColumns(List<Pair<IntrospectedColumn, Boolean>> oriPairs) {
+        List<Pair<IntrospectedColumn, Boolean>> results = new ArrayList<>();
+        IntrospectedColumn idColumn = null;
+        boolean hasPk = false;
+        for (Pair<IntrospectedColumn, Boolean> pair : oriPairs) {
+            if (pair == null) {
+                continue;
+            }
+            if (Boolean.TRUE.equals(pair.getRight())) {
+                hasPk = true;
+            }
+            if ("id".equals(pair.getLeft().getJavaProperty())) {
+                idColumn = pair.getLeft();
+            }
+        }
+
+        for (Pair<IntrospectedColumn, Boolean> pair : oriPairs) {
+            if (pair == null) {
+                continue;
+            }
+            if (!hasPk && pair.getLeft().getActualColumnName().equals(idColumn.getActualColumnName())) {
+                results.add(Pair.of(pair.getLeft(), Boolean.TRUE));
+            } else {
+                results.add(pair);
+            }
+        }
+        return results;
     }
 
 }

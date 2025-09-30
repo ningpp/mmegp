@@ -352,7 +352,9 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                 introspectedTable, modelDeclaration, importMappings, context
         );
 
-        for (Pair<IntrospectedColumn, Boolean> pair : pairs) {
+        List<Pair<IntrospectedColumn, Boolean>> resultPairs = afterBuildColumns(pairs);
+
+        for (Pair<IntrospectedColumn, Boolean> pair : resultPairs) {
             if (pair != null) {
                 introspectedTable.addColumn(pair.getLeft());
 
@@ -368,6 +370,10 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                 }
             }
         }
+    }
+
+    protected List<Pair<IntrospectedColumn, Boolean>> afterBuildColumns(List<Pair<IntrospectedColumn, Boolean>> oriPairs) {
+        return oriPairs;
     }
 
 }
