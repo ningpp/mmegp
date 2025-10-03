@@ -33,8 +33,8 @@ import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 public class MmegpGenerateMapperPlugin extends MmegpPluginAdapter {
     // don't gen selectDistinct method by default, because it is rarely used
-    private boolean generateSelectDistinctMethod;
-    private SelectPageMethodGenerator selectPageMethodGenerator;
+    protected boolean generateSelectDistinctMethod;
+    protected SelectPageMethodGenerator selectPageMethodGenerator;
 
     @Override
     public void setProperties(Properties properties) {

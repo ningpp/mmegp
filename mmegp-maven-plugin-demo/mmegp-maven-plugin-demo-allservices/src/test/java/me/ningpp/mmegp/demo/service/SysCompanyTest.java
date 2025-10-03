@@ -18,6 +18,7 @@ package me.ningpp.mmegp.demo.service;
 import me.ningpp.mmegp.demo.DemoApplicationStarterHsqldb;
 import me.ningpp.mmegp.demo.entity3.SysCompany;
 import me.ningpp.mmegp.demo.mapper.SysCompanyMapper;
+import me.ningpp.mmegp.demo.query.SysCompanyQueryConditionDTO;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,10 @@ import java.util.List;
 
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.id;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.sysCompany;
+import static me.ningpp.mmegp.query.PropertyConditionDTO.equalTo;
+import static me.ningpp.mmegp.query.PropertyConditionDTO.greaterEqual;
+import static me.ningpp.mmegp.query.PropertyConditionDTO.like;
+import static me.ningpp.mmegp.query.PropertyConditionDTO.notEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,6 +44,30 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
 
     @Autowired
     SysCompanyMapper sysCompanyMapper;
+
+    @Test
+    void companyTest() {
+        SysCompany company = new SysCompany(
+                uuid(),
+                "有限责任公司",
+                LocalDate.now(),
+                uuid()
+        );
+        sysCompanyMapper.insert(company);
+
+        SysCompanyQueryConditionDTO queryDto = new SysCompanyQueryConditionDTO()
+                .id(equalTo(company.id()))
+                .startDate(greaterEqual(LocalDate.now().minusDays(1)))
+                .unifiedCode(notEqualTo(uuid()))
+                .name(like("%责任%"));
+        assertEquals(1, sysCompanyMapper.countByQuery(queryDto));
+
+        assertEquals(company, sysCompanyMapper.selectByQuery(queryDto,
+                LimitOffset.ofLimit(1L), renderer,
+                SqlBuilder.sortColumn("id").descending()).get(0));
+
+        assertEquals(1, sysCompanyMapper.deleteByQuery(queryDto));
+    }
 
     @Test
     void selectPageTest() {

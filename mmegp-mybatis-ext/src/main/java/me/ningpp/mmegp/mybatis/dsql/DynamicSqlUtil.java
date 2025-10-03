@@ -50,14 +50,11 @@ public final class DynamicSqlUtil {
         return new PaginationSelectRenderer(listDsl, limitOffset, paginationModelRender).render();
     }
 
-    public static <R> Page<R> selectPage(
-            ToLongFunction<SelectStatementProvider> countMapper,
-            Function<SelectStatementProvider, List<R>> listMapper,
-            SelectDSL<SelectModel> listDsl,
+    public static SelectStatementProvider renderSelect(SelectModel selectModel,
             LimitOffset limitOffset,
-            PaginationModelRenderer renderer) {
-        return selectPage(countMapper, listMapper, listDsl, limitOffset,
-                Page::of, renderer);
+            PaginationModelRenderer paginationModelRender) {
+        return new PaginationSelectRenderer(selectModel, limitOffset, paginationModelRender,
+                RenderingStrategies.MYBATIS3, null, null).render();
     }
 
     public static <R> Page<R> selectPage(
@@ -65,13 +62,36 @@ public final class DynamicSqlUtil {
             Function<SelectStatementProvider, List<R>> listMapper,
             SelectDSL<SelectModel> listDsl,
             LimitOffset limitOffset,
+            PaginationModelRenderer renderer) {
+        return selectPage(countMapper, listMapper, toSelectCountModel(listDsl), listDsl.build(),
+                limitOffset, renderer);
+    }
+
+    public static <R> Page<R> selectPage(
+            ToLongFunction<SelectStatementProvider> countMapper,
+            Function<SelectStatementProvider, List<R>> listMapper,
+            SelectModel selectCountModel,
+            SelectModel selectColumnsModel,
+            LimitOffset limitOffset,
+            PaginationModelRenderer renderer) {
+        return selectPage(countMapper, listMapper,
+                selectCountModel, selectColumnsModel,
+                limitOffset, Page::of, renderer);
+    }
+
+    public static <R> Page<R> selectPage(
+            ToLongFunction<SelectStatementProvider> countMapper,
+            Function<SelectStatementProvider, List<R>> listMapper,
+            SelectModel selectCountModel,
+            SelectModel selectColumnsModel,
+            LimitOffset limitOffset,
             BiFunction<List<R>, Long, Page<R>> pageFun,
             PaginationModelRenderer renderer) {
-        long totalCount = countFrom(countMapper, listDsl);
+        long totalCount = countFrom(countMapper, selectCountModel);
         List<R> items;
         if (totalCount > 0L) {
             SelectStatementProvider selectStmtProvider = renderSelect(
-                    listDsl,
+                    selectColumnsModel,
                     limitOffset,
                     renderer
             );
@@ -82,9 +102,16 @@ public final class DynamicSqlUtil {
         return pageFun.apply(items, totalCount);
     }
 
+    public static SelectModel toSelectCountModel(SelectDSL<SelectModel> dsl) {
+        return SqlBuilder.select(new CountAll()).from(dsl, "_mmegp_").build();
+    }
+
     public static long countFrom(ToLongFunction<SelectStatementProvider> mapper, SelectDSL<SelectModel> dsl) {
-        SelectModel selectCount = SqlBuilder.select(new CountAll()).from(dsl, "_mmegp_").build();
-        return mapper.applyAsLong(selectCount.render(RenderingStrategies.MYBATIS3));
+        return countFrom(mapper, toSelectCountModel(dsl));
+    }
+
+    public static long countFrom(ToLongFunction<SelectStatementProvider> mapper, SelectModel selectModel) {
+        return mapper.applyAsLong(selectModel.render(RenderingStrategies.MYBATIS3));
     }
 
     public static <T> InsertStatementProvider<T> renderInsert(T row,SqlTable table,

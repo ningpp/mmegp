@@ -34,7 +34,10 @@
         <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
             <property name="targetProject" value="source-code" />
         </plugin>
-        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperWithEntityQueryConditionPlugin">
+            <property name="targetProject" value="source-code" />
+        </plugin>
+        <plugin type="me.ningpp.mmegp.plugins.EntityQueryConditionGeneratePlugin">
             <property name="targetProject" value="source-code" />
         </plugin>
         <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">

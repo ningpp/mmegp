@@ -63,7 +63,7 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
 
     private final boolean generateSelectDistinctMethod;
     private final SelectPageMethodGenerator selectPageMethodGenerator;
-    private final Properties properties;
+    protected final Properties properties;
 
     public MmegpDynamicSqlMapperGenerator(String project,
                                           boolean generateSelectDistinctMethod,
@@ -138,7 +138,13 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
             selectPageMethodGenerator.generate(introspectedTable, interfaze, properties);
         }
 
+        generateAddtionalCodes(introspectedTable, interfaze);
+
         return List.of(interfaze);
+    }
+
+    protected void generateAddtionalCodes(IntrospectedTable introspectedTable, Interface interfaze) {
+        // nothing
     }
 
     protected void addDeleteMethods(Interface interfaze) {

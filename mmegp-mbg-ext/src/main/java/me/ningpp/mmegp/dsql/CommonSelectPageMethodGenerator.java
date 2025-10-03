@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class CommonSelectPageMethodGenerator extends AbstractSelectPageMethodGenerator {
 
-    private static final Parameter RARAM_RENDERER = new Parameter(
+    public static final Parameter RARAM_RENDERER = new Parameter(
             new FullyQualifiedJavaType("me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer"),
             "renderer");
 

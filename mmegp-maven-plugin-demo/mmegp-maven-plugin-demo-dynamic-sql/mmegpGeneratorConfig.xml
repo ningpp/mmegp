@@ -46,7 +46,8 @@
     <context id="DYNAMICSQL3" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
         <property name="forceGenerateInsertSelectiveMethod" value="true" />
         <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin"/>
-        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin" />
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperWithEntityQueryConditionPlugin" />
+        <plugin type="me.ningpp.mmegp.plugins.EntityQueryConditionGeneratePlugin" />
         <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator"/>
         <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.entity3" />
         <sqlMapGenerator targetPackage="me.ningpp.mmegp.demo.mapper" />
