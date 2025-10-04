@@ -19,6 +19,9 @@ import me.ningpp.mmegp.demo.DemoApplicationStarterHsqldb;
 import me.ningpp.mmegp.demo.entity3.SysCompany;
 import me.ningpp.mmegp.demo.mapper.SysCompanyMapper;
 import me.ningpp.mmegp.demo.query.SysCompanyQueryConditionDTO;
+import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
+import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaNodeDTO;
+import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.id;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.sysCompany;
@@ -67,6 +71,47 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
                 SqlBuilder.sortColumn("id").descending()).get(0));
 
         assertEquals(1, sysCompanyMapper.deleteByQuery(queryDto));
+    }
+
+    @Test
+    void companyCriteriaTest() {
+        SysCompany company = new SysCompany(
+                uuid(),
+                "有限责任公司",
+                LocalDate.now(),
+                uuid()
+        );
+        sysCompanyMapper.insert(company);
+
+        EntityCriteriaNodeDTO first = EntityCriteriaNodeDTO.of(
+                new SysCompanyQueryConditionDTO().id(equalTo(UUID.randomUUID().toString()))
+        );
+        EntityCriteriaNodeDTO second = EntityCriteriaNodeDTO.of(
+                new SysCompanyQueryConditionDTO().id(equalTo(company.id()))
+        );
+        EntityCriteriaDTO criteria = new EntityCriteriaDTO(List.of(first, second), SqlOperator.OR);
+
+        List<SysCompany> companies = sysCompanyMapper.selectByCriteria(criteria,
+                LimitOffset.of(11L, 0L), renderer, SqlBuilder.sortColumn("id").descending());
+        assertEquals(1, companies.size());
+        assertEquals(company, companies.get(0));
+
+        assertEquals(1, sysCompanyMapper.countByCriteria(criteria));
+        assertEquals(1, sysCompanyMapper.countDistinctByCriteria(id, criteria));
+
+        Page<SysCompany> companyPage = sysCompanyMapper.selectPageByCriteria(criteria,
+                LimitOffset.of(1L, 0L), renderer,
+                SqlBuilder.sortColumn("start_date").descending(),
+                SqlBuilder.sortColumn("id").descending());
+        assertEquals(1, companyPage.getTotalCount());
+        assertEquals(1, companyPage.getItems().size());
+        assertEquals(company, companyPage.getItems().get(0));
+
+        assertEquals(1, sysCompanyMapper.deleteByCriteria(criteria));
+
+        companies = sysCompanyMapper.selectByCriteria(criteria, LimitOffset.of(11L, 0L), renderer,
+                SqlBuilder.sortColumn("id").descending());
+        assertEquals(0, companies.size());
     }
 
     @Test
