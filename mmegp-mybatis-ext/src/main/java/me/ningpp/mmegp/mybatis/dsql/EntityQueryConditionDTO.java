@@ -18,6 +18,7 @@ package me.ningpp.mmegp.mybatis.dsql;
 import me.ningpp.mmegp.query.PropertyConditionDTO;
 import org.mybatis.dynamic.sql.AliasableSqlTable;
 import org.mybatis.dynamic.sql.BasicColumn;
+import org.mybatis.dynamic.sql.CriteriaGroup;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
@@ -26,6 +27,10 @@ import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
 
 public interface EntityQueryConditionDTO {
+
+    default CriteriaGroup buildCriteriaGroup() {
+        throw new IllegalCallerException("Not Implement Yet!");
+    }
 
     default SelectModel toSelectCount() {
         return toSelect(new BasicColumn[]{new CountAll()});

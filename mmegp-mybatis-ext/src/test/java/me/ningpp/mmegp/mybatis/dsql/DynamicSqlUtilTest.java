@@ -19,14 +19,16 @@ import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.MySqlPaginationModelRenderer;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import org.junit.jupiter.api.Test;
+import org.mybatis.dynamic.sql.ColumnAndConditionCriterion;
+import org.mybatis.dynamic.sql.CriteriaGroup;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlColumn;
+import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.SqlTable;
-import org.mybatis.dynamic.sql.insert.InsertModel;
-import org.mybatis.dynamic.sql.insert.MultiRowInsertModel;
 import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
 import org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
 
@@ -36,11 +38,65 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class DynamicSqlUtilTest {
     SqlTable table = SqlTable.of("article");
     SqlColumn<String> id = SqlColumn.of("id", table);
     SqlColumn<LocalDateTime> createTime = SqlColumn.of("create_time", table);
+
+
+    @Test
+    void buildCriteriaGroupAnTest() {
+        var a = SqlBuilder.select(new CountAll())
+                .from(table)
+                .where()
+
+                .and(id, SqlBuilder.isEqualTo("a"))
+                .and(List.of(
+                        SqlBuilder.and(
+                                createTime,
+                                SqlBuilder.isBetween(LocalDateTime.now().minusWeeks(-1))
+                                        .and(LocalDateTime.now().minusWeeks(-2))
+                        ),
+                        SqlBuilder.and(
+                                List.of(SqlBuilder.and(
+                                createTime,
+                                SqlBuilder.isBetween(LocalDateTime.now().minusWeeks(2))
+                                        .and(LocalDateTime.now().minusWeeks(1))
+                                ),
+                                        SqlBuilder.and(
+                                                id,
+                                                SqlBuilder.isLike("%x%")
+                                        ))
+                        )
+                ))
+
+                .build().render(RenderingStrategies.SPRING_NAMED_PARAMETER);
+        System.out.println(a.getSelectStatement());
+    }
+
+    @Test
+    void buildCriteriaGroupTest() {
+        assertNull(DynamicSqlUtil.buildCriteriaGroup(null));
+        assertNull(DynamicSqlUtil.buildCriteriaGroup(List.of()));
+        List<SqlCriterion> criterions = new ArrayList<>();
+        criterions.add(null);
+        criterions.add(ColumnAndConditionCriterion.withColumn(id).withCondition(SqlBuilder.isEqualTo("a")).build());
+        CriteriaGroup cg = DynamicSqlUtil.buildCriteriaGroup(criterions);
+        var ssp = SqlBuilder.select(new CountAll()).from(table).where().and(cg).build().render(RenderingStrategies.MYBATIS3);
+        assertEquals(1, ssp.getParameters().size());
+        assertEquals("a", ssp.getParameters().get("p1"));
+        assertEquals("select count(*) from article where id = #{parameters.p1}", ssp.getSelectStatement());
+
+        criterions.add(ColumnAndConditionCriterion.withColumn(id).withCondition(SqlBuilder.isEqualTo("b")).build());
+        cg = DynamicSqlUtil.buildCriteriaGroup(criterions);
+        ssp = SqlBuilder.select(new CountAll()).from(table).where().and(cg).build().render(RenderingStrategies.MYBATIS3);
+        assertEquals(2, ssp.getParameters().size());
+        assertEquals("a", ssp.getParameters().get("p1"));
+        assertEquals("b", ssp.getParameters().get("p2"));
+        assertEquals("select count(*) from article where id = #{parameters.p1} and id = #{parameters.p2}", ssp.getSelectStatement());
+    }
 
     @Test
     void selectPagetest() {

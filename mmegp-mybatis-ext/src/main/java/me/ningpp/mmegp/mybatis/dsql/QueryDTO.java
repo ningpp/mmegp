@@ -146,6 +146,10 @@ public class QueryDTO<R extends AliasableSqlTable<R>> {
         addSubCriteria("or", initialCriterion);
     }
 
+    public void criteriaGroup(AndOrCriteriaGroup group) {
+        this.subCriteria.add(group);
+    }
+
     private void addSubCriteria(String connector, SqlCriterion initialCriterion) {
         this.subCriteria.add(new AndOrCriteriaGroup.Builder()
                 .withInitialCriterion(initialCriterion)
@@ -192,6 +196,10 @@ public class QueryDTO<R extends AliasableSqlTable<R>> {
 
     public DeleteStatementProvider toDelete(RenderingStrategy strategy) {
         return toDeleteModel().render(strategy);
+    }
+
+    public SelectStatementProvider toSelect() {
+        return toSelect(RenderingStrategies.MYBATIS3);
     }
 
     public SelectStatementProvider toSelect(RenderingStrategy strategy) {

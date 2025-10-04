@@ -15,7 +15,17 @@
  */
 package me.ningpp.mmegp.query;
 
+import me.ningpp.mmegp.mybatis.dsql.DynamicSqlUtil;
+import org.mybatis.dynamic.sql.BindableColumn;
+import org.mybatis.dynamic.sql.ColumnAndConditionCriterion;
+import org.mybatis.dynamic.sql.SqlBuilder;
+import org.mybatis.dynamic.sql.SqlCriterion;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 public class PropertyConditionDTO<T> {
     private T equalTo;
@@ -26,13 +36,56 @@ public class PropertyConditionDTO<T> {
     private Collection<T> notIn;
     private Boolean isNull;
     private Boolean isNotNull;
-    private String like;
-    private String notLike;
+    private T like;
+    private T notLike;
     private T less;
     private T lessEqual;
     private T greater;
     private T greaterEqual;
 
+    public static <T> SqlCriterion toCriterion(BindableColumn<T> column, PropertyConditionDTO<T> dto) {
+        if (dto == null) {
+            return null;
+        }
+        return dto.toCriterion(column);
+    }
+
+    public SqlCriterion toCriterion(BindableColumn<T> column) {
+        List<SqlCriterion> criterions = new ArrayList<>();
+        criterions.add(DynamicSqlUtil.toEqualToCriterion(column, equalTo));
+        criterions.add(DynamicSqlUtil.toNotEqualToCriterion(column, notEqualTo));
+        criterions.add(DynamicSqlUtil.toBetweenAndCriterion(column, betweenAnd));
+        criterions.add(DynamicSqlUtil.toNotBetweenAndCriterion(column, notBetweenAnd));
+        criterions.add(DynamicSqlUtil.toInCriterion(column, in));
+        criterions.add(DynamicSqlUtil.toNotInCriterion(column, notIn));
+        criterions.add(DynamicSqlUtil.toIsNullCriterion(column, isNull));
+        criterions.add(DynamicSqlUtil.toIsNotNullCriterion(column, isNotNull));
+        criterions.add(DynamicSqlUtil.toLikeCriterion(column, like));
+        criterions.add(DynamicSqlUtil.toNotLikeCriterion(column, notLike));
+        criterions.add(DynamicSqlUtil.toLessCriterion(column, less));
+        criterions.add(DynamicSqlUtil.toLessEqualCriterion(column, lessEqual));
+        criterions.add(DynamicSqlUtil.toGreaterCriterion(column, greater));
+        criterions.add(DynamicSqlUtil.toGreaterEqualCriterion(column, greaterEqual));
+        return DynamicSqlUtil.buildCriteriaGroup(criterions);
+    }
+
+    public static void main(String[] args) {
+        var fields = PropertyConditionDTO.class.getDeclaredFields();
+        for (var field : fields) {
+            String x = field.getName().substring(0, 1).toUpperCase(Locale.ROOT)
+                    + field.getName().substring(1);
+            System.out.println("criterions.add(DynamicSqlUtil.to"+x+"Criterion(column, "+field.getName()+"));");
+
+        }
+    }
+
+    public static <T> SqlCriterion toEqualToCriterion(BindableColumn<T> column, T tvalue) {
+        if (tvalue != null) {
+            return ColumnAndConditionCriterion.withColumn(column).withCondition(SqlBuilder.isEqualTo(tvalue)).build();
+        } else {
+            return null;
+        }
+    }
 
     public static <T> PropertyConditionDTO<T> equalTo(T tvalue) {
         return new PropertyConditionDTO<T>().setEqualTo(tvalue);
@@ -163,20 +216,20 @@ public class PropertyConditionDTO<T> {
         return this;
     }
 
-    public String getLike() {
+    public T getLike() {
         return like;
     }
 
-    public PropertyConditionDTO<T> setLike(String like) {
+    public PropertyConditionDTO<T> setLike(T like) {
         this.like = like;
         return this;
     }
 
-    public String getNotLike() {
+    public T getNotLike() {
         return notLike;
     }
 
-    public PropertyConditionDTO<T> setNotLike(String notLike) {
+    public PropertyConditionDTO<T> setNotLike(T notLike) {
         this.notLike = notLike;
         return this;
     }
