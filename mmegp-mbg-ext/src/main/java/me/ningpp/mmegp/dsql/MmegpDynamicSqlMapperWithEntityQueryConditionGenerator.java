@@ -45,9 +45,22 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
 
         interfaze.addMethod(createDeleteByQueryMethod(introspectedTable));
         interfaze.addMethod(createCountByQueryMethod(introspectedTable));
+        interfaze.addMethod(createCountDistinctByQueryMethod(introspectedTable));
         interfaze.addMethod(createSelectByQueryMethod(introspectedTable));
         interfaze.addMethod(createSelectPageByQueryMethod(introspectedTable));
 
+    }
+
+    private Method createCountDistinctByQueryMethod(IntrospectedTable introspectedTable) {
+        Method method = new Method("countDistinctByQuery");
+        method.setDefault(true);
+        method.setReturnType(new FullyQualifiedJavaType(long.class.getSimpleName()));
+        method.addParameter(new Parameter(new FullyQualifiedJavaType("BasicColumn"), "column"));
+        method.addParameter(createDtoParameter(introspectedTable));
+        method.addBodyLine(String.format(Locale.ROOT,
+                "return count(%s.null2Empty(dto).toSelectCountDistinct(column).render(RenderingStrategies.MYBATIS3));",
+                createDtoParameter(introspectedTable).getType().getShortName()));
+        return method;
     }
 
     private Method createSelectPageByQueryMethod(IntrospectedTable introspectedTable) {
