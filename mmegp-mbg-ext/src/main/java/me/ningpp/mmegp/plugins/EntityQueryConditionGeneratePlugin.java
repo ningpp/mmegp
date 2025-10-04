@@ -15,8 +15,11 @@
  */
 package me.ningpp.mmegp.plugins;
 
+import me.ningpp.mmegp.mybatis.dsql.DynamicSqlUtil;
 import me.ningpp.mmegp.mybatis.dsql.EntityQueryConditionDTO;
 import me.ningpp.mmegp.util.StringUtil;
+import org.mybatis.dynamic.sql.CriteriaGroup;
+import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
@@ -74,6 +77,8 @@ public class EntityQueryConditionGeneratePlugin extends MmegpPluginAdapter {
 
         List<Field> fields = createFields(tlc, introspectedTable);
 
+        createBuildCriteriaGroup(tlc, introspectedTable, fields);
+
         createToSelectMethod(tlc, introspectedTable);
 
         createToSelectWithColumnMethod(tlc, introspectedTable);
@@ -87,6 +92,27 @@ public class EntityQueryConditionGeneratePlugin extends MmegpPluginAdapter {
         createGetterMethonds(tlc, fields);
 
         return tlc;
+    }
+
+    private void createBuildCriteriaGroup(TopLevelClass tlc, IntrospectedTable introspectedTable, List<Field> fields) {
+        Method method = new Method("buildCriteriaGroup");
+        method.addAnnotation("@Override");
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(new FullyQualifiedJavaType(CriteriaGroup.class.getName()));
+        method.addBodyLine("List<SqlCriterion> criterions = new ArrayList<>();");
+        for (Field field : fields) {
+            method.addBodyLine(String.format(Locale.ROOT,
+                    "criterions.add(PropertyConditionDTO.toCriterion(%s.%s, %s));",
+                    getDynamicSqlSupportType(introspectedTable).getShortName(),
+                    field.getName(), field.getName()));
+        }
+        method.addBodyLine("return DynamicSqlUtil.buildCriteriaGroup(criterions);");
+        tlc.addImportedType(CriteriaGroup.class.getName());
+        tlc.addImportedType(SqlCriterion.class.getName());
+        tlc.addImportedType(ArrayList.class.getName());
+        tlc.addImportedType(List.class.getName());
+        tlc.addImportedType(DynamicSqlUtil.class.getName());
+        tlc.addMethod(method);
     }
 
     private void createToSelectMethod(TopLevelClass tlc, IntrospectedTable introspectedTable) {

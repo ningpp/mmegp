@@ -70,7 +70,11 @@ public class EntityCriteriaNodeDTO {
         } else {
             CriteriaGroup.Builder builder = new CriteriaGroup.Builder();
             builder.withInitialCriterion(cg);
-            builder.withSubCriteria(subGroups.stream().map(node -> new AndOrCriteriaGroup.Builder().withConnector(operator.getCode()).withInitialCriterion(node.buildCriteriaGroup()).build()).toList());
+            builder.withSubCriteria(subGroups.stream()
+                    .map(node -> new AndOrCriteriaGroup.Builder()
+                            .withConnector(operator.getCode())
+                            .withInitialCriterion(node.buildCriteriaGroup()).build()
+                    ).toList());
             return builder.build();
         }
     }
