@@ -15,6 +15,7 @@
  */
 package me.ningpp.mmegp.mybatis;
 
+import me.ningpp.mmegp.query.CountColumnsDTO;
 import me.ningpp.mmegp.query.CountDTO;
 import me.ningpp.mmegp.query.SumDTO;
 import org.apache.ibatis.annotations.Result;
@@ -23,7 +24,6 @@ import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.type.JdbcType;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.aggregate.Sum;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
@@ -47,7 +47,7 @@ public interface MmegpMapper {
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
     List<String> selectManyStrings(SelectStatementProvider selectStatement);
 
-    default <T> BasicColumn[] buildCountGroupByColumn(SqlColumn<T> column) {
+    default <T> BasicColumn[] buildCountGroupByColumn(BindableColumn<T> column) {
         return new BasicColumn[] {
                 new CountAll().as("cnt"),
                 column.as("column_value")
@@ -82,7 +82,7 @@ public interface MmegpMapper {
     })
     List<CountDTO<String>> countGroupByStringColumn(SelectStatementProvider selectStatement);
 
-    default <T1, T2> BasicColumn[] buildSumGroupByColumn(BindableColumn<T1> sumColumn, SqlColumn<T2> groupByColumn) {
+    default <T1, T2> BasicColumn[] buildSumGroupByColumn(BindableColumn<T1> sumColumn, BindableColumn<T2> groupByColumn) {
         return new BasicColumn[] {
                 Sum.of(sumColumn).as("sum_value"),
                 groupByColumn.as("column_value")
@@ -116,5 +116,93 @@ public interface MmegpMapper {
             @Result(column="column_value", property="value", jdbcType=JdbcType.VARCHAR, javaType = String.class),
     })
     List<SumDTO<String>> sumGroupByStringColumn(SelectStatementProvider selectStatement);
+
+
+    default <T1, T2> BasicColumn[] buildCountGroupByColumns(BindableColumn<T1> firstColumn, BindableColumn<T2> secondColumn) {
+        return new BasicColumn[] {
+                new CountAll().as("cnt"),
+                firstColumn.as("first_value"),
+                secondColumn.as("second_value")
+        };
+    }
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.INTEGER, javaType = Integer.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.INTEGER, javaType = Integer.class),
+    })
+    List<CountColumnsDTO<Integer, Integer>> countGroupByIntegerIntegerColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.INTEGER, javaType = Integer.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.BIGINT, javaType = Long.class),
+    })
+    List<CountColumnsDTO<Integer, Long>> countGroupByIntegerBigIntColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.INTEGER, javaType = Integer.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.DATE, javaType = LocalDate.class),
+    })
+    List<CountColumnsDTO<Integer, LocalDate>> countGroupByIntegerDateColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.INTEGER, javaType = Integer.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.VARCHAR, javaType = String.class),
+    })
+    List<CountColumnsDTO<Integer, String>> countGroupByIntegerStringColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.BIGINT, javaType = Long.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.BIGINT, javaType = Long.class),
+    })
+    List<CountColumnsDTO<Long, Long>> countGroupByBigIntBigIntColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.BIGINT, javaType = Long.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.DATE, javaType = LocalDate.class),
+    })
+    List<CountColumnsDTO<Long, LocalDate>> countGroupByBigIntDateColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.BIGINT, javaType = Long.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.VARCHAR, javaType = String.class),
+    })
+    List<CountColumnsDTO<Long, String>> countGroupByBigIntStringColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.DATE, javaType = LocalDate.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.DATE, javaType = LocalDate.class),
+    })
+    List<CountColumnsDTO<LocalDate, LocalDate>> countGroupByDateDateColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.DATE, javaType = LocalDate.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.VARCHAR, javaType = String.class),
+    })
+    List<CountColumnsDTO<LocalDate, String>> countGroupByDateStringColumn(SelectStatementProvider selectStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results({
+            @Result(column="cnt", property="count", jdbcType= JdbcType.BIGINT),
+            @Result(column="first_value", property="firstValue", jdbcType=JdbcType.VARCHAR, javaType = String.class),
+            @Result(column="second_value", property="secondValue", jdbcType=JdbcType.VARCHAR, javaType = String.class),
+    })
+    List<CountColumnsDTO<String, String>> countGroupByStringStringColumn(SelectStatementProvider selectStatement);
 
 }
