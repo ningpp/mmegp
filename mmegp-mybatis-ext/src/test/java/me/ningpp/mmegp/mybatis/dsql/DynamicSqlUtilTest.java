@@ -45,37 +45,6 @@ class DynamicSqlUtilTest {
     SqlColumn<String> id = SqlColumn.of("id", table);
     SqlColumn<LocalDateTime> createTime = SqlColumn.of("create_time", table);
 
-
-    @Test
-    void buildCriteriaGroupAnTest() {
-        var a = SqlBuilder.select(new CountAll())
-                .from(table)
-                .where()
-
-                .and(id, SqlBuilder.isEqualTo("a"))
-                .and(List.of(
-                        SqlBuilder.and(
-                                createTime,
-                                SqlBuilder.isBetween(LocalDateTime.now().minusWeeks(-1))
-                                        .and(LocalDateTime.now().minusWeeks(-2))
-                        ),
-                        SqlBuilder.and(
-                                List.of(SqlBuilder.and(
-                                createTime,
-                                SqlBuilder.isBetween(LocalDateTime.now().minusWeeks(2))
-                                        .and(LocalDateTime.now().minusWeeks(1))
-                                ),
-                                        SqlBuilder.and(
-                                                id,
-                                                SqlBuilder.isLike("%x%")
-                                        ))
-                        )
-                ))
-
-                .build().render(RenderingStrategies.SPRING_NAMED_PARAMETER);
-        System.out.println(a.getSelectStatement());
-    }
-
     @Test
     void buildCriteriaGroupTest() {
         assertNull(DynamicSqlUtil.buildCriteriaGroup(null));

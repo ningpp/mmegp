@@ -24,7 +24,6 @@ import org.mybatis.dynamic.sql.SqlCriterion;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 public class PropertyConditionDTO<T> {
     private T equalTo;
@@ -66,16 +65,6 @@ public class PropertyConditionDTO<T> {
         criterions.add(DynamicSqlUtil.toGreaterCriterion(column, greater));
         criterions.add(DynamicSqlUtil.toGreaterEqualCriterion(column, greaterEqual));
         return DynamicSqlUtil.buildCriteriaGroup(criterions);
-    }
-
-    public static void main(String[] args) {
-        var fields = PropertyConditionDTO.class.getDeclaredFields();
-        for (var field : fields) {
-            String x = field.getName().substring(0, 1).toUpperCase(Locale.ROOT)
-                    + field.getName().substring(1);
-            System.out.println("criterions.add(DynamicSqlUtil.to"+x+"Criterion(column, "+field.getName()+"));");
-
-        }
     }
 
     public static <T> SqlCriterion toEqualToCriterion(BindableColumn<T> column, T tvalue) {
