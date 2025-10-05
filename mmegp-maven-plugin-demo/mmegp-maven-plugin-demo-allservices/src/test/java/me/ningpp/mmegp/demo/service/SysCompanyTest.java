@@ -18,12 +18,14 @@ package me.ningpp.mmegp.demo.service;
 import me.ningpp.mmegp.demo.DemoApplicationStarterHsqldb;
 import me.ningpp.mmegp.demo.entity3.SysCompany;
 import me.ningpp.mmegp.demo.mapper.SysCompanyMapper;
+import me.ningpp.mmegp.demo.mapper.SysCompanyMapperExt;
 import me.ningpp.mmegp.demo.query.SysCompanyQueryConditionDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaNodeDTO;
 import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
+import me.ningpp.mmegp.query.CountDTO;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
@@ -32,6 +34,7 @@ import org.mybatis.dynamic.sql.select.SelectModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,8 +42,10 @@ import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.id;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.sysCompany;
 import static me.ningpp.mmegp.query.PropertyConditionDTO.equalTo;
 import static me.ningpp.mmegp.query.PropertyConditionDTO.greaterEqual;
+import static me.ningpp.mmegp.query.PropertyConditionDTO.in;
 import static me.ningpp.mmegp.query.PropertyConditionDTO.like;
 import static me.ningpp.mmegp.query.PropertyConditionDTO.notEqualTo;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -48,6 +53,40 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
 
     @Autowired
     SysCompanyMapper sysCompanyMapper;
+
+    @Autowired
+    SysCompanyMapperExt sysCompanyMapperExt;
+
+    @Autowired
+    void countGroupByTest() {
+        LocalDate today = LocalDate.now();
+        List<String> ids = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            SysCompany company = new SysCompany(
+                    uuid(),
+                    "有限责任公司",
+                    i == 3 ? today.minusDays(1) : today,
+                    uuid()
+            );
+            sysCompanyMapper.insert(company);
+            ids.add(company.id());
+        }
+
+        List<CountDTO<String>> cnts = sysCompanyMapperExt.countGroupById(new EntityCriteriaDTO());
+        assertEquals(4, cnts.size());
+        assertEquals(1, cnts.stream().map(CountDTO::getCount).distinct().count());
+        assertArrayEquals(ids.stream().sorted().toArray(),
+                cnts.stream().map(CountDTO::getValue).sorted().toArray());
+
+        List<CountDTO<LocalDate>> dates = sysCompanyMapperExt.countGroupByStartDate(new EntityCriteriaDTO());
+        assertEquals(2, dates.size());
+        assertEquals(1, dates.stream().filter(s -> today.equals(s.getValue())).count());
+        assertEquals(1, dates.stream().filter(s -> !today.equals(s.getValue())).count());
+        assertEquals(3, dates.stream().filter(s -> today.equals(s.getValue())).findFirst().get().getCount());
+        assertEquals(1, dates.stream().filter(s -> today.minusDays(1).equals(s.getValue())).findFirst().get().getCount());
+
+        sysCompanyMapper.deleteByQuery(new SysCompanyQueryConditionDTO().id(in(ids)));
+    }
 
     @Test
     void companyTest() {

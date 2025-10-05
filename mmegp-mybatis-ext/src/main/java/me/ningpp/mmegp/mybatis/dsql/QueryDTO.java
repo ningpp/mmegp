@@ -190,6 +190,27 @@ public class QueryDTO<R extends AliasableSqlTable<R>> {
         return selectModel;
     }
 
+    public SelectModel toSelectModelOfGroupBy(BasicColumn... columns) {
+        QueryExpressionDSL<SelectModel> from = SqlBuilder.select(selectList).from(root);
+
+        SelectModel selectModel;
+        boolean hasOrderBy = orderBys != null && !orderBys.isEmpty();
+        if (subCriteria.isEmpty()) {
+            if (hasOrderBy) {
+                selectModel = from.groupBy(columns).orderBy(orderBys).build();
+            } else {
+                selectModel = from.groupBy(columns).build();
+            }
+        } else {
+            if (hasOrderBy) {
+                selectModel = from.where(subCriteria).groupBy(columns).orderBy(orderBys).build();
+            } else {
+                selectModel = from.where(subCriteria).groupBy(columns).build();
+            }
+        }
+        return selectModel;
+    }
+
     public DeleteStatementProvider toDelete() {
         return toDelete(RenderingStrategies.MYBATIS3);
     }
