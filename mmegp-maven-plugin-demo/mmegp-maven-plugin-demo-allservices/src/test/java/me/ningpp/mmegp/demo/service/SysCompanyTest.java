@@ -26,6 +26,7 @@ import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.query.CountDTO;
+import me.ningpp.mmegp.query.SumDTO;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
@@ -33,6 +34,8 @@ import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,7 @@ import static me.ningpp.mmegp.query.PropertyConditionDTO.like;
 import static me.ningpp.mmegp.query.PropertyConditionDTO.notEqualTo;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SysCompanyTest extends DemoApplicationStarterHsqldb {
@@ -57,8 +61,8 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
     @Autowired
     SysCompanyMapperExt sysCompanyMapperExt;
 
-    @Autowired
-    void countGroupByTest() {
+    @Test
+    void countSumGroupByTest() {
         LocalDate today = LocalDate.now();
         List<String> ids = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
@@ -66,6 +70,7 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
                     uuid(),
                     "有限责任公司",
                     i == 3 ? today.minusDays(1) : today,
+                    i == 3 ? null : BigDecimal.valueOf(i),
                     uuid()
             );
             sysCompanyMapper.insert(company);
@@ -85,6 +90,13 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
         assertEquals(3, dates.stream().filter(s -> today.equals(s.getValue())).findFirst().get().getCount());
         assertEquals(1, dates.stream().filter(s -> today.minusDays(1).equals(s.getValue())).findFirst().get().getCount());
 
+        List<SumDTO<LocalDate>> sums = sysCompanyMapperExt.sumMarketCapGroupByStartDate(new EntityCriteriaDTO());
+        assertEquals(2, sums.size());
+        assertEquals(1, sums.stream().filter(s -> today.equals(s.getValue())).count());
+        assertEquals(1, sums.stream().filter(s -> !today.equals(s.getValue())).count());
+        assertNull(sums.stream().filter(s -> today.minusDays(1).equals(s.getValue())).findFirst().get().getSum());
+        assertEquals(new BigDecimal("3"), sums.stream().filter(s -> today.equals(s.getValue())).findFirst().get().getSum().setScale(0, RoundingMode.HALF_UP));
+
         sysCompanyMapper.deleteByQuery(new SysCompanyQueryConditionDTO().id(in(ids)));
     }
 
@@ -94,6 +106,7 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
                 uuid(),
                 "有限责任公司",
                 LocalDate.now(),
+                null,
                 uuid()
         );
         sysCompanyMapper.insert(company);
@@ -118,6 +131,7 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
                 uuid(),
                 "有限责任公司",
                 LocalDate.now(),
+                null,
                 uuid()
         );
         sysCompanyMapper.insert(company);
@@ -156,9 +170,9 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
     @Test
     void selectPageTest() {
         List<SysCompany> companys = List.of(
-                new SysCompany(uuid(), uuid(), LocalDate.now(), uuid()),
-                new SysCompany(uuid(), uuid(), LocalDate.now(), uuid()),
-                new SysCompany(uuid(), uuid(), LocalDate.now(), uuid())
+                new SysCompany(uuid(), uuid(), LocalDate.now(), null, uuid()),
+                new SysCompany(uuid(), uuid(), LocalDate.now(), null, uuid()),
+                new SysCompany(uuid(), uuid(), LocalDate.now(), null, uuid())
         ).stream().sorted((c1, c2) -> c2.id().compareTo(c1.id())).toList();
         sysCompanyMapper.insertMultiple(companys);
 
@@ -185,6 +199,7 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
                 uuid(),
                 "name",
                 LocalDate.now(),
+                null,
                 "1"
         );
         sysCompanyMapper.insert(company);
@@ -192,7 +207,7 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
         assertEquals(company, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
 
         SysCompany company2 = new SysCompany(
-                company.id(), uuid(), LocalDate.of(2023, 1, 1), uuid()
+                company.id(), uuid(), LocalDate.of(2023, 1, 1), null, uuid()
         );
         assertEquals(1, sysCompanyMapper.updateByPrimaryKey(company2));
         assertEquals(company2, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
@@ -203,14 +218,14 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
     @Test
     void insertUpdateSelective1Test() {
         SysCompany company = new SysCompany(
-                uuid(), null, null, null
+                uuid(), null, null, null, null
         );
         sysCompanyMapper.insertSelective(company);
 
         assertEquals(company, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
 
         SysCompany company2 = new SysCompany(
-                company.id(), null, null, null
+                company.id(), null, null, null, null
         );
         // All set phrases were dropped when rendering the update statement
         assertThrows(InvalidSqlException.class, () -> sysCompanyMapper.updateByPrimaryKeySelective(company2));
@@ -221,14 +236,14 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
     @Test
     void insertUpdateSelective2Test() {
         SysCompany company = new SysCompany(
-                uuid(), "name", null, null
+                uuid(), "name", null, null, null
         );
         sysCompanyMapper.insertSelective(company);
 
         assertEquals(company, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
 
         SysCompany company2 = new SysCompany(
-                company.id(), uuid(), null, null
+                company.id(), uuid(), null, null, null
         );
         assertEquals(1, sysCompanyMapper.updateByPrimaryKeySelective(company2));
         assertEquals(company2, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
@@ -239,14 +254,14 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
     @Test
     void insertUpdateSelective3Test() {
         SysCompany company = new SysCompany(
-                uuid(), "name", LocalDate.now(), null
+                uuid(), "name", LocalDate.now(), null, null
         );
         sysCompanyMapper.insertSelective(company);
 
         assertEquals(company, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
 
         SysCompany company2 = new SysCompany(
-                company.id(), uuid(), LocalDate.of(2023, 1, 1), null
+                company.id(), uuid(), LocalDate.of(2023, 1, 1), null, null
         );
         assertEquals(1, sysCompanyMapper.updateByPrimaryKeySelective(company2));
         assertEquals(company2, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
@@ -257,14 +272,14 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
     @Test
     void insertUpdateSelective4Test() {
         SysCompany company = new SysCompany(
-                uuid(), "name", LocalDate.now(), uuid()
+                uuid(), "name", LocalDate.now(), null, uuid()
         );
         sysCompanyMapper.insertSelective(company);
 
         assertEquals(company, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));
 
         SysCompany company2 = new SysCompany(
-                company.id(), uuid(), LocalDate.of(2023, 1, 1), uuid()
+                company.id(), uuid(), LocalDate.of(2023, 1, 1), null, uuid()
         );
         assertEquals(1, sysCompanyMapper.updateByPrimaryKeySelective(company2));
         assertEquals(company2, sysCompanyMapper.selectByPrimaryKey(company.id()).orElse(null));

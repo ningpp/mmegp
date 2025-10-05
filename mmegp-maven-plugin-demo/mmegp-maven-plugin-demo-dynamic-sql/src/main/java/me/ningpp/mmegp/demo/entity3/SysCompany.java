@@ -19,6 +19,7 @@ import me.ningpp.mmegp.annotations.Table;
 import me.ningpp.mmegp.annotations.Column;
 import org.apache.ibatis.type.JdbcType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.apache.ibatis.type.JdbcType.VARCHAR;
@@ -33,6 +34,9 @@ public record SysCompany(
 
         @Column(name = "start_date", jdbcType = JdbcType.DATE)
         LocalDate startDate,
+
+        @Column(name = "market_cap", jdbcType = JdbcType.DECIMAL)
+        BigDecimal marketCap,
 
         @Column(name = "unified_code", jdbcType = VARCHAR)
         String unifiedCode

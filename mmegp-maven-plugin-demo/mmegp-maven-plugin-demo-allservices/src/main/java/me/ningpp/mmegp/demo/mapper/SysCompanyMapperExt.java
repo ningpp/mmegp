@@ -18,12 +18,14 @@ package me.ningpp.mmegp.demo.mapper;
 import me.ningpp.mmegp.mybatis.MmegpMapper;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
 import me.ningpp.mmegp.query.CountDTO;
+import me.ningpp.mmegp.query.SumDTO;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.id;
+import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.marketCap;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.startDate;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.sysCompany;
 
@@ -40,6 +42,13 @@ public interface SysCompanyMapperExt extends MmegpMapper, SysCompanyMapper {
         return countGroupByStringColumn(criteria.toQuery(sysCompany)
                 .columns(buildCountGroupByColumn(id))
                 .toSelectModelOfGroupBy(id)
+                .render(RenderingStrategies.MYBATIS3));
+    }
+
+    default List<SumDTO<LocalDate>> sumMarketCapGroupByStartDate(EntityCriteriaDTO criteria) {
+        return sumGroupByDateColumn(criteria.toQuery(sysCompany)
+                .columns(buildSumGroupByColumn(marketCap, startDate))
+                .toSelectModelOfGroupBy(startDate)
                 .render(RenderingStrategies.MYBATIS3));
     }
 

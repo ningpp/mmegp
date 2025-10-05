@@ -14,6 +14,7 @@ create table sys_company (
     id varchar(64) PRIMARY KEY,
     name varchar(255) DEFAULT NULL,
     start_date DATE DEFAULT NULL,
+    market_cap DECIMAL(18,8) DEFAULT NULL,
     unified_code varchar(255) DEFAULT NULL
 );
 
