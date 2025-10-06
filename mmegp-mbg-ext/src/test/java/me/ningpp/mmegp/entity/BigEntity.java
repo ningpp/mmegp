@@ -17,6 +17,7 @@ package me.ningpp.mmegp.entity;
 
 import me.ningpp.mmegp.annotations.Table;
 import me.ningpp.mmegp.annotations.Column;
+import me.ningpp.mmegp.annotations.TenantId;
 import me.ningpp.mmegp.mybatis.type.uuid.UUIDStringTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -35,6 +36,10 @@ import static org.apache.ibatis.type.JdbcType.VARCHAR;
 
 @Table
 public class BigEntity {
+    @TenantId
+    @Column(name= "tenant_id", jdbcType = VARCHAR)
+    private String tenantId;
+
     @Column(id = true)
     private String id;
     @Column(name = "f_boolean")

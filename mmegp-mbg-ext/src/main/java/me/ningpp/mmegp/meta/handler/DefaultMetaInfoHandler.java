@@ -28,6 +28,7 @@ public class DefaultMetaInfoHandler implements MetaInfoHandler {
 
     static {
         HANDLERS.add(new SoftDeleteMetaInfoHandler());
+        HANDLERS.add(new TenantIdMetaInfoHandler());
     }
 
     @Override
