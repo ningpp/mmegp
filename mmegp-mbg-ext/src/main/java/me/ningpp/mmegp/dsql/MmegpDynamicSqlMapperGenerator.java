@@ -19,6 +19,7 @@ import me.ningpp.mmegp.constants.Constants;
 import me.ningpp.mmegp.enums.ModelType;
 import me.ningpp.mmegp.enums.SoftDeleteStrategy;
 import me.ningpp.mmegp.meta.model.SoftDeleteModel;
+import me.ningpp.mmegp.mybatis.MmegpMapper;
 import me.ningpp.mmegp.mybatis.util.SoftDeleteUtil;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -244,6 +245,13 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         mapperInterface.setVisibility(JavaVisibility.PUBLIC);
         mapperInterface.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         mapperInterface.addAnnotation("@Mapper");
+
+        boolean addMmegpMapperAsSuperInterface = Boolean.parseBoolean(
+                context.getProperties().getProperty("addMmegpMapperAsSuperInterface", "true"));
+        if (addMmegpMapperAsSuperInterface) {
+            mapperInterface.addImportedType(new FullyQualifiedJavaType(MmegpMapper.class.getName()));
+            mapperInterface.addSuperInterface(new FullyQualifiedJavaType(MmegpMapper.class.getSimpleName()));
+        }
 
         String rootInterface = introspectedTable
                 .getTableConfigurationProperty(PropertyRegistry.ANY_ROOT_INTERFACE);

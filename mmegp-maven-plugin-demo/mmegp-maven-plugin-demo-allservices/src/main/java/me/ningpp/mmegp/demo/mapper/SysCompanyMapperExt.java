@@ -15,7 +15,6 @@
  */
 package me.ningpp.mmegp.demo.mapper;
 
-import me.ningpp.mmegp.mybatis.MmegpMapper;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
 import me.ningpp.mmegp.query.CountDTO;
 import me.ningpp.mmegp.query.SumDTO;
@@ -29,7 +28,7 @@ import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.marketCap;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.startDate;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.sysCompany;
 
-public interface SysCompanyMapperExt extends MmegpMapper, SysCompanyMapper {
+public interface SysCompanyMapperExt extends SysCompanyMapper {
 
     default List<CountDTO<LocalDate>> countGroupByStartDate(EntityCriteriaDTO criteria) {
         return countGroupByDateColumn(criteria.toQuery(sysCompany)
