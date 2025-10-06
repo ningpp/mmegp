@@ -15,20 +15,39 @@
  */
 package me.ningpp.mmegp.demo.mapper;
 
+import me.ningpp.mmegp.demo.entity3.SysCompany;
+import me.ningpp.mmegp.demo.query.SysCompanyQueryConditionDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
 import me.ningpp.mmegp.query.CountDTO;
 import me.ningpp.mmegp.query.SumDTO;
+import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.id;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.marketCap;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.startDate;
 import static me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport.sysCompany;
+import static me.ningpp.mmegp.query.PropertyConditionDTO.in;
 
 public interface SysCompanyMapperExt extends SysCompanyMapper {
+
+    default List<SysCompany> handwritingSelectByIds(Collection<String> ids, SortSpecification... sortSpecs) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return selectByQuery(new SysCompanyQueryConditionDTO().id(in(ids)), null, null, sortSpecs);
+    }
+
+    default int handwritingDeleteByIds(Collection<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return 0;
+        }
+        return deleteByQuery(new SysCompanyQueryConditionDTO().id(in(ids)));
+    }
 
     default List<CountDTO<LocalDate>> countGroupByStartDate(EntityCriteriaDTO criteria) {
         return countGroupByDateColumn(criteria.toQuery(sysCompany)

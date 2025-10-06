@@ -16,20 +16,24 @@
 package me.ningpp.mmegp.dsql;
 
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
-import me.ningpp.mmegp.plugins.EntityQueryConditionGeneratePlugin;
+import me.ningpp.mmegp.query.PropertyConditionDTO;
 import me.ningpp.mmegp.util.StringUtil;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+
+import static me.ningpp.mmegp.plugins.EntityQueryConditionGeneratePlugin.getEntityQueryConditionType;
 
 public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
     extends MmegpDynamicSqlMapperGenerator {
@@ -42,10 +46,14 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
 
     @Override
     protected void generateAddtionalCodes(IntrospectedTable introspectedTable, Interface interfaze) {
-        var eqcType = EntityQueryConditionGeneratePlugin.getEntityQueryConditionType(introspectedTable, this.properties);
+        var eqcType = getEntityQueryConditionType(introspectedTable, this.properties);
         interfaze.addImportedType(eqcType);
         interfaze.addImportedType(new FullyQualifiedJavaType(RenderingStrategies.class.getName()));
         interfaze.addImportedType(new FullyQualifiedJavaType(SortSpecification.class.getName()));
+
+        interfaze.addStaticImport(PropertyConditionDTO.class.getName() + ".*");
+        interfaze.addMethod(createSelectByIdsMethod(introspectedTable));
+        interfaze.addMethod(createDeleteByIdsMethod(introspectedTable));
 
         interfaze.addMethod(createDeleteByQueryMethod(introspectedTable));
         interfaze.addMethod(createCountByQueryMethod(introspectedTable));
@@ -63,6 +71,57 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
         interfaze.addMethod(createSelectByCriteriaMethod(introspectedTable));
         interfaze.addMethod(createSelectPageByCriteriaMethod(introspectedTable));
 
+    }
+
+    private Method createSelectByIdsMethod(IntrospectedTable introspectedTable) {
+        Method method = new Method("selectByIds");
+        method.setDefault(true);
+        method.setReturnType(new FullyQualifiedJavaType(String.format(Locale.ROOT,
+                "List<%s>", introspectedTable.getBaseRecordType())));
+        method.addParameter(createOnlyOnePkCollectionParameter(introspectedTable));
+        method.addParameter(SORT_SPECS_PARAMETER);
+        method.addBodyLine("if (ids == null || ids.isEmpty()) {");
+        method.addBodyLine("return List.of();");
+        method.addBodyLine("}");
+        method.addBodyLine(String.format(Locale.ROOT,
+                "return selectByQuery(new %s().%s(in(%s)), null, null, sortSpecs);",
+                getEntityQueryConditionType(introspectedTable, properties).getShortName(),
+                getOnlyOnePkColumn(introspectedTable).getJavaProperty(),
+                createOnlyOnePkCollectionParameter(introspectedTable).getName()));
+        return method;
+    }
+
+    private Method createDeleteByIdsMethod(IntrospectedTable introspectedTable) {
+        Method method = new Method("deleteByIds");
+        method.setDefault(true);
+        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
+        method.addParameter(createOnlyOnePkCollectionParameter(introspectedTable));
+        method.addBodyLine("if (ids == null || ids.isEmpty()) {");
+        method.addBodyLine("return 0;");
+        method.addBodyLine("}");
+        method.addBodyLine(String.format(Locale.ROOT,
+                "return deleteByQuery(new %s().%s(in(%s)));",
+                getEntityQueryConditionType(introspectedTable, properties).getShortName(),
+                getOnlyOnePkColumn(introspectedTable).getJavaProperty(),
+                createOnlyOnePkCollectionParameter(introspectedTable).getName()));
+        return method;
+    }
+
+    private IntrospectedColumn getOnlyOnePkColumn(IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> pks = introspectedTable.getPrimaryKeyColumns();
+        if (pks == null || pks.size() != 1) {
+            throw new IllegalArgumentException("your table must has only one pk column! table="
+                    + introspectedTable.getFullyQualifiedTableNameAtRuntime());
+        }
+        return pks.get(0);
+    }
+
+    private Parameter createOnlyOnePkCollectionParameter(IntrospectedTable introspectedTable) {
+        IntrospectedColumn pkColumn = getOnlyOnePkColumn(introspectedTable);
+        return new Parameter(new FullyQualifiedJavaType(
+                String.format(Locale.ROOT, "Collection<%s>",
+                        pkColumn.getFullyQualifiedJavaType().getShortName())
+        ), "ids");
     }
 
     private Method createSelectPageByCriteriaMethod(IntrospectedTable introspectedTable) {
@@ -217,13 +276,15 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
 
         method.addParameter(CommonSelectPageMethodGenerator.RARAM_RENDERER);
 
-        method.addParameter(new Parameter(
-                new FullyQualifiedJavaType(SortSpecification.class.getName()),
-                "sortSpecs",
-                true
-        ));
+        method.addParameter(SORT_SPECS_PARAMETER);
 
     }
+
+    private static final Parameter SORT_SPECS_PARAMETER = new Parameter(
+        new FullyQualifiedJavaType(SortSpecification.class.getName()),
+            "sortSpecs",
+            true
+    );
 
     private Method createCountByQueryMethod(IntrospectedTable introspectedTable) {
         Method method = new Method("countByQuery");
@@ -249,7 +310,7 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
 
     private Parameter createDtoParameter(IntrospectedTable introspectedTable) {
         return new Parameter(
-                EntityQueryConditionGeneratePlugin.getEntityQueryConditionType(introspectedTable, this.properties),
+                getEntityQueryConditionType(introspectedTable, this.properties),
                 "dto"
         );
     }

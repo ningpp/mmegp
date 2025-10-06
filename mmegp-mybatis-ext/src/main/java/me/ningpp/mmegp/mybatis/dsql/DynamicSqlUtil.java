@@ -192,6 +192,9 @@ public final class DynamicSqlUtil {
     public static SelectStatementProvider renderSelect(SelectModel selectModel,
             LimitOffset limitOffset,
             PaginationModelRenderer paginationModelRender) {
+        if (LimitOffset.isEmpty(limitOffset)) {
+            return selectModel.render(RenderingStrategies.MYBATIS3);
+        }
         return new PaginationSelectRenderer(selectModel, limitOffset, paginationModelRender,
                 RenderingStrategies.MYBATIS3, null, null).render();
     }

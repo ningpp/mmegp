@@ -21,6 +21,10 @@ public interface LimitOffset {
 
     Long offset();
 
+    static boolean isEmpty(LimitOffset lo) {
+        return lo == null || (lo.limit() == null && lo.offset() == null);
+    }
+
     static LimitOffset of(Long limit, Long offset) {
         return new DefaultLimitOffsetImpl(limit, offset);
     }

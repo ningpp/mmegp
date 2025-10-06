@@ -52,6 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SysCompanyTest extends DemoApplicationStarterHsqldb {
 
@@ -60,6 +61,25 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
 
     @Autowired
     SysCompanyMapperExt sysCompanyMapperExt;
+
+    @Test
+    void handwritingByIdsTest() {
+        List<String> ids = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            SysCompany company = new SysCompany(uuid(), uuid(), null, null, uuid());
+            sysCompanyMapper.insert(company);
+            ids.add(company.id());
+        }
+
+        assertArrayEquals(ids.stream().sorted().toArray(),
+                sysCompanyMapperExt.handwritingSelectByIds(ids).stream()
+                        .map(SysCompany::id).sorted().toArray());
+
+        int deletedCount = sysCompanyMapperExt.handwritingDeleteByIds(ids);
+        assertEquals(2, deletedCount);
+
+        assertTrue(sysCompanyMapperExt.handwritingSelectByIds(ids).isEmpty());
+    }
 
     @Test
     void countSumGroupByTest() {
