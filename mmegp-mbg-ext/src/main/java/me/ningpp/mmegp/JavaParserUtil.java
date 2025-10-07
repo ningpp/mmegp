@@ -18,7 +18,6 @@ package me.ningpp.mmegp;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ParserConfiguration.LanguageLevel;
-import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -101,6 +100,9 @@ public final class JavaParserUtil {
         predefinedTypes.put(java.time.LocalTime.class.getName(), JdbcType.TIME);
         predefinedTypes.put(java.time.Year.class.getName(), JdbcType.INTEGER);
 
+        predefinedTypes.put(byte[].class.getSimpleName(), JdbcType.LONGVARBINARY);
+        predefinedTypes.put(Byte[].class.getSimpleName(), JdbcType.LONGVARBINARY);
+
         PREDEFINED_TYPES = Map.copyOf(predefinedTypes);
     }
 
@@ -157,7 +159,7 @@ public final class JavaParserUtil {
     }
 
     public static String parseTypeHandler(Map<String, List<MemberValuePair>> annotationMembers,
-                                           Map<String, ImportDeclaration> declarMappings) {
+                                          Map<String, String> declarMappings) {
         return parse(annotationMembers, "typeHandler")
                 .filter(Expression::isClassExpr)
                 .map(mv -> getMatchedType(declarMappings, mv.asClassExpr().getType()))
@@ -165,9 +167,18 @@ public final class JavaParserUtil {
     }
 
     public static JdbcType parseJdbcType(String typeClassName,
-            Map<String, List<MemberValuePair>> annotationMembers) {
-        var declarJdbcType = parseEnumValue("jdbcType", JDBC_TYPES, annotationMembers, JdbcType.UNDEFINED);
-        if (declarJdbcType == JdbcType.UNDEFINED) {
+                                         Map<String, List<MemberValuePair>> annotationMembers) {
+        return parseJdbcType(
+                typeClassName,
+                parseEnumValue("jdbcType", JDBC_TYPES, annotationMembers, JdbcType.UNDEFINED)
+        );
+    }
+
+    public static JdbcType parseJdbcType(String typeClassName, JdbcType declarJdbcType) {
+        if (StringUtils.isEmpty(typeClassName)) {
+            return null;
+        }
+        if (declarJdbcType == null || declarJdbcType == JdbcType.UNDEFINED) {
             return PREDEFINED_TYPES.get(typeClassName);
         } else {
             return declarJdbcType;
@@ -289,7 +300,7 @@ public final class JavaParserUtil {
         MAPPING_TYPES = Map.copyOf(mappings);
     }
 
-    public static String getClassByType(Map<String, ImportDeclaration> declarMappings, Type type) {
+    public static String getClassByType(Map<String, String> declarMappings, Type type) {
         Class<?> clazz = MAPPING_TYPES.get(type.asString());
         if (clazz != null) {
             if (clazz.isArray()) {
@@ -302,7 +313,7 @@ public final class JavaParserUtil {
         }
     }
 
-    public static String getMatchedType(Map<String, ImportDeclaration> declarMappings, Type type) {
+    public static String getMatchedType(Map<String, String> declarMappings, Type type) {
         if (type.isClassOrInterfaceType()) {
             ClassOrInterfaceType ctype = type.asClassOrInterfaceType();
             Optional<NodeList<Type>> typeArgs = ctype.getTypeArguments();
@@ -321,9 +332,8 @@ public final class JavaParserUtil {
         return getMatchedType(declarMappings, type.asString());
     }
 
-    private static String getMatchedType(Map<String, ImportDeclaration> declarMappings, String typeStr) {
-        ImportDeclaration matched = declarMappings.get(typeStr);
-        return matched == null ? typeStr : matched.getNameAsString();
+    private static String getMatchedType(Map<String, String> declarMappings, String typeStr) {
+        return declarMappings.getOrDefault(typeStr, typeStr);
     }
 
 }

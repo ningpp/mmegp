@@ -21,8 +21,10 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -200,32 +202,71 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
         return tableConfiguration;
     }
 
+    protected boolean supportRecordType() {
+        return true;
+    }
+
+    private List<Pair<IntrospectedColumn, Boolean>> buildColumns4Record(IntrospectedTable introspectedTable,
+                                                                        RecordDeclaration modelDeclaration,
+                                                                        Map<String, String> importMappings,
+                                                                        Context context) {
+        if (!supportRecordType()) {
+            throw new IllegalArgumentException("don't support record type! model = "
+                    + modelDeclaration.getNameAsString());
+        }
+
+        List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
+        NodeList<Parameter> parameters = modelDeclaration.getParameters();
+        if (parameters != null) {
+            for (Parameter param : parameters) {
+                pairs.add(buildColumn(introspectedTable, modelDeclaration, importMappings, param, context));
+            }
+        }
+        return pairs;
+    }
+
+    protected List<Pair<IntrospectedColumn, Boolean>> buildColumns4Class(IntrospectedTable introspectedTable,
+                                                                         ClassOrInterfaceDeclaration modelDeclaration,
+                                                                         Map<String, String> importMappings,
+                                                                         Context context) {
+        if (modelDeclaration.isInterface()) {
+            throw new IllegalArgumentException("model class can't be an interface!");
+        }
+
+        List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
+        List<FieldDeclaration> fields = modelDeclaration.getFields();
+        if (fields != null) {
+            for (FieldDeclaration field : fields) {
+                pairs.add(buildColumn(introspectedTable, modelDeclaration, importMappings, field, context));
+            }
+        }
+        return pairs;
+    }
+
     private List<Pair<IntrospectedColumn, Boolean>> buildColumns(IntrospectedTable introspectedTable,
                                                                  TypeDeclaration<?> modelDeclaration,
-                                                                 Map<String, ImportDeclaration> importMappings,
+                                                                 Map<String, String> importMappings,
                                                                  Context context) {
         List<Pair<IntrospectedColumn, Boolean>> pairs = new ArrayList<>();
         if (modelDeclaration.isRecordDeclaration()) {
-            NodeList<Parameter> parameters = modelDeclaration.asRecordDeclaration().getParameters();
-            if (parameters != null) {
-                for (Parameter param : parameters) {
-                    pairs.add(buildColumn(introspectedTable, modelDeclaration, importMappings, param, context));
-                }
-            }
+            pairs.addAll(buildColumns4Record(introspectedTable,
+                    modelDeclaration.asRecordDeclaration(), importMappings, context));
+        } else if (modelDeclaration.isClassOrInterfaceDeclaration()) {
+            pairs.addAll(buildColumns4Class(introspectedTable,
+                    modelDeclaration.asClassOrInterfaceDeclaration(),
+                    importMappings, context));
         } else {
-            List<FieldDeclaration> fields = modelDeclaration.getFields();
-            if (fields != null) {
-                for (FieldDeclaration field : fields) {
-                    pairs.add(buildColumn(introspectedTable, modelDeclaration, importMappings, field, context));
-                }
-            }
+            throw new IllegalArgumentException(String.format(Locale.ROOT,
+                    "don't support this type! type=%s, model=%s",
+                    modelDeclaration.getClass().getSimpleName(),
+                    modelDeclaration.getNameAsString()));
         }
         return pairs.stream().filter(Objects::nonNull).toList();
     }
 
     private Pair<IntrospectedColumn, Boolean> buildColumn(IntrospectedTable introspectedTable,
                                                           TypeDeclaration<?> modelDeclaration,
-                                                          Map<String, ImportDeclaration> declarMappings,
+                                                          Map<String, String> declarMappings,
                                                           Parameter param,
                                                           Context context) {
         return buildColumn(introspectedTable, modelDeclaration, declarMappings, context, param, param, param);
@@ -233,7 +274,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
 
     private Pair<IntrospectedColumn, Boolean> buildColumn(IntrospectedTable introspectedTable,
                                                           TypeDeclaration<?> modelDeclaration,
-                                                          Map<String, ImportDeclaration> declarMappings,
+                                                          Map<String, String> declarMappings,
                                                           FieldDeclaration field,
                                                           Context context) {
         if (field.getVariables().size() > 1) {
@@ -270,7 +311,7 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
     protected <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
             IntrospectedTable introspectedTable,
             TypeDeclaration<?> modelDeclaration,
-            Map<String, ImportDeclaration> declarMappings,
+            Map<String, String> declarMappings,
             Context context,
             NodeWithAnnotations<N1> annotationNode,
             NodeWithType<N2, Type> typeNode,
@@ -343,9 +384,12 @@ public class DefaultIntrospectedTableBuilder implements IntrospectedTableBuilder
                                         TypeDeclaration<?> modelDeclaration,
                                         NodeList<ImportDeclaration> importDeclarations,
                                         Context context) {
-        Map<String, ImportDeclaration> importMappings = new HashMap<>();
+        Map<String, String> importMappings = new HashMap<>();
         for (ImportDeclaration importDeclar : importDeclarations) {
-            importMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(), importDeclar);
+            importMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(),
+                    importDeclar.getNameAsString());
+            importMappings.put(importDeclar.getNameAsString(),
+                    importDeclar.getNameAsString());
         }
 
         List<Pair<IntrospectedColumn, Boolean>> pairs = buildColumns(

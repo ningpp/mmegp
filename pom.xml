@@ -122,6 +122,7 @@
         <module>mmegp-mbg-ext</module>
         <module>mmegp-mybatis-ext</module>
         <module>mmegp-mybatis-plus</module>
+        <module>mmegp-jpa</module>
     </modules>
 
     <dependencyManagement>

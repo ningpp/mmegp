@@ -55,9 +55,12 @@ class JavaParserUtilTest {
         assertTrue(field1.isPresent());
         assertTrue(field2.isPresent());
 
-        Map<String, ImportDeclaration> declarMappings = new HashMap<>();
+        Map<String, String> declarMappings = new HashMap<>();
         for (ImportDeclaration importDeclar : result.getResult().get().getImports()) {
-            declarMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(), importDeclar);
+            declarMappings.put(new FullyQualifiedJavaType(importDeclar.getNameAsString()).getShortName(),
+                    importDeclar.getNameAsString());
+            declarMappings.put(importDeclar.getNameAsString(),
+                    importDeclar.getNameAsString());
         }
 
         String field1Type = JavaParserUtil.getMatchedType(

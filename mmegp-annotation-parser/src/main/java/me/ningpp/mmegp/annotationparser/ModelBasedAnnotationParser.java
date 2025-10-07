@@ -61,20 +61,25 @@ public class ModelBasedAnnotationParser {
 
     public static <M, N extends Node> M parse(Class<? extends Annotation> annotationClass, Class<M> clazz,
             NodeWithAnnotations<N> node, Collection<ImportDeclaration> importDeclars) {
-        return parse(annotationClass, clazz, node, importDeclars, clazz.getPackageName());
+        return parse(annotationClass, clazz, node, getImportMap(importDeclars));
+    }
+
+    public static Map<String, String> getImportMap(Collection<ImportDeclaration> importDeclars) {
+        return importDeclars.stream()
+                .filter(importDeclar -> !importDeclar.isAsterisk() && !importDeclar.isStatic())
+                .collect(Collectors.toMap(ModelBasedAnnotationParser::simpleName,
+                        NodeWithName::getNameAsString));
     }
 
     public static <M, N extends Node> M parse(Class<? extends Annotation> annotationClass,
                                               Class<M> clazz,
                                               NodeWithAnnotations<N> node,
-                                              Collection<ImportDeclaration> importDeclars,
-                                              String modelPackage) {
+                                              Map<String, String> importMap) {
+        if (node == null) {
+            return null;
+        }
         Optional<AnnotationExpr> optionalColumnAnno = node.getAnnotationByClass(annotationClass);
-        Map<String, String> importMap = importDeclars.stream()
-                .filter(importDeclar -> !importDeclar.isAsterisk() && !importDeclar.isStatic())
-                .collect(Collectors.toMap(ModelBasedAnnotationParser::simpleName,
-                        NodeWithName::getNameAsString));
-        return parse(annotationClass, clazz, optionalColumnAnno, importMap, modelPackage);
+        return parse(annotationClass, clazz, optionalColumnAnno, importMap, clazz.getPackageName());
     }
 
     private static String simpleName(ImportDeclaration importDeclaration) {

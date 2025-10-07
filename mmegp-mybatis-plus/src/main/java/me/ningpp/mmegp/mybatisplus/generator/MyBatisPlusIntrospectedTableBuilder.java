@@ -82,14 +82,14 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
     protected <N1 extends Node, N2 extends Node> Pair<IntrospectedColumn, Boolean> buildColumn(
             IntrospectedTable introspectedTable,
             TypeDeclaration<?> modelDeclaration,
-            Map<String, ImportDeclaration> declarMappings,
+            Map<String, String> declarMappings,
             Context context,
             NodeWithAnnotations<N1> annotationNode,
             NodeWithType<N2, Type> typeNode,
             NodeWithSimpleName<N2> nameNode) {
 
         var tableFieldModel = ModelBasedAnnotationParser.parse(TableField.class, TableFieldModel.class,
-                annotationNode, declarMappings.values());
+                annotationNode, declarMappings);
         Map<String, List<MemberValuePair>> annotationMembers;
         if (tableFieldModel != null) {
             if (! tableFieldModel.exist()) {
@@ -124,7 +124,7 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
 
         TableIdModel tableIdModel = ModelBasedAnnotationParser.parse(
                 TableId.class, TableIdModel.class,
-                annotationNode, declarMappings.values());
+                annotationNode, declarMappings);
         boolean id = tableIdModel != null;
         boolean generatedValue = tableIdModel != null
                 && IdType.AUTO == tableIdModel.type();
@@ -142,11 +142,11 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
     }
 
     private <N1 extends Node> void handleSoftDelete(IntrospectedColumn column,
-            Map<String, ImportDeclaration> declarMappings,
+            Map<String, String> declarMappings,
             NodeWithAnnotations<N1> annotationNode) {
         TableLogicModel tableLogicModel = ModelBasedAnnotationParser.parse(
                 TableLogic.class, TableLogicModel.class,
-                annotationNode, declarMappings.values());
+                annotationNode, declarMappings);
         if (tableLogicModel == null) {
             return;
         }

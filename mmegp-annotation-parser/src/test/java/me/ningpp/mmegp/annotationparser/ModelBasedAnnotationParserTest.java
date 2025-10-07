@@ -147,8 +147,7 @@ class ModelBasedAnnotationParserTest {
         ParserDemoAnnotationsModel multiModel = ModelBasedAnnotationParser.parse(ParserDemoAnnotations.class,
                 ParserDemoAnnotationsModel.class,
                 compilationUnit.getType(0),
-                compilationUnit.getImports(),
-                ParserDemoAnnotationModel.class.getPackageName());
+                compilationUnit.getImports());
         assertNotNull(multiModel);
     }
 
