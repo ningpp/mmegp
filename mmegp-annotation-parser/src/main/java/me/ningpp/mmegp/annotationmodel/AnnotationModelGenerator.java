@@ -135,15 +135,17 @@ public class AnnotationModelGenerator {
                 String simpleName = componentOrReturnType.getSimpleName() + SUFFIX;
                 String name = modelPackage + "." + simpleName;
                 paramType = StaticJavaParser.parseType(
-                        simpleName
-                                + (method.getReturnType().isArray() ? "[]" : ""));
+                        simpleName + (method.getReturnType().isArray() ? "[]" : ""));
                 compilationUnit.addImport(name);
             } else {
                 compilationUnit.addImport(method.getReturnType());
-                paramType = StaticJavaParser.parseType(method.getGenericReturnType().getTypeName());
+                String typeStr = method.getGenericReturnType().getTypeName();
+                if (method.getReturnType().isMemberClass()) {
+                    typeStr = typeStr.replace('$', '.');
+                }
+                paramType = StaticJavaParser.parseType(typeStr);
             }
-            recordDeclaration.getParameters()
-                    .add(new Parameter(paramType, method.getName()));
+            recordDeclaration.getParameters().add(new Parameter(paramType, method.getName()));
         }
     }
 
