@@ -41,7 +41,7 @@ public class EntityQueryConditionGeneratePlugin extends MmegpPluginAdapter {
 
     @Override
     public List<CompilationUnit> generateCompilationUnits(IntrospectedTable introspectedTable) {
-        return List.of(generateCompilationUnit(introspectedTable));
+        return List.of(generateEntityQuery(introspectedTable));
     }
 
     private static final FullyQualifiedJavaType EQCDTO_FQJT = new FullyQualifiedJavaType(EntityQueryConditionDTO.class.getName());
@@ -57,7 +57,7 @@ public class EntityQueryConditionGeneratePlugin extends MmegpPluginAdapter {
                 properties.getProperty("queryNameSuffix", "QueryConditionDTO")));
     }
 
-    private TopLevelClass generateCompilationUnit(IntrospectedTable introspectedTable) {
+    private TopLevelClass generateEntityQuery(IntrospectedTable introspectedTable) {
         TopLevelClass tlc = new TopLevelClass(
                 getEntityQueryConditionType(introspectedTable, this.properties)
         );

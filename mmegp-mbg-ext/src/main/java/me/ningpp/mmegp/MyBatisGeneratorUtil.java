@@ -38,6 +38,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.mybatis.generator.api.CompositePlugin;
 import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.GeneratedJavaFile;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.PluginAdapter;
@@ -60,6 +61,15 @@ public final class MyBatisGeneratorUtil {
     private static final String XML_TARGET_PROJECT = "targetProject";
 
     private MyBatisGeneratorUtil() {
+    }
+
+    public static IntrospectedColumn getOnlyOnePkColumn(IntrospectedTable introspectedTable) {
+        List<IntrospectedColumn> pks = introspectedTable.getPrimaryKeyColumns();
+        if (pks == null || pks.size() != 1) {
+            throw new IllegalArgumentException("your table must has only one pk column! table="
+                    + introspectedTable.getFullyQualifiedTableNameAtRuntime());
+        }
+        return pks.get(0);
     }
 
     public static void generate(String configFile,

@@ -22,6 +22,7 @@ import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
@@ -29,10 +30,10 @@ import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import static me.ningpp.mmegp.MyBatisGeneratorUtil.getOnlyOnePkColumn;
 import static me.ningpp.mmegp.plugins.EntityQueryConditionGeneratePlugin.getEntityQueryConditionType;
 
 public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
@@ -46,6 +47,8 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
 
     @Override
     protected void generateAddtionalCodes(IntrospectedTable introspectedTable, Interface interfaze) {
+        interfaze.addSuperInterface(new FullyQualifiedJavaType((CommonDeleteMapper.class.getName())));
+
         var eqcType = getEntityQueryConditionType(introspectedTable, this.properties);
         interfaze.addImportedType(eqcType);
         interfaze.addImportedType(new FullyQualifiedJavaType(RenderingStrategies.class.getName()));
@@ -105,15 +108,6 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
                 getOnlyOnePkColumn(introspectedTable).getJavaProperty(),
                 createOnlyOnePkCollectionParameter(introspectedTable).getName()));
         return method;
-    }
-
-    private IntrospectedColumn getOnlyOnePkColumn(IntrospectedTable introspectedTable) {
-        List<IntrospectedColumn> pks = introspectedTable.getPrimaryKeyColumns();
-        if (pks == null || pks.size() != 1) {
-            throw new IllegalArgumentException("your table must has only one pk column! table="
-                    + introspectedTable.getFullyQualifiedTableNameAtRuntime());
-        }
-        return pks.get(0);
     }
 
     private Parameter createOnlyOnePkCollectionParameter(IntrospectedTable introspectedTable) {
