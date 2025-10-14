@@ -228,17 +228,27 @@ public class EntityQueryConditionGeneratePlugin extends MmegpPluginAdapter {
         List<Field> fields = new ArrayList<>();
         List<IntrospectedColumn> introspectedColumns = introspectedTable.getAllColumns();
         for (IntrospectedColumn column : introspectedColumns) {
-            tlc.addImportedType(column.getFullyQualifiedJavaType());
-            Field field = new Field(column.getJavaProperty(),
-                    new FullyQualifiedJavaType(String.format(Locale.ROOT,
-                            "PropertyConditionDTO<%s>",
-                            column.getFullyQualifiedJavaType().getShortName())));
-            field.setStatic(false);
-            field.setVisibility(JavaVisibility.PRIVATE);
+            boolean isPrimitive = column.getFullyQualifiedJavaType().isPrimitive();
+            if (!isPrimitive) {
+                tlc.addImportedType(column.getFullyQualifiedJavaType());
+            }
+            Field field = createField(column, isPrimitive);
             tlc.addField(field);
             fields.add(field);
         }
         return fields;
+    }
+
+    private static Field createField(IntrospectedColumn column, boolean isPrimitive) {
+        Field field = new Field(column.getJavaProperty(),
+                new FullyQualifiedJavaType(String.format(Locale.ROOT,
+                        "PropertyConditionDTO<%s>",
+                        isPrimitive
+                            ? column.getFullyQualifiedJavaType().getPrimitiveTypeWrapper().getShortName()
+                            : column.getFullyQualifiedJavaType().getShortName())));
+        field.setStatic(false);
+        field.setVisibility(JavaVisibility.PRIVATE);
+        return field;
     }
 
 }
