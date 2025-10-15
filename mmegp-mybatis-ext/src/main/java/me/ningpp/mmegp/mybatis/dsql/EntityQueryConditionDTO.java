@@ -28,9 +28,7 @@ import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
 
 public interface EntityQueryConditionDTO {
 
-    default CriteriaGroup buildCriteriaGroup() {
-        throw new IllegalCallerException("Not Implement Yet!");
-    }
+    CriteriaGroup buildCriteriaGroup();
 
     default SelectModel toSelectCount() {
         return toSelect(new BasicColumn[]{new CountAll()});
