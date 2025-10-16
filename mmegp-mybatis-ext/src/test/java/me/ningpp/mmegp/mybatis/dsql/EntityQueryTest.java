@@ -5,12 +5,6 @@ import me.ningpp.mmegp.query.RangeDTO;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlBuilder;
-import org.mybatis.dynamic.sql.delete.DeleteModel;
-import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
-import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.render.SpringNamedParameterRenderingStrategy;
-import org.mybatis.dynamic.sql.select.SelectModel;
-import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class EntityQueryTest {
+class EntityQueryTest extends BaseEntityTest {
 
     @Test
     void buildCriteriaGroupTest() {
@@ -316,16 +310,6 @@ class EntityQueryTest {
         dsp = toDSP(queryDto.toDelete());
         assertEquals("delete from sys_company", dsp.getDeleteStatement());
         assertEquals(0, dsp.getParameters().size());
-    }
-
-    private static final RenderingStrategy STRATEGY = new SpringNamedParameterRenderingStrategy();
-
-    private SelectStatementProvider toSSP(SelectModel m) {
-        return m.render(STRATEGY);
-    }
-
-    private DeleteStatementProvider toDSP(DeleteModel m) {
-        return m.render(STRATEGY);
     }
 
 }
