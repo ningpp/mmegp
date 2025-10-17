@@ -86,7 +86,10 @@
     </context>
     <context id="ctx16" targetRuntime="me.ningpp.mmegp.codegen.GenerateNothingIntrospectedTableImpl">
         <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin" />
-        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin" />
+        <plugin type="me.ningpp.mmegp.plugins.EntityQueryConditionGeneratePlugin" />
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperWithEntityQueryConditionPlugin" />
+        <plugin type="me.ningpp.mmegp.plugins.SpringJdbcDaoGeneratorPlugin" />
+        <plugin type="me.ningpp.mmegp.plugins.SpringJdbcRowMapperGeneratorPlugin" />
         <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
             <property name="suppressAllComments" value="true" />
         </commentGenerator>
