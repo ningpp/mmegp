@@ -1,4 +1,4 @@
-package me.ningpp.mmegp.mybatis.dsql;
+package me.ningpp.mmegp.dss;
 
 import org.mybatis.dynamic.sql.AliasableSqlTable;
 import org.mybatis.dynamic.sql.BasicColumn;

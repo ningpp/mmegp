@@ -1,6 +1,9 @@
-package me.ningpp.mmegp.mybatis.dsql;
+package me.ningpp.mmegp.query;
 
-import me.ningpp.mmegp.query.PropertyConditionDTO;
+import me.ningpp.mmegp.dss.SysCompanySimpleDynamicSqlSupport;
+import me.ningpp.mmegp.mybatis.dsql.DynamicSqlUtil;
+import me.ningpp.mmegp.mybatis.dsql.EntityQueryConditionDTO;
+import me.ningpp.mmegp.mybatis.dsql.QueryDTO;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.CriteriaGroup;
 import org.mybatis.dynamic.sql.SortSpecification;

@@ -123,7 +123,6 @@
         <module>mmegp-mybatis-ext</module>
         <module>mmegp-mybatis-plus</module>
         <module>mmegp-jpa</module>
-        <module>mmegp-jdbc-ext</module>
     </modules>
 
     <dependencyManagement>

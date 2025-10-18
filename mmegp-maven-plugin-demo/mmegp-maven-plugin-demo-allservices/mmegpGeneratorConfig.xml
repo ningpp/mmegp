@@ -67,7 +67,7 @@
         <commentGenerator type="me.ningpp.mmegp.comment.WithoutGeneratedAnnotationCommentGenerator">
             <property name="suppressAllComments" value="true" />
         </commentGenerator>
-        <javaClientGenerator targetPackage="me.ningpp.mmegp.demo.srpingdss" />
+        <javaClientGenerator targetPackage="me.ningpp.mmegp.demo.springdss" />
         <javaModelGenerator targetPackage="me.ningpp.mmegp.demo.entity" />
     </context>
 </generatorConfiguration>

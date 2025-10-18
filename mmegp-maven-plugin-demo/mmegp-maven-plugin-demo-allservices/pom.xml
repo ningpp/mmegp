@@ -13,11 +13,6 @@
     <dependencies>
         <dependency>
             <groupId>io.github.ningpp</groupId>
-            <artifactId>mmegp-jdbc-ext</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.ningpp</groupId>
             <artifactId>mmegp-maven-plugin-demo-annotatedmapper</artifactId>
             <version>${project.version}</version>
         </dependency>

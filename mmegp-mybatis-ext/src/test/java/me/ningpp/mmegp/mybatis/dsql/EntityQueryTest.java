@@ -2,6 +2,7 @@ package me.ningpp.mmegp.mybatis.dsql;
 
 import me.ningpp.mmegp.query.PropertyConditionDTO;
 import me.ningpp.mmegp.query.RangeDTO;
+import me.ningpp.mmegp.query.SysCompanySimpleQueryConditionDTO;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlBuilder;
@@ -9,7 +10,7 @@ import org.mybatis.dynamic.sql.SqlBuilder;
 import java.time.LocalDate;
 import java.util.List;
 
-import static me.ningpp.mmegp.mybatis.dsql.SysCompanySimpleDynamicSqlSupport.*;
+import static me.ningpp.mmegp.dss.SysCompanySimpleDynamicSqlSupport.*;
 import static me.ningpp.mmegp.query.PropertyConditionDTO.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

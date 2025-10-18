@@ -6,6 +6,7 @@ import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationSelectRenderer;
+import me.ningpp.mmegp.util.NumberUtil;
 import org.mybatis.dynamic.sql.AliasableSqlTable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
@@ -23,6 +24,7 @@ import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.SpringNamedParameterRenderingStrategy;
 import org.mybatis.dynamic.sql.select.SelectModel;
+import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
@@ -180,7 +183,7 @@ public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
     }
 
     public long countByCriteria(EntityCriteriaDTO criteria) {
-        return count(criteria.toQuery(getTable()).toSelectModel());
+        return count(criteria.toQuery(getTable()).columns(new CountAll()).toSelectModel());
     }
 
     public long countDistinctByCriteria(BasicColumn column, EntityCriteriaDTO criteria) {
@@ -220,7 +223,7 @@ public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
                 new MapSqlParameterSource(selectProvider.getParameters()),
                 Long.class
         );
-        return count == null ? 0L : count;
+        return NumberUtil.null2Zero(count);
     }
 
     protected <E> List<E> selectList(
@@ -264,7 +267,7 @@ public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
     @SuppressWarnings("unchecked")
     public void insert(List<T> entities) {
         if (entities == null || entities.isEmpty()) {
-            return;
+            throw new IllegalArgumentException("entities can't be null or empty");
         }
 
         BatchInsert<T> batchInsert = new BatchInsertModel.Builder<T>()
@@ -294,6 +297,8 @@ public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
     }
 
     public void insert(T entity) {
+        Objects.requireNonNull(entity, "entity can't be null");
+
         InsertModel.Builder<T> builder = new InsertModel.Builder<>();
         InsertStatementProvider<T> insertProvider = builder
                 .withTable(getTable())

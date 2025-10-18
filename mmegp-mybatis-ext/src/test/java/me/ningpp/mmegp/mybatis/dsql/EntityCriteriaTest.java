@@ -1,12 +1,13 @@
 package me.ningpp.mmegp.mybatis.dsql;
 
+import me.ningpp.mmegp.query.SysCompanySimpleQueryConditionDTO;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static me.ningpp.mmegp.mybatis.dsql.SysCompanySimpleDynamicSqlSupport.*;
+import static me.ningpp.mmegp.dss.SysCompanySimpleDynamicSqlSupport.*;
 import static me.ningpp.mmegp.query.PropertyConditionDTO.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
