@@ -168,6 +168,7 @@ public class MyBatisPlusIntrospectedTableBuilder extends DefaultIntrospectedTabl
                         notDeletedValue, deletedValue));
     }
 
+    @Override
     protected List<Pair<IntrospectedColumn, Boolean>> afterBuildColumns(List<Pair<IntrospectedColumn, Boolean>> oriPairs) {
         List<Pair<IntrospectedColumn, Boolean>> results = new ArrayList<>();
         IntrospectedColumn idColumn = null;
