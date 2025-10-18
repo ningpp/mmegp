@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static me.ningpp.mmegp.MyBatisGeneratorUtil.getOnlyOnePkColumn;
 import static me.ningpp.mmegp.plugins.SpringJdbcRowMapperGeneratorPlugin.getRowMapperType;
@@ -55,7 +54,7 @@ public class SpringJdbcDaoGeneratorPlugin extends MmegpPluginAdapter {
         tlc.addMethod(buildGetAllColumnRowMapperMethod(introspectedTable));
         tlc.addImportedType(getRowMapperType(introspectedTable, this.properties));
 
-        tlc.addMethod(buildAllColumnsMethod(introspectedTable));
+        tlc.addMethod(buildAllColumnsMethod());
 
         addColumnMappings4InsertMethod(tlc, introspectedTable);
 
@@ -99,14 +98,11 @@ public class SpringJdbcDaoGeneratorPlugin extends MmegpPluginAdapter {
         tlc.addStaticImport(table.getMyBatisDynamicSqlSupportType() + ".*");
     }
 
-    private Method buildAllColumnsMethod(IntrospectedTable table) {
+    private Method buildAllColumnsMethod() {
         return buildOverridePublicMethod(
                 "getAllColumns",
                 new FullyQualifiedJavaType("BasicColumn[]"),
-                String.format(Locale.ROOT, "BasicColumn.columnList(%s)",
-                    table.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty)
-                    .collect(Collectors.joining(", "))
-                )
+                GenerateDynamicSqlSupportClassPlugin.ALL_COLUMNS_FIELD_NAME
         );
     }
 
