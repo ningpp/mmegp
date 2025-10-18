@@ -12,14 +12,11 @@ import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlColumn;
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.insert.BatchInsertModel;
-import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.insert.InsertModel;
 import org.mybatis.dynamic.sql.insert.render.BatchInsert;
-import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider;
 import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.SpringNamedParameterRenderingStrategy;
@@ -324,27 +321,6 @@ public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
 
     public BiConsumer<T, ID> getAutoIncrementConsumer() {
         return null;
-    }
-
-    private static final StatementConfiguration DEFAULT_STMT_CFG = new StatementConfiguration();
-
-    protected int insert(GeneralInsertModel gim) {
-        GeneralInsertStatementProvider insertProvider = gim.render(RENDERING_STRATEGY);
-        return jdbcTemplate.update(
-                insertProvider.getInsertStatement(),
-                new MapSqlParameterSource(insertProvider.getParameters())
-        );
-    }
-
-    protected ID insertWithGeneratedKey(GeneralInsertModel gim) {
-        GeneralInsertStatementProvider insertProvider = gim.render(RENDERING_STRATEGY);
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
-                insertProvider.getInsertStatement(),
-                new MapSqlParameterSource(insertProvider.getParameters()),
-                keyHolder
-        );
-        return keyHolder.getKeyAs(getIdClass());
     }
 
 }
