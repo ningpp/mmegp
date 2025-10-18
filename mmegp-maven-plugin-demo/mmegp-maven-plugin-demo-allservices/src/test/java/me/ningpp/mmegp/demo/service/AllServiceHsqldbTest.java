@@ -28,7 +28,7 @@ class AllServiceHsqldbTest extends DemoApplicationStarterHsqldb {
 
     @Test
     void selectAutoUserPageTest() {
-        SelectDSL<SelectModel> dsl = SqlBuilder.select(SysAutoUserMapper.selectList)
+        SelectDSL<SelectModel> dsl = SqlBuilder.select(SysAutoUserDynamicSqlSupport.ALL_COLUMNS)
                 .from(sysAutoUser)
                 .where()
                 .and(firstName, SqlBuilder.isLike("%firstName%"))
@@ -54,7 +54,7 @@ class AllServiceHsqldbTest extends DemoApplicationStarterHsqldb {
             allService.insertUser(user);
         }
 
-        SelectDSL<SelectModel> dsl = SqlBuilder.select(SysUserMapper.selectList)
+        SelectDSL<SelectModel> dsl = SqlBuilder.select(SysUserDynamicSqlSupport.ALL_COLUMNS)
                 .from(sysUser)
                 .where()
                 .and(name, SqlBuilder.isLike("name%"))

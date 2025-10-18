@@ -133,7 +133,7 @@ public class AllServiceImpl implements AllService {
 
     @Override
     public List<SysUser> queryUser(String nameLike) {
-        return sysUserMapper.selectMany(SqlBuilder.select(SysUserMapper.selectList)
+        return sysUserMapper.selectMany(SqlBuilder.select(SysUserDynamicSqlSupport.ALL_COLUMNS)
                 .from(SysUserDynamicSqlSupport.sysUser)
                 .where()
                     .and(

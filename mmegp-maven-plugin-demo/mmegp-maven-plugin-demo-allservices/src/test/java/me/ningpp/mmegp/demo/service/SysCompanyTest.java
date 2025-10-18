@@ -17,6 +17,7 @@ package me.ningpp.mmegp.demo.service;
 
 import me.ningpp.mmegp.demo.DemoApplicationStarterHsqldb;
 import me.ningpp.mmegp.demo.entity3.SysCompany;
+import me.ningpp.mmegp.demo.mapper.SysCompanyDynamicSqlSupport;
 import me.ningpp.mmegp.demo.mapper.SysCompanyMapper;
 import me.ningpp.mmegp.demo.mapper.SysCompanyMapperExt;
 import me.ningpp.mmegp.demo.query.SysCompanyQueryConditionDTO;
@@ -198,7 +199,7 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
 
         for (int i = 0; i < companys.size(); i++) {
             SelectDSL<SelectModel> selectDsl = SelectDSL
-                    .select(SysCompanyMapper.selectList)
+                    .select(SysCompanyDynamicSqlSupport.ALL_COLUMNS)
                     .from(sysCompany)
                     .orderBy(SqlBuilder.sortColumn("id").descending());
             Page<SysCompany> page = sysCompanyMapper

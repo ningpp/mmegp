@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import me.ningpp.mmegp.demo.entity.SysAutoUser;
 import me.ningpp.mmegp.demo.mapper.SysAutoUserDynamicSqlSupport;
-import me.ningpp.mmegp.demo.mapper.SysUserMapper;
+import me.ningpp.mmegp.demo.mapper.SysUserDynamicSqlSupport;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.mybatis.type.uuid.UUIDTypeHandler;
@@ -52,7 +52,7 @@ class AllServiceTest extends DemoApplicationStarter {
             allService.insertUser(user);
         }
 
-        SelectDSL<SelectModel> dsl = SqlBuilder.select(SysUserMapper.selectList)
+        SelectDSL<SelectModel> dsl = SqlBuilder.select(SysUserDynamicSqlSupport.ALL_COLUMNS)
                 .from(sysUser)
                 .where()
                 .and(name, SqlBuilder.isLike("name%"))

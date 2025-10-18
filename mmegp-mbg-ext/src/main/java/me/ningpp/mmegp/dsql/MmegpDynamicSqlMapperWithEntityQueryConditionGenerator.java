@@ -16,8 +16,10 @@
 package me.ningpp.mmegp.dsql;
 
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
+import me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin;
 import me.ningpp.mmegp.query.PropertyConditionDTO;
 import me.ningpp.mmegp.util.StringUtil;
+import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.aggregate.CountAll;
@@ -48,6 +50,7 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
     @Override
     protected void generateAddtionalCodes(IntrospectedTable introspectedTable, Interface interfaze) {
         interfaze.addSuperInterface(new FullyQualifiedJavaType((CommonDeleteMapper.class.getName())));
+        interfaze.addImportedType(new FullyQualifiedJavaType(BasicColumn.class.getName()));
 
         var eqcType = getEntityQueryConditionType(introspectedTable, this.properties);
         interfaze.addImportedType(eqcType);
@@ -136,9 +139,10 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
                 StringUtil.firstLowerCase(introspectedTable.getMyBatisDynamicSQLTableObjectName())));
 
         method.addBodyLine(String.format(Locale.ROOT,
-                "    %s.toQuery(%s).columns(selectList).orderBy(sortSpecs).toSelectModel(),",
+                "    %s.toQuery(%s).columns(%s).orderBy(sortSpecs).toSelectModel(),",
                 createCriteriaParameter().getName(),
-                StringUtil.firstLowerCase(introspectedTable.getMyBatisDynamicSQLTableObjectName())));
+                StringUtil.firstLowerCase(introspectedTable.getMyBatisDynamicSQLTableObjectName()),
+                GenerateDynamicSqlSupportClassPlugin.ALL_COLUMNS_FIELD_NAME));
 
         method.addBodyLine("    limitOffset, renderer);");
         return method;
@@ -155,10 +159,12 @@ public class MmegpDynamicSqlMapperWithEntityQueryConditionGenerator
         addSelectMethodParameters(false, method, introspectedTable);
 
         method.addBodyLine(String.format(Locale.ROOT,
-            "return selectMany(DynamicSqlUtil.renderSelect(%s.toQuery(%s).columns(selectList).orderBy(sortSpecs).toSelectModel()," +
+            "return selectMany(DynamicSqlUtil.renderSelect(%s.toQuery(%s).columns(%s).orderBy(sortSpecs).toSelectModel()," +
                     " limitOffset, renderer));",
             createCriteriaParameter().getName(),
-            StringUtil.firstLowerCase(introspectedTable.getMyBatisDynamicSQLTableObjectName())));
+            StringUtil.firstLowerCase(introspectedTable.getMyBatisDynamicSQLTableObjectName()),
+            GenerateDynamicSqlSupportClassPlugin.ALL_COLUMNS_FIELD_NAME
+        ));
         return method;
     }
 

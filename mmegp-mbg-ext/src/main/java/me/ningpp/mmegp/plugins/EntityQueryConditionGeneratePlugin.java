@@ -118,8 +118,9 @@ public class EntityQueryConditionGeneratePlugin extends MmegpPluginAdapter {
     private void createToSelectMethod(TopLevelClass tlc, IntrospectedTable introspectedTable) {
         Method method = buildToSelectMethod(tlc);
         method.addBodyLine(String.format(Locale.ROOT,
-                "return toSelect(%s.selectList, sortSpecs);",
-                new FullyQualifiedJavaType(introspectedTable.getMyBatis3JavaMapperType()).getShortName()));
+                "return toSelect(%s.%s, sortSpecs);",
+                getDynamicSqlSupportType(introspectedTable).getShortName(),
+                GenerateDynamicSqlSupportClassPlugin.ALL_COLUMNS_FIELD_NAME));
     }
 
     private void createToSelectWithColumnMethod(TopLevelClass tlc, IntrospectedTable introspectedTable) {

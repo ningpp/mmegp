@@ -111,7 +111,9 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
             addCommonInsertInterface(interfaze);
         }
 
-        addSelectListField(interfaze);
+        if (Boolean.parseBoolean(context.getProperty("forceGenerateSelectListField"))) {
+            addSelectListField(interfaze);
+        }
         addGeneralSelectMethod(interfaze);
 
         if (generateSelectDistinctMethod) {
@@ -142,6 +144,27 @@ public class MmegpDynamicSqlMapperGenerator extends DynamicSqlMapperGenerator {
         generateAddtionalCodes(introspectedTable, interfaze);
 
         return List.of(interfaze);
+    }
+
+    @Override
+    protected void addGeneralSelectMethod(Interface interfaze) {
+        MmegpGeneralSelectOneMethodGenerator selectObeMethodGenerator = new MmegpGeneralSelectOneMethodGenerator.Builder()
+                .withContext(context)
+                .withIntrospectedTable(introspectedTable)
+                .withTableFieldName(tableFieldName)
+                .withRecordType(recordType)
+                .build();
+
+        generate(interfaze, selectObeMethodGenerator);
+
+        MmegpGeneralSelectMethodGenerator selectMethodGenerator = new MmegpGeneralSelectMethodGenerator.Builder()
+                .withContext(context)
+                .withIntrospectedTable(introspectedTable)
+                .withTableFieldName(tableFieldName)
+                .withRecordType(recordType)
+                .build();
+
+        generate(interfaze, selectMethodGenerator);
     }
 
     protected void generateAddtionalCodes(IntrospectedTable introspectedTable, Interface interfaze) {
