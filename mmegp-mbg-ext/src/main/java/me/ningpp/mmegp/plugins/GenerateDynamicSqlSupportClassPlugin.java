@@ -15,12 +15,20 @@
  */
 package me.ningpp.mmegp.plugins;
 
+import org.mybatis.dynamic.sql.BasicColumn;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
+import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
+import org.mybatis.generator.api.dom.java.JavaVisibility;
+import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.runtime.dynamic.sql.DynamicSqlSupportClassGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class GenerateDynamicSqlSupportClassPlugin extends MmegpPluginAdapter {
 
@@ -28,7 +36,29 @@ public class GenerateDynamicSqlSupportClassPlugin extends MmegpPluginAdapter {
     public List<CompilationUnit> generateCompilationUnits(IntrospectedTable introspectedTable) {
         DynamicSqlSupportClassGenerator generator = DynamicSqlSupportClassGenerator
                 .of(introspectedTable, context.getCommentGenerator(), new ArrayList<>(0));
-        return List.of(generator.generate());
+        TopLevelClass tlc = generator.generate();
+
+        addAllColumnsField(tlc, introspectedTable);
+
+        return List.of(tlc);
+    }
+
+    public static final String ALL_COLUMNS_FIELD_NAME = "ALL_COLUMNS";
+
+    private void addAllColumnsField(TopLevelClass tlc, IntrospectedTable table) {
+        tlc.addImportedType(BasicColumn.class.getName());
+        Field allColumnsField = new Field(ALL_COLUMNS_FIELD_NAME,
+                new FullyQualifiedJavaType("BasicColumn[]"));
+        allColumnsField.setStatic(true);
+        allColumnsField.setFinal(true);
+        allColumnsField.setVisibility(JavaVisibility.PUBLIC);
+        allColumnsField.setInitializationString(
+            String.format(Locale.ROOT, "BasicColumn.columnList(%s)",
+                table.getAllColumns().stream().map(IntrospectedColumn::getJavaProperty)
+                    .collect(Collectors.joining(", "))
+            )
+        );
+        tlc.addField(allColumnsField);
     }
 
 }
