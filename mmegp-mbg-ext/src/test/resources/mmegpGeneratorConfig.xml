@@ -34,8 +34,9 @@
         <plugin type="me.ningpp.mmegp.plugins.GenerateDynamicSqlSupportClassPlugin">
             <property name="targetProject" value="source-code" />
         </plugin>
-        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperWithEntityQueryConditionPlugin">
+        <plugin type="me.ningpp.mmegp.plugins.MmegpGenerateMapperPlugin">
             <property name="targetProject" value="source-code" />
+            <property name="paginationModelRendererProviderType" value="OffsetFetch" />
         </plugin>
         <plugin type="me.ningpp.mmegp.plugins.EntityQueryConditionGeneratePlugin">
             <property name="targetProject" value="source-code" />
