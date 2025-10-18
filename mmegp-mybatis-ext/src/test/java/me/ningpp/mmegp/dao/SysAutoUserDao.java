@@ -6,6 +6,8 @@ import me.ningpp.mmegp.dss.SysAutoUserDynamicSqlSupport;
 import me.ningpp.mmegp.springjdbc.MmegpSpringDao;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlColumn;
+import org.mybatis.dynamic.sql.update.UpdateDSL;
+import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
 import org.springframework.jdbc.core.RowMapper;
@@ -42,6 +44,24 @@ public class SysAutoUserDao extends MmegpSpringDao<SysAutoUser, Integer, SysAuto
     @Override
     public BiConsumer<SysAutoUser, Integer> getAutoIncrementConsumer() {
         return SysAutoUser::setId;
+    }
+
+    @Override
+    public UpdateDSL<UpdateModel> updateColumnsExceptPk(SysAutoUser row, UpdateDSL<UpdateModel> dsl, boolean selectiveUpdate) {
+        if (selectiveUpdate) {
+            return dsl.set(firstName).equalToWhenPresent(row::getFirstName)
+                    .set(lastName).equalToWhenPresent(row::getLastName)
+                    .set(deleted).equalToWhenPresent(row::getDeleted);
+        } else {
+            return dsl.set(firstName).equalTo(row::getFirstName)
+                    .set(lastName).equalTo(row::getLastName)
+                    .set(deleted).equalTo(row::getDeleted);
+        }
+    }
+
+    @Override
+    public Integer getId(SysAutoUser entity) {
+        return entity.getId();
     }
 
     @Override

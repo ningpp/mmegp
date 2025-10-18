@@ -1,7 +1,9 @@
 package me.ningpp.mmegp.springjdbc;
 
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
+import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaNodeDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityQueryConditionDTO;
+import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
@@ -12,6 +14,7 @@ import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlColumn;
+import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.insert.BatchInsertModel;
@@ -24,7 +27,12 @@ import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.update.UpdateDSL;
+import org.mybatis.dynamic.sql.update.UpdateDSLCompleter;
+import org.mybatis.dynamic.sql.update.UpdateModel;
+import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
+import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.spring.BatchInsertUtility;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -40,6 +48,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.ToIntFunction;
+
+import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 
 public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
 
@@ -321,6 +332,74 @@ public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
 
     public BiConsumer<T, ID> getAutoIncrementConsumer() {
         return null;
+    }
+
+    public abstract ID getId(T entity);
+
+    public abstract UpdateDSL<UpdateModel> updateColumnsExceptPk(T row, UpdateDSL<UpdateModel> dsl, boolean selectiveUpdate);
+
+    protected final UpdateDSL<UpdateModel> updateAllColumnsExceptPk(T row, UpdateDSL<UpdateModel> dsl) {
+        return updateColumnsExceptPk(row, dsl, false);
+    }
+
+    protected final UpdateDSL<UpdateModel> updateSelectiveColumnsExceptPk(T row, UpdateDSL<UpdateModel> dsl) {
+        return updateColumnsExceptPk(row, dsl, true);
+    }
+
+    public int updateByQuery(T row, EntityQueryConditionDTO dto) {
+        return update(dsl -> buidlUpdateDSL(updateAllColumnsExceptPk(row, dsl), dto));
+    }
+
+    public int updateByQuerySelective(T row, EntityQueryConditionDTO dto) {
+        return update(dsl -> buidlUpdateDSL(updateSelectiveColumnsExceptPk(row, dsl), dto));
+    }
+
+    public int updateByCriteria(T row, EntityCriteriaDTO criteria) {
+        return update(dsl -> buidlUpdateDSL(updateAllColumnsExceptPk(row, dsl), criteria));
+    }
+
+    public int updateByCriteriaSelective(T row, EntityCriteriaDTO criteria) {
+        return update(dsl -> buidlUpdateDSL(updateSelectiveColumnsExceptPk(row, dsl), criteria));
+    }
+
+    public int updateById(T row) {
+        return update(dsl -> updateAllColumnsExceptPk(row, dsl)
+                .where(getIdColumn(), isEqualTo(getId(row)))
+        );
+    }
+
+    public int updateByIdSelective(T row) {
+        return update(dsl -> updateSelectiveColumnsExceptPk(row, dsl)
+                .where(getIdColumn(), isEqualTo(getId(row)))
+        );
+    }
+
+    protected int update(UpdateStatementProvider usp) {
+        return jdbcTemplate.update(
+                usp.getUpdateStatement(),
+                new MapSqlParameterSource(usp.getParameters())
+        );
+    }
+
+    protected int update(UpdateDSLCompleter completer) {
+        return update(this::update, getTable(), completer);
+    }
+
+    private UpdateStatementProvider update(SqlTable table, UpdateDSLCompleter completer) {
+        return completer.apply(SqlBuilder.update(table))
+                .build().render(RENDERING_STRATEGY);
+    }
+
+    private int update(ToIntFunction<UpdateStatementProvider> mapper, SqlTable table, UpdateDSLCompleter completer) {
+        return mapper.applyAsInt(update(table, completer));
+    }
+
+    private Buildable<UpdateModel> buidlUpdateDSL(UpdateDSL<UpdateModel> dsl, EntityQueryConditionDTO dto) {
+        return buidlUpdateDSL(dsl, new EntityCriteriaDTO(List.of(EntityCriteriaNodeDTO.of(dto)), SqlOperator.AND));
+    }
+
+    private Buildable<UpdateModel> buidlUpdateDSL(UpdateDSL<UpdateModel> dsl, EntityCriteriaDTO criteria) {
+        return dsl.where(List.of(criteria.toAndOrCriteriaGroup()));
     }
 
 }

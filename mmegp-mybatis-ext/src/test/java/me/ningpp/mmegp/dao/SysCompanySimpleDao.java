@@ -6,6 +6,8 @@ import me.ningpp.mmegp.rowmapper.SysCompanySimpleRowMapper;
 import me.ningpp.mmegp.springjdbc.MmegpSpringDao;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlColumn;
+import org.mybatis.dynamic.sql.update.UpdateDSL;
+import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
 import org.springframework.jdbc.core.RowMapper;
@@ -48,6 +50,26 @@ public class SysCompanySimpleDao extends MmegpSpringDao<SysCompanySimple, String
     @Override
     public BasicColumn[] getAllColumns() {
         return SysCompanySimpleDynamicSqlSupport.ALL_COLUMNS;
+    }
+
+    @Override
+    public UpdateDSL<UpdateModel> updateColumnsExceptPk(SysCompanySimple row, UpdateDSL<UpdateModel> dsl, boolean selectiveUpdate) {
+        if (selectiveUpdate) {
+            return dsl.set(name).equalToWhenPresent(row::getName)
+                    .set(startDate).equalToWhenPresent(row::getStartDate)
+                    .set(marketCap).equalToWhenPresent(row::getMarketCap)
+                    .set(unifiedCode).equalToWhenPresent(row::getUnifiedCode);
+        } else {
+            return dsl.set(name).equalTo(row::getName)
+                    .set(startDate).equalTo(row::getStartDate)
+                    .set(marketCap).equalTo(row::getMarketCap)
+                    .set(unifiedCode).equalTo(row::getUnifiedCode);
+        }
+    }
+
+    @Override
+    public String getId(SysCompanySimple entity) {
+        return entity.getId();
     }
 
     @Override

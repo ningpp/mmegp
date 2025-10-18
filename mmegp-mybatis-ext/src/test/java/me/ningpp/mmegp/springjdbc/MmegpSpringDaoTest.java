@@ -3,8 +3,13 @@ package me.ningpp.mmegp.springjdbc;
 import me.ningpp.mmegp.TestApplicationStarter;
 import me.ningpp.mmegp.dao.SysAutoUserDao;
 import me.ningpp.mmegp.dao.SysCompanySimpleDao;
+import me.ningpp.mmegp.dss.SysAutoUserDynamicSqlSupport;
 import me.ningpp.mmegp.entity.SysAutoUser;
 import me.ningpp.mmegp.entity.SysCompanySimple;
+import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
+import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaNodeDTO;
+import me.ningpp.mmegp.mybatis.dsql.EntityQueryConditionDTO;
+import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
 import me.ningpp.mmegp.query.SysAutoUserQueryConditionDTO;
 import me.ningpp.mmegp.query.SysCompanySimpleQueryConditionDTO;
 import org.junit.jupiter.api.RepeatedTest;
@@ -92,6 +97,40 @@ class MmegpSpringDaoTest extends TestApplicationStarter {
         assertTrue(dao.selectByIds(List.of(uuid()), sorts).isEmpty());
         sorts = new SortSpecification[] { SqlBuilder.sortColumn(id.name()) };
         assertTrue(dao.selectByIds(List.of(uuid()), sorts).isEmpty());
+    }
+
+    @Test
+    void updateTest() {
+        SysAutoUserDao dao = new SysAutoUserDao(jdbcTemplate);
+        SysAutoUser user1 = insertOne(dao);
+
+        SysAutoUser updated = new SysAutoUser();
+        updated.setId(user1.getId());
+        updated.setFirstName(uuid());
+        updated.setLastName(null);
+        assertEquals(1, dao.updateByIdSelective(updated));
+
+        SysAutoUser afterUpdated = dao.selectById(user1.getId());
+        assertEquals(updated.getFirstName(), afterUpdated.getFirstName());
+        assertEquals(user1.getLastName(), afterUpdated.getLastName());
+
+        updated.setFirstName(user1.getFirstName());
+        updated.setLastName(uuid());
+        assertEquals(1, dao.updateById(updated));
+        afterUpdated = dao.selectById(user1.getId());
+        assertEquals(user1.getFirstName(), afterUpdated.getFirstName());
+        assertEquals(updated.getLastName(), afterUpdated.getLastName());
+
+        EntityQueryConditionDTO query = new SysAutoUserQueryConditionDTO().id(equalTo(user1.getId()))
+                .firstName(equalTo(uuid()))
+                .lastName(equalTo(uuid()));
+        assertEquals(0, dao.updateByQuery(updated, query));
+        assertEquals(0, dao.updateByQuerySelective(updated, query));
+        EntityCriteriaDTO criteria = new EntityCriteriaDTO(List.of(EntityCriteriaNodeDTO.of(query)), SqlOperator.AND);
+        assertEquals(0, dao.updateByCriteria(updated, criteria));
+        assertEquals(0, dao.updateByCriteriaSelective(updated, criteria));
+
+        dao.deleteById(user1.getId());
     }
 
     private SysAutoUser randomUser() {

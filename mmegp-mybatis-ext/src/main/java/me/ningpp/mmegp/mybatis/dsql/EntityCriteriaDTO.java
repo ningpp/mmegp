@@ -17,6 +17,7 @@ package me.ningpp.mmegp.mybatis.dsql;
 
 import org.mybatis.dynamic.sql.AliasableSqlTable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
+import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlCriterion;
 
 import java.util.ArrayList;
@@ -72,6 +73,18 @@ public class EntityCriteriaDTO {
             .build());
         }
         return query;
+    }
+
+    public AndOrCriteriaGroup toAndOrCriteriaGroup() {
+        int size = children.size();
+        List<AndOrCriteriaGroup> subCriterias = new ArrayList<>();
+        for (int i = 1; i < size; i++) {
+            subCriterias.add(SqlBuilder.and(children.get(i).buildCriteriaGroup()));
+        }
+        return new AndOrCriteriaGroup.Builder()
+                .withConnector(operator.getCode())
+        .withInitialCriterion(children.get(0).buildCriteriaGroup())
+        .withSubCriteria(subCriterias).build();
     }
 
 }
