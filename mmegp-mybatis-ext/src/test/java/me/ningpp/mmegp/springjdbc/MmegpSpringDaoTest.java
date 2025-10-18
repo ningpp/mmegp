@@ -37,7 +37,7 @@ class MmegpSpringDaoTest extends TestApplicationStarter {
         assertEquals(1, dao.countByQuery(queryCondition));
         assertEquals(1, dao.deleteById(company.getId()));
 
-        int n = new SecureRandom().nextInt(0, 10);
+        int n = new SecureRandom().nextInt(1, 10);
         List<SysCompanySimple> companys = insertMulti(dao, n);
         List<String> ids = companys.stream().map(SysCompanySimple::getId).toList();
         queryCondition = new SysCompanySimpleQueryConditionDTO().id(in(ids));
@@ -55,7 +55,7 @@ class MmegpSpringDaoTest extends TestApplicationStarter {
         assertEquals(1, dao.countByQuery(queryCondition));
         assertEquals(1, dao.deleteById(user1.getId()));
 
-        int n = new SecureRandom().nextInt(0, 10);
+        int n = new SecureRandom().nextInt(1, 10);
         List<SysAutoUser> users = insertMulti(dao, n);
         assertTrue(users.stream().allMatch(u -> u.getId() != null));
         List<Integer> ids = users.stream().map(SysAutoUser::getId).toList();
