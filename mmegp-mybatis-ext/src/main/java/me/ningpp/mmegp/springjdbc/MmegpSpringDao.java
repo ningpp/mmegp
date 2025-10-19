@@ -3,7 +3,7 @@ package me.ningpp.mmegp.springjdbc;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaNodeDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityQueryConditionDTO;
-import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
+import me.ningpp.mmegp.mybatis.dsql.BooleanOperator;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.mybatis.dsql.pagination.PaginationModelRenderer;
@@ -395,7 +395,7 @@ public abstract class MmegpSpringDao<T, ID, R extends AliasableSqlTable<R>> {
     }
 
     private Buildable<UpdateModel> buidlUpdateDSL(UpdateDSL<UpdateModel> dsl, EntityQueryConditionDTO dto) {
-        return buidlUpdateDSL(dsl, new EntityCriteriaDTO(List.of(EntityCriteriaNodeDTO.of(dto)), SqlOperator.AND));
+        return buidlUpdateDSL(dsl, new EntityCriteriaDTO(List.of(EntityCriteriaNodeDTO.of(dto)), BooleanOperator.AND));
     }
 
     private Buildable<UpdateModel> buidlUpdateDSL(UpdateDSL<UpdateModel> dsl, EntityCriteriaDTO criteria) {

@@ -23,7 +23,7 @@ import me.ningpp.mmegp.demo.mapper.SysCompanyMapperExt;
 import me.ningpp.mmegp.demo.query.SysCompanyQueryConditionDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaNodeDTO;
-import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
+import me.ningpp.mmegp.mybatis.dsql.BooleanOperator;
 import me.ningpp.mmegp.mybatis.dsql.pagination.LimitOffset;
 import me.ningpp.mmegp.mybatis.dsql.pagination.Page;
 import me.ningpp.mmegp.query.CountDTO;
@@ -163,7 +163,7 @@ class SysCompanyTest extends DemoApplicationStarterHsqldb {
         EntityCriteriaNodeDTO second = EntityCriteriaNodeDTO.of(
                 new SysCompanyQueryConditionDTO().id(equalTo(company.id()))
         );
-        EntityCriteriaDTO criteria = new EntityCriteriaDTO(List.of(first, second), SqlOperator.OR);
+        EntityCriteriaDTO criteria = new EntityCriteriaDTO(List.of(first, second), BooleanOperator.OR);
 
         List<SysCompany> companies = sysCompanyMapper.selectByCriteria(criteria,
                 LimitOffset.of(11L, 0L), renderer, SqlBuilder.sortColumn("id").descending());

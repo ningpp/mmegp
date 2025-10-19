@@ -3,13 +3,12 @@ package me.ningpp.mmegp.springjdbc;
 import me.ningpp.mmegp.TestApplicationStarter;
 import me.ningpp.mmegp.dao.SysAutoUserDao;
 import me.ningpp.mmegp.dao.SysCompanySimpleDao;
-import me.ningpp.mmegp.dss.SysAutoUserDynamicSqlSupport;
 import me.ningpp.mmegp.entity.SysAutoUser;
 import me.ningpp.mmegp.entity.SysCompanySimple;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityCriteriaNodeDTO;
 import me.ningpp.mmegp.mybatis.dsql.EntityQueryConditionDTO;
-import me.ningpp.mmegp.mybatis.dsql.SqlOperator;
+import me.ningpp.mmegp.mybatis.dsql.BooleanOperator;
 import me.ningpp.mmegp.query.SysAutoUserQueryConditionDTO;
 import me.ningpp.mmegp.query.SysCompanySimpleQueryConditionDTO;
 import org.junit.jupiter.api.RepeatedTest;
@@ -126,7 +125,7 @@ class MmegpSpringDaoTest extends TestApplicationStarter {
                 .lastName(equalTo(uuid()));
         assertEquals(0, dao.updateByQuery(updated, query));
         assertEquals(0, dao.updateByQuerySelective(updated, query));
-        EntityCriteriaDTO criteria = new EntityCriteriaDTO(List.of(EntityCriteriaNodeDTO.of(query)), SqlOperator.AND);
+        EntityCriteriaDTO criteria = new EntityCriteriaDTO(List.of(EntityCriteriaNodeDTO.of(query)), BooleanOperator.AND);
         assertEquals(0, dao.updateByCriteria(updated, criteria));
         assertEquals(0, dao.updateByCriteriaSelective(updated, criteria));
 

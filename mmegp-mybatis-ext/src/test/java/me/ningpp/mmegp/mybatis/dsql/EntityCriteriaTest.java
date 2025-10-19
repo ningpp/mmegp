@@ -24,11 +24,11 @@ class EntityCriteriaTest extends BaseEntityTest {
             node.setSubGroups(List.of(EntityCriteriaNodeDTO.of(
                     new SysCompanySimpleQueryConditionDTO().name(equalTo("name"+i))
             )));
-            node.setOperator(SqlOperator.AND);
+            node.setOperator(BooleanOperator.AND);
             children.add(node);
         }
         dto.setChildren(children);
-        dto.setOperator(SqlOperator.OR);
+        dto.setOperator(BooleanOperator.OR);
         var ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals("select count(*) from sys_company where (id = :p1 and name = :p2)" +
                 " or (id = :p3 and name = :p4)" +
@@ -44,12 +44,12 @@ class EntityCriteriaTest extends BaseEntityTest {
 
     @Test
     void toQueryTest() {
-        var dto = new EntityCriteriaDTO(null, SqlOperator.AND);
+        var dto = new EntityCriteriaDTO(null, BooleanOperator.AND);
         var ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals("select count(*) from sys_company", ssp.getSelectStatement());
         assertTrue(ssp.getParameters().isEmpty());
 
-        dto = new EntityCriteriaDTO(List.of(), SqlOperator.AND);
+        dto = new EntityCriteriaDTO(List.of(), BooleanOperator.AND);
         ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals("select count(*) from sys_company", ssp.getSelectStatement());
         assertTrue(ssp.getParameters().isEmpty());
@@ -57,13 +57,13 @@ class EntityCriteriaTest extends BaseEntityTest {
         var idEqualToA = EntityCriteriaNodeDTO.of(new SysCompanySimpleQueryConditionDTO().id(equalTo("A")));
         var idEqualToB = EntityCriteriaNodeDTO.of(new SysCompanySimpleQueryConditionDTO().id(equalTo("B")));
 
-        dto = new EntityCriteriaDTO(List.of(idEqualToA), SqlOperator.AND);
+        dto = new EntityCriteriaDTO(List.of(idEqualToA), BooleanOperator.AND);
         ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals("select count(*) from sys_company where id = :p1", ssp.getSelectStatement());
         assertEquals(1, ssp.getParameters().size());
         assertEquals("A", ssp.getParameters().get("p1"));
 
-        dto = new EntityCriteriaDTO(List.of(idEqualToA, idEqualToB), SqlOperator.AND);
+        dto = new EntityCriteriaDTO(List.of(idEqualToA, idEqualToB), BooleanOperator.AND);
         ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals("select count(*) from sys_company where id = :p1 and id = :p2", ssp.getSelectStatement());
         assertEquals(2, ssp.getParameters().size());
@@ -72,21 +72,21 @@ class EntityCriteriaTest extends BaseEntityTest {
 
         dto = new EntityCriteriaDTO();
         dto.setChildren(List.of(idEqualToA, idEqualToB));
-        dto.setOperator(SqlOperator.OR);
+        dto.setOperator(BooleanOperator.OR);
         ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals("select count(*) from sys_company where id = :p1 or id = :p2", ssp.getSelectStatement());
         assertEquals(2, ssp.getParameters().size());
         assertEquals("A", ssp.getParameters().get("p1"));
         assertEquals("B", ssp.getParameters().get("p2"));
-        assertEquals(SqlOperator.OR, dto.getOperator());
+        assertEquals(BooleanOperator.OR, dto.getOperator());
         assertEquals(2, dto.getChildren().size());
 
         var nameEqualToA = new SysCompanySimpleQueryConditionDTO().name(equalTo("A"));
         var nameEqualToB = EntityCriteriaNodeDTO.of(new SysCompanySimpleQueryConditionDTO().name(equalTo("B")));
         dto = new EntityCriteriaDTO(List.of(
             idEqualToA,
-            new EntityCriteriaNodeDTO(nameEqualToA, List.of(nameEqualToB), SqlOperator.OR)
-        ), SqlOperator.AND);
+            new EntityCriteriaNodeDTO(nameEqualToA, List.of(nameEqualToB), BooleanOperator.OR)
+        ), BooleanOperator.AND);
         ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals("select count(*) from sys_company where id = :p1 and (name = :p2 or name = :p3)", ssp.getSelectStatement());
         assertEquals(3, ssp.getParameters().size());
@@ -98,12 +98,12 @@ class EntityCriteriaTest extends BaseEntityTest {
         var nameEqualToBOrUnifiedCodeEqualToC = new EntityCriteriaNodeDTO(
                 nameEqualToB.getCondition(),
                 List.of(unifiedCodeEqualToC),
-                SqlOperator.AND
+                BooleanOperator.AND
         );
         dto = new EntityCriteriaDTO(List.of(
                 idEqualToA,
-                new EntityCriteriaNodeDTO(nameEqualToA, List.of(nameEqualToBOrUnifiedCodeEqualToC), SqlOperator.OR)
-        ), SqlOperator.AND);
+                new EntityCriteriaNodeDTO(nameEqualToA, List.of(nameEqualToBOrUnifiedCodeEqualToC), BooleanOperator.OR)
+        ), BooleanOperator.AND);
         ssp = toSSP(dto.toQuery(sysCompanySimple).columns(new CountAll()).toSelectModel());
         assertEquals(
                 "select count(*) from sys_company where id = :p1 and (name = :p2 or (name = :p3 and unified_code = :p4))",

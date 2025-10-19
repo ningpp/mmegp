@@ -15,24 +15,13 @@
  */
 package me.ningpp.mmegp.mybatis.dsql;
 
-public enum SqlOperator {
+public enum BooleanOperator {
     AND("and"),
-    OR("or"),
-
-    LESS("<"),
-    LESS_EQUAL("<="),
-    GREATER(">"),
-    GREATER_EQUAL(">="),
-    EQUAL("="),
-    NOT_EQUAL("<>"),
-    IN("in"),
-    NOT_IN("not in"),
-    LIKE("like"),
-    NOT_LIKE("not like");
+    OR("or");
 
     private final String code;
 
-    private SqlOperator(final String code) {
+    private BooleanOperator(final String code) {
         this.code = code;
     }
 

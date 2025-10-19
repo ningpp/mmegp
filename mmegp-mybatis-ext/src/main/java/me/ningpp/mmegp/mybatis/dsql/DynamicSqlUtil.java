@@ -64,7 +64,7 @@ public final class DynamicSqlUtil {
         builder.withInitialCriterion(notNullCriterions.get(0));
         if (notNullCriterions.size() > 1) {
             builder.withSubCriteria(notNullCriterions.subList(1, notNullCriterions.size()).stream()
-                .map(c -> new Builder().withConnector(SqlOperator.AND.getCode()).withInitialCriterion(c).build()).toList());
+                .map(c -> new Builder().withConnector(BooleanOperator.AND.getCode()).withInitialCriterion(c).build()).toList());
         }
         return builder.build();
     }

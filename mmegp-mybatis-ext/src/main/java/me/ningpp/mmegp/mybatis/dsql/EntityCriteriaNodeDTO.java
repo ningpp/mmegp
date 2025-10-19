@@ -24,13 +24,13 @@ public class EntityCriteriaNodeDTO {
 
     private EntityQueryConditionDTO condition;
     private List<EntityCriteriaNodeDTO> subGroups;
-    private SqlOperator operator;
+    private BooleanOperator operator;
 
     public EntityCriteriaNodeDTO() {
     }
 
     public EntityCriteriaNodeDTO(EntityQueryConditionDTO condition,
-            List<EntityCriteriaNodeDTO> subGroups, SqlOperator operator) {
+            List<EntityCriteriaNodeDTO> subGroups, BooleanOperator operator) {
         this.condition = condition;
         this.subGroups = subGroups;
         this.operator = operator;
@@ -52,11 +52,11 @@ public class EntityCriteriaNodeDTO {
         this.subGroups = subGroups;
     }
 
-    public SqlOperator getOperator() {
+    public BooleanOperator getOperator() {
         return operator;
     }
 
-    public void setOperator(SqlOperator operator) {
+    public void setOperator(BooleanOperator operator) {
         this.operator = operator;
     }
 

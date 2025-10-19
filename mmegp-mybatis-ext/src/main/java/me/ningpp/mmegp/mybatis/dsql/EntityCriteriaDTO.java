@@ -26,12 +26,12 @@ import java.util.List;
 public class EntityCriteriaDTO {
 
     private List<EntityCriteriaNodeDTO> children;
-    private SqlOperator operator;
+    private BooleanOperator operator;
 
     public EntityCriteriaDTO() {
     }
 
-    public EntityCriteriaDTO(List<EntityCriteriaNodeDTO> children, SqlOperator operator) {
+    public EntityCriteriaDTO(List<EntityCriteriaNodeDTO> children, BooleanOperator operator) {
         this.children = children;
         this.operator = operator;
     }
@@ -44,11 +44,11 @@ public class EntityCriteriaDTO {
         this.children = children;
     }
 
-    public SqlOperator getOperator() {
+    public BooleanOperator getOperator() {
         return operator;
     }
 
-    public void setOperator(SqlOperator operator) {
+    public void setOperator(BooleanOperator operator) {
         this.operator = operator;
     }
 
